@@ -1,0 +1,32 @@
+<div class="row d-flex justify-content-center">
+  <div class="col-xs-12 col-md-3">
+    <form #registrationForm="ngForm" (ngSubmit)="onSubmit(registrationForm)" [appMustMatch]="['password', 'confirmPassword']">
+      <div class="form-group">
+        <label for="username">Username:</label>
+        <input id="username" type="text" name="username" class="form-control" ngModel required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input id="email" type="text" name="email" class="form-control" ngModel required email>
+      </div>
+      <div class="form-group">
+        <label for="password">Password:</label>
+        <input type="password" class="form-control" id="password" name="password" ngModel minlength="6" required>
+      </div>
+      <div class="form-group">
+        <label for="confirmPassword">Password:</label>
+        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" ngModel minlength="6"
+               required >
+      </div>
+      <div class="form-group">
+        <label for="secQuestion">Security question:</label>
+        <input id="secQuestion" type="text" name="secQuestion" class="form-control" ngModel required>
+      </div>
+      <div class="form-group">
+        <label for="secAnswer">Answer:</label>
+        <input id="secAnswer" type="text" name="secAnswer" class="form-control" ngModel required>
+      </div>
+      <button class="btn btn-primary" type="submit">Registration</button>
+    </form>
+  </div>
+</div>
