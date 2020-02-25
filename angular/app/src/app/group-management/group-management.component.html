@@ -1,0 +1,54 @@
+<h3>Create new group</h3>
+<div class="row">
+  <div class="col-md-4">
+    <form #groupCreateForm="ngForm" (ngSubmit)="onSubmit(groupCreateForm)">
+      <label for="name">Group name:</label>
+      <input id="name" type="text" name="name" class="form-control" ngModel required>
+      <label for="teamLeader">Team Leader:</label>
+      <select  id="teamLeader" name="selectedTeamLeader" class="selectpicker form-control" ngModel>
+        <option *ngFor="let user of users" > {{user}} </option>
+      </select>
+      <button type="submit" class="btn btn-primary">Create</button>
+    </form>
+  </div>
+</div>
+<hr>
+<h3>Update group</h3>
+<div class="row">
+  <div class="col-md-4">
+    <label for="group">Group:</label>
+    <select  id="group" name="selectedGroup" class="selectpicker form-control" ngModel>
+      <option *ngFor="let user of users" > {{user}} </option>
+    </select>
+    <label for="updateTeamLeader">Team Leader:</label>
+    <select  id="updateTeamLeader" name="selectedupdateTeamLeader" class="selectpicker form-control" ngModel>
+      <option *ngFor="let user of users" > {{user}} </option>
+    </select>
+  </div>
+</div>
+
+
+
+<div class="row">
+  <div class="col-md-4">
+    <p-pickList [source]="list1" [target]="list2">
+      <ng-template let-car pTemplate="item">
+        <div class="ui-helper-clearfix">
+          <div style="font-size:14px;float:right;margin:15px 5px 0 0">item</div>
+        </div>
+      </ng-template>
+    </p-pickList>
+  </div>
+</div>
+<hr>
+<h3>Delete group</h3>
+<div class="row">
+  <div class="col-md-4">
+    <label for="groupd">Group:</label>
+    <select  id="groupd" name="selectedGroup" class="selectpicker form-control" ngModel>
+      <option *ngFor="let user of users" > {{user}} </option>
+    </select>
+    <button type="button" class="btn btn-danger">Delete</button>
+  </div>
+</div>
+

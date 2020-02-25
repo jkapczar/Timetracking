@@ -14,6 +14,9 @@ import { PasswordResetComponent } from './password-reset/password-reset.componen
 import { UserManagementComponent } from './user-management/user-management.component';
 import {MatchValueDirective} from './shared/must-match.directive';
 import {DropdownDirective} from './shared/dropdown.directive';
+import { MenuComponent } from './menu/menu.component';
+import { GroupManagementComponent } from './group-management/group-management.component';
+import {PickListModule} from 'primeng';
 
 @NgModule({
   declarations: [
@@ -25,13 +28,16 @@ import {DropdownDirective} from './shared/dropdown.directive';
     PasswordResetComponent,
     UserManagementComponent,
     MatchValueDirective,
-    DropdownDirective
+    DropdownDirective,
+    MenuComponent,
+    GroupManagementComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     FormsModule,
-    HttpClientModule
+    HttpClientModule,
+    PickListModule
   ],
   providers: [
     {

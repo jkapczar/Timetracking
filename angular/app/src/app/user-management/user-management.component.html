@@ -1,1 +1,51 @@
-<p>user-management works!</p>
+<div class="row d-flex justify-content-center">
+  <div class="col-md-4">
+    <form #userInformation="ngForm" (ngSubmit)="onSubmit(userInformation)">
+
+          <h5>Personal information</h5>
+          <div class="form-group">
+            <label for="firstName">First name:</label>
+            <input type="text" class="form-control" id="firstName" name="firstName" ngModel required >
+          </div>
+          <div class="form-group">
+            <label for="lastName">Last name:</label>
+            <input type="text" class="form-control" id="lastName" name="lastName" ngModel required >
+          </div>
+          <div class="form-group">
+            <label for="email">Email:</label>
+            <input id="email" type="text" name="email" class="form-control" ngModel required email>
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone:</label>
+            <input id="phone" type="text" name="phone" class="form-control" ngModel required>
+          </div>
+      <button type="submit" class="btn btn-primary">Update</button>
+    </form>
+      </div>
+      <div class="col-md-4">
+        <form #userCredentials="ngForm" (ngSubmit)="onSubmit(userCredentials)" [appMustMatch]="['password', 'confirmPassword']">
+          <h5>Security credentials</h5>
+          <div class="form-group">
+            <label for="password">New Password:</label>
+            <input type="password" class="form-control" id="password" name="password" ngModel minlength="6" required>
+          </div>
+          <div class="form-group">
+            <label for="confirmPassword">Confirm New Password:</label>
+            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" ngModel minlength="6"
+                   required >
+          </div>
+          <div class="form-group">
+            <label for="secQuestion">Security question:</label>
+            <input id="secQuestion" type="text" name="secQuestion" class="form-control" ngModel required>
+          </div>
+          <div class="form-group">
+            <label for="secAnswer">New Answer:</label>
+            <input id="secAnswer" type="text" name="secAnswer" class="form-control" ngModel required>
+          </div>
+          <button type="submit" class="btn btn-primary">Update</button>
+        </form>
+      </div>
+
+
+
+</div>

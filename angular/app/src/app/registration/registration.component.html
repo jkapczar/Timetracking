@@ -6,15 +6,27 @@
         <input id="username" type="text" name="username" class="form-control" ngModel required>
       </div>
       <div class="form-group">
+        <label for="firstName">First name:</label>
+        <input type="text" class="form-control" id="firstName" name="firstName" ngModel required >
+      </div>
+      <div class="form-group">
+        <label for="lastName">Last name:</label>
+        <input type="text" class="form-control" id="lastName" name="lastName" ngModel required >
+      </div>
+      <div class="form-group">
         <label for="email">Email:</label>
         <input id="email" type="text" name="email" class="form-control" ngModel required email>
+      </div>
+      <div class="form-group">
+        <label for="phone">Phone:</label>
+        <input id="phone" type="text" name="phone" class="form-control" ngModel required>
       </div>
       <div class="form-group">
         <label for="password">Password:</label>
         <input type="password" class="form-control" id="password" name="password" ngModel minlength="6" required>
       </div>
       <div class="form-group">
-        <label for="confirmPassword">Password:</label>
+        <label for="confirmPassword">Confirm Password:</label>
         <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" ngModel minlength="6"
                required >
       </div>
