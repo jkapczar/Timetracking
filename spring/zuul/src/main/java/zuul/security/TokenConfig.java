@@ -38,7 +38,8 @@ public class TokenConfig extends WebSecurityConfigurerAdapter {
                 //login reg pwreset wo auth
                 .antMatchers(HttpMethod.POST, "/auth/**").permitAll()
                 //user management
-                .antMatchers(HttpMethod.GET, "/users/**").authenticated()
+                //.antMatchers(HttpMethod.GET, "/users/**").authenticated()
+                .antMatchers(HttpMethod.GET, "/users/**").permitAll()
                 .anyRequest().authenticated();
     }
 }

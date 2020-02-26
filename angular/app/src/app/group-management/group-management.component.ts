@@ -10,14 +10,35 @@ export class GroupManagementComponent implements OnInit {
 
   constructor() { }
 
-  list1 = ['t1', 't2', 't3'];
-  list2 = ['t1', 't2', 't3'];
+  groups: string[] = ['g1', 'g2', 'g3'];
+  users: string[] = ['u1', 'u2', 'u3'];
+  teamLeaders: string[] = ['t1', 't2', 't3'];
+  selectedDeputies = [];
+  selectedUser = 'a';
+  selectedGroup = 'aa';
 
-  users = ['t1', 't2', 't3'];
+  test = [{name: 'New York', code: 'NY'},
+    {name: 'Rome', code: 'RM'},
+    {name: 'London', code: 'LDN'},];
+
+  sourceUsers = ['u1', 'u2', 'u3'];
+  targerUsers = ['u4', 'u5', 'u6'];
+
   ngOnInit() {
   }
 
-  onSubmit(form: NgForm) {
+  onCreate(form: NgForm) {
+    console.log('create group');
+    console.log(form.value);
+  }
+
+  onUpdate(form: NgForm) {
+    console.log('update');
+    console.log(form.value);
+  }
+
+  onDelete(form: NgForm) {
+    console.log('delete');
     console.log(form.value);
   }
 

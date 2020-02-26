@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {NgForm} from '@angular/forms';
+import {UserService} from '../services/user.service';
 
 @Component({
   selector: 'app-user-management',
@@ -8,9 +9,10 @@ import {NgForm} from '@angular/forms';
 })
 export class UserManagementComponent implements OnInit {
 
-  constructor() { }
+  constructor(private userService: UserService) { }
 
   ngOnInit() {
+    this.userService.getAllUsers().subscribe();
   }
 
   onSubmit(form: NgForm) {

@@ -1,7 +1,7 @@
 <h3>Create new group</h3>
 <div class="row">
   <div class="col-md-4">
-    <form #groupCreateForm="ngForm" (ngSubmit)="onSubmit(groupCreateForm)">
+    <form #groupCreateForm="ngForm" (ngSubmit)="onCreate(groupCreateForm)">
       <label for="name">Group name:</label>
       <input id="name" type="text" name="name" class="form-control" ngModel required>
       <label for="teamLeader">Team Leader:</label>
@@ -13,25 +13,75 @@
   </div>
 </div>
 <hr>
+
+
 <h3>Update group</h3>
+
+<form #updateGroupForm="ngForm" (ngSubmit)="onUpdate(updateGroupForm)">
+
 <div class="row">
   <div class="col-md-4">
     <label for="group">Group:</label>
-    <select  id="group" name="selectedGroup" class="selectpicker form-control" ngModel>
-      <option *ngFor="let user of users" > {{user}} </option>
-    </select>
+  </div>
+</div>
+  <div class="row">
+    <div class="col-md-4">
+    <p-dropdown
+      id="group"
+      name="selectedGroup"
+      [options]="test"
+      [(ngModel)]="selectedGroup"
+      optionLabel="name">
+    </p-dropdown>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-4">
     <label for="updateTeamLeader">Team Leader:</label>
-    <select  id="updateTeamLeader" name="selectedupdateTeamLeader" class="selectpicker form-control" ngModel>
-      <option *ngFor="let user of users" > {{user}} </option>
-    </select>
+    </div>
+  </div>
+      <div class="row">
+        <div class="col-md-4">
+    <p-dropdown
+      id="updateTeamLeader"
+      name="selectedupdateTeamLeader"
+      [options]="test"
+      [(ngModel)]="selectedUser"
+      optionLabel="name">
+
+    </p-dropdown>
+
   </div>
 </div>
 
 
-
 <div class="row">
   <div class="col-md-4">
-    <p-pickList [source]="list1" [target]="list2" filterBy="brand">
+    <label for="selectedDeputies">Selected Deputies</label>
+  </div>
+</div>
+    <div class="row">
+      <div class="col-md-4">
+    <p-multiSelect
+      id="selectedDeputies"
+      defaultLabel="selectedDepitues"
+      [options]="test"
+      [(ngModel)]="selectedDeputies"
+      optionLabel="name"
+      name="selectedDeputies"
+      [style] = "{'width': '260px'}"
+      ></p-multiSelect>
+  </div>
+</div>
+
+<div class="row" style="padding-top: 50px">
+  <div class="col-md-4">
+    <p-pickList
+      [source]="sourceUsers"
+      [target]="targerUsers"
+      [showSourceControls]="false"
+      [showTargetControls]="false"
+      name="stusers">
       <ng-template let-item pTemplate="item">
         <div class="ui-helper-clearfix">
           <div style="font-size:14px;float:right;margin:15px 5px 0 0">{{item}}</div>
@@ -40,6 +90,11 @@
     </p-pickList>
   </div>
 </div>
+  <button type="submit" class="btn btn-primary">Update</button>
+
+</form>
+
+
 <hr>
 <h3>Delete group</h3>
 <div class="row">
