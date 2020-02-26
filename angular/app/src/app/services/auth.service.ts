@@ -4,6 +4,7 @@ import {BehaviorSubject} from 'rxjs';
 import {tap} from 'rxjs/operators';
 import {Router} from '@angular/router';
 import {User} from '../model/user.model';
+import base64url from 'base64url';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,9 @@ export class AuthService {
               private router: Router) {}
 
   token = new BehaviorSubject<string>(null);
+  user = new BehaviorSubject<string>(null);
 
+  // TODO replace user with user Object
   login(username: string, password: string) {
     return this.http.post('http://localhost:8762/auth/login',
       {
@@ -22,13 +25,17 @@ export class AuthService {
         password
       }, {observe: 'response'})
       .pipe(tap(resData => {
+        console.log(resData);
         this.token.next(resData.headers.get('Authorization'));
+        const user = JSON.parse(base64url.decode(this.token.value.split('.')[1]));
+        this.user.next(user);
         localStorage.setItem('userToken', this.token.value);
       }));
   }
   // TODO create a button for logout
   logout() {
     this.token.next(null);
+    this.user.next(null);
     this.router.navigate(['/login']);
     localStorage.removeItem('userToken');
   }
@@ -37,6 +44,8 @@ export class AuthService {
     const token = localStorage.getItem('userToken');
     if (token) {
       this.token.next(token);
+      const user = JSON.parse(base64url.decode(this.token.value.split('.')[1]));
+      this.user.next(user);
     }
   }
 

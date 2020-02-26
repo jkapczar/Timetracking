@@ -24,7 +24,7 @@ export class RegistrationComponent implements OnInit {
       form.value.phone,
       form.value.secQuestion,
       form.value.secAnswer);
-    console.log(user);
-    // this.authService.registration(user);
+    // console.log(user);
+    this.authService.registration(user);
   }
 }

@@ -22,4 +22,8 @@ public class UserService {
         return userDao.findAll();
     }
 
+    public User findUserByUsername(String username) throws Exception {
+        return userDao.findByUsername(username);
+    }
+
 }

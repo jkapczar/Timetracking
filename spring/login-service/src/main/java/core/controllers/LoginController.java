@@ -7,9 +7,7 @@ import core.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +31,19 @@ public class LoginController {
             return new ResponseEntity<List<User>>(users, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<List<User>>(users, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping(value="/{username}" ,method= RequestMethod.GET)
+    public ResponseEntity<User> getUser(@PathVariable(value="username") String username){
+        User user = null;
+        try {
+            user = userService.findUserByUsername(username);
+            System.out.println(user);
+            return new ResponseEntity<User>(user, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<User>(user, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
