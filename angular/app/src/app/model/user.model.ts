@@ -1,11 +1,12 @@
 export class User {
-  constructor(private username: string,
-              private firstName?: string,
-              private lastName?: string,
-              private password?: string,
-              private email?: string,
-              private phone?: string,
-              private secQuestion?: string,
-              private secAnswer?: string) {
+  constructor(public id: number,
+              public username: string,
+              public firstName?: string,
+              public lastName?: string,
+              public email?: string,
+              public phone?: string,
+              public password?: string,
+              public secQuestion?: string,
+              public secAnswer?: string) {
   }
 }

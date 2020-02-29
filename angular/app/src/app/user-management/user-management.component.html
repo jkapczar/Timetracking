@@ -1,6 +1,6 @@
 <div class="row d-flex justify-content-center">
   <div class="col-md-4">
-    <form #userInformation="ngForm" (ngSubmit)="onSubmit(userInformation)">
+    <form #userInformation="ngForm" (ngSubmit)="onSubmitUserInformation(userInformation)">
 
           <h5>Personal information</h5>
           <div class="form-group">
@@ -23,7 +23,7 @@
     </form>
       </div>
       <div class="col-md-4">
-        <form #userCredentials="ngForm" (ngSubmit)="onSubmit(userCredentials)" [appMustMatch]="['password', 'confirmPassword']">
+        <form #userCredentials="ngForm" (ngSubmit)="onSubmitUserCredentials(userCredentials)" [appMustMatch]="['password', 'confirmPassword']">
           <h5>Security credentials</h5>
           <div class="form-group">
             <label for="password">New Password:</label>

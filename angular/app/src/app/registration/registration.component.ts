@@ -16,6 +16,7 @@ export class RegistrationComponent implements OnInit {
 
   onSubmit(form: NgForm) {
     const user = new User(
+      null,
       form.value.username,
       form.value.firstName,
       form.value.lastName,
@@ -24,7 +25,6 @@ export class RegistrationComponent implements OnInit {
       form.value.phone,
       form.value.secQuestion,
       form.value.secAnswer);
-    // console.log(user);
     this.authService.registration(user);
   }
 }

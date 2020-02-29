@@ -1,8 +1,11 @@
 import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpResponse} from '@angular/common/http';
 import {Router} from '@angular/router';
-import {tap} from 'rxjs/operators';
+import {exhaust, exhaustMap, map, tap} from 'rxjs/operators';
 import {AuthService} from './auth.service';
+import {User} from '../model/user.model';
+import {pipe} from 'rxjs';
+
 
 @Injectable({
   providedIn: 'root'
@@ -22,17 +25,19 @@ export class UserService {
   }
 
   getCurrentUser() {
-    const user = this.authService.user;
-    if (user)  {
-      console.log('itt');
-      console.log(user.value.sub);
-      const url = `http://localhost:8762/users/${user.value.sub}`;
-      return this.http.get(url,  {observe: 'response'});
+    const userobject = this.authService.user;
+    if (userobject)  {
+      const url = `http://localhost:8762/users/${userobject.value.sub}`;
+      return this.http.get<User>(url, {observe: 'response'});
     }
   }
   // TODO
-  updateUser() {
-
+  updateUser(user: User) {
+    console.log(user);
+    this.http.post('http://localhost:8762/users/update', user, {observe: 'response'})
+      .subscribe((resData: HttpResponse<any>) => {
+        console.log(resData.status);
+    });
   }
 
 }

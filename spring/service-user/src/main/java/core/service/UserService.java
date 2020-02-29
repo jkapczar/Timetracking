@@ -26,4 +26,8 @@ public class UserService {
         return userDao.findByUsername(username);
     }
 
+    public User updateUser(User user) throws Exception {
+        return userDao.update(user);
+    }
+
 }

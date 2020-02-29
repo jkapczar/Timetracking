@@ -39,6 +39,9 @@ public class User {
     @Email
     @Column(name = "email")
     private String email;
+    @NotNull
+    @Column(name = "phone")
+    private String phone;
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdOn;
@@ -53,6 +56,7 @@ public class User {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
+        this.phone = phone;
     }
 
 }

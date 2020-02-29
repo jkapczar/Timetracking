@@ -14,12 +14,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/users")
-public class LoginController {
+public class RestApiController {
 
     private UserService userService;
 
     @Autowired
-    LoginController (UserService userService) {
+    RestApiController(UserService userService) {
         this.userService = userService;
     }
 
@@ -44,6 +44,19 @@ public class LoginController {
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<User>(user, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping(value="/update" ,method= RequestMethod.POST)
+    public ResponseEntity<String> updateUser(@RequestBody String input){
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            User u =  mapper.readValue(input, User.class);
+            userService.updateUser(u);
+            return new ResponseEntity<String>("", HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<String>("", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

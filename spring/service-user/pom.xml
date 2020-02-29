@@ -5,10 +5,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>app</groupId>
-    <artifactId>services-login</artifactId>
+    <artifactId>services-user</artifactId>
     <version>1.0</version>
 
-    <name>login-service</name>
+    <name>user-service</name>
 
     <developers>
         <developer>
