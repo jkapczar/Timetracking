@@ -18,7 +18,7 @@ public class UserService {
         this.userDao = userDao;
     }
 
-    public List<User> findAllUsers() throws Exception {
+    public List<String> findAllUsers() throws Exception {
         return userDao.findAll();
     }
 

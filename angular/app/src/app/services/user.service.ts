@@ -17,7 +17,7 @@ export class UserService {
               private authService: AuthService) {}
 
   getAllUsers() {
-    return this.http.get('http://localhost:8762/users/all', {observe: 'response'})
+    return this.http.get<string[]>('http://localhost:8762/users/all', {observe: 'response'})
       .pipe(tap(resData => {
         console.log(resData);
         }
@@ -31,6 +31,13 @@ export class UserService {
       return this.http.get<User>(url, {observe: 'response'});
     }
   }
+
+
+  getUserByUsername(username: string) {
+    const url = `http://localhost:8762/users/${username}`;
+    return this.http.get<User>(url, {observe: 'response'});
+  }
+
   // TODO
   updateUser(user: User) {
     console.log(user);

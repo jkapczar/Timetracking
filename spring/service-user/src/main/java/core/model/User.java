@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Entity(name = "User")
 @Table(name = "USERS", uniqueConstraints={@UniqueConstraint(columnNames={"username"})})
 @NamedQueries({
-        @NamedQuery(name = "User.findAll", query = "Select u from User u"),
+        @NamedQuery(name = "User.findAll", query = "Select u.username from User u"),
         @NamedQuery(name = "User.findById", query = "Select u from User u where  u.id = :id"),
         @NamedQuery(name = "User.findUsername", query = "Select u from User u where u.username = :username")
 })

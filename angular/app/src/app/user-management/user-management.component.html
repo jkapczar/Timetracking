@@ -1,3 +1,13 @@
+<div class="row">
+  <div class="col-md-6">
+    <h5>User selection:</h5>
+    <label for="userSelection" style="padding-right: 10px">Selected user:</label>
+    <p-dropdown id="userSelection" [options]="users" [(ngModel)]="selectedUser" (ngModelChange)="onSelect()"></p-dropdown>
+  </div>
+</div>
+
+<hr>
+
 <div class="row d-flex justify-content-center">
   <div class="col-md-4">
     <form #userInformation="ngForm" (ngSubmit)="onSubmitUserInformation(userInformation)">
@@ -45,7 +55,4 @@
           <button type="submit" class="btn btn-primary">Update</button>
         </form>
       </div>
-
-
-
 </div>

@@ -31,9 +31,9 @@ public class UserDao {
         }
     }
 
-    public List<User> findAll() throws Exception {
+    public List<String> findAll() throws Exception {
         try{
-            return em.createNamedQuery("User.findAll", User.class).getResultList();
+            return em.createNamedQuery("User.findAll", String.class).getResultList();
         } catch (Exception e) {
             throw new Exception(e);
         }

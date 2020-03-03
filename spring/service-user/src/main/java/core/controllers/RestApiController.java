@@ -24,13 +24,13 @@ public class RestApiController {
     }
 
     @RequestMapping(value="/all" ,method= RequestMethod.GET)
-    public ResponseEntity<List<User>> getAllUsers(){
-        List<User> users = new ArrayList<>();
+    public ResponseEntity<List<String>> getAllUsers(){
+        List<String> users = new ArrayList<>();
         try {
             users = userService.findAllUsers();
-            return new ResponseEntity<List<User>>(users, HttpStatus.OK);
+            return new ResponseEntity<List<String>>(users, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<List<User>>(users, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<List<String>>(users, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
