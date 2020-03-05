@@ -24,21 +24,14 @@ export class UserService {
       ));
   }
 
-  getCurrentUser() {
-    const userobject = this.authService.user;
-    if (userobject)  {
-      const url = `http://localhost:8762/users/${userobject.value.sub}`;
-      return this.http.get<User>(url, {observe: 'response'});
+  getUser(username?: string) {
+    if (!username) {
+      username = `${this.authService.user.getValue().sub}`;
     }
-  }
-
-
-  getUserByUsername(username: string) {
     const url = `http://localhost:8762/users/${username}`;
     return this.http.get<User>(url, {observe: 'response'});
   }
 
-  // TODO
   updateUser(user: User) {
     console.log(user);
     this.http.post('http://localhost:8762/users/update', user, {observe: 'response'})
@@ -47,4 +40,8 @@ export class UserService {
     });
   }
 
+  deleteUser(username: string) {
+    const url = `http://localhost:8762/users/delete/${username}`;
+    return this.http.delete(url, {observe: 'response'});
+  }
 }

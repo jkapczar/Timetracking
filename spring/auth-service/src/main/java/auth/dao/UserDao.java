@@ -29,6 +29,16 @@ public class UserDao {
         }
     }
 
+    public void updateStatus(String username) throws Exception {
+        try {
+            em.createNamedQuery("User.updateStatus")
+                    .setParameter("username", username)
+                    .executeUpdate();
+            }catch (Exception e) {
+                throw new Exception(e);
+        }
+    }
+
     public void save(User u) throws Exception {
         try {
             em.persist(u);

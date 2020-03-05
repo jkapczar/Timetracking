@@ -26,8 +26,13 @@ public class UserService {
         return userDao.findByUsername(username);
     }
 
+
     public User updateUser(User user) throws Exception {
         return userDao.update(user);
+    }
+
+    public void deleteUser(String username) throws Exception {
+        userDao.deleteByUsername(username);
     }
 
 }

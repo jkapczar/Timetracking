@@ -1,7 +1,7 @@
 <div class="row">
   <div class="col-md-6">
     <h5>User selection:</h5>
-    <label for="userSelection" style="padding-right: 10px">Selected user:</label>
+    <label for="userSelection">Selected user:</label>
     <p-dropdown id="userSelection" [options]="users" [(ngModel)]="selectedUser" (ngModelChange)="onSelect()"></p-dropdown>
   </div>
 </div>
@@ -36,23 +36,41 @@
         <form #userCredentials="ngForm" (ngSubmit)="onSubmitUserCredentials(userCredentials)" [appMustMatch]="['password', 'confirmPassword']">
           <h5>Security credentials</h5>
           <div class="form-group">
-            <label for="password">New Password:</label>
-            <input type="password" class="form-control" id="password" name="password" ngModel minlength="6" required>
+            <label for="password">Password:</label>
+            <input type="password" class="form-control" id="password" name="password" ngModel minlength="6">
           </div>
           <div class="form-group">
-            <label for="confirmPassword">Confirm New Password:</label>
-            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" ngModel minlength="6"
-                   required >
+            <label for="confirmPassword">Confirm Password:</label>
+            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" ngModel minlength="6">
           </div>
           <div class="form-group">
             <label for="secQuestion">Security question:</label>
-            <input id="secQuestion" type="text" name="secQuestion" class="form-control" ngModel required>
+            <input id="secQuestion" type="text" name="secQuestion" class="form-control" ngModel>
           </div>
           <div class="form-group">
-            <label for="secAnswer">New Answer:</label>
-            <input id="secAnswer" type="text" name="secAnswer" class="form-control" ngModel required>
+            <label for="secAnswer">Answer:</label>
+            <input id="secAnswer" type="password" name="secAnswer" class="form-control" ngModel>
           </div>
           <button type="submit" class="btn btn-primary">Update</button>
         </form>
       </div>
+</div>
+
+<hr>
+
+<div class="row">
+  <div class="col-md-6">
+    <label for="userDeletion">Delete selected user: </label>
+    <button id="userDeletion" type="button" class="btn btn-danger" (click)="onDelete()">Delete</button>
+  </div>
+  <div class="col-md-6" *ngIf="this.active; else activeElse">
+    <label for="userDeactivation">Deactivate selected user: </label>
+    <button id="userDeactivation" type="button" class="btn btn-danger" (click)="onActivate()">Deactivate</button>
+  </div>
+  <ng-template #activeElse>
+    <div class="col-md-6">
+      <label for="userActivate">Activate selected user: </label>
+      <button id="userActivate" type="button" class="btn btn-danger" (click)="onActivate()">Activate</button>
+    </div>
+  </ng-template>
 </div>

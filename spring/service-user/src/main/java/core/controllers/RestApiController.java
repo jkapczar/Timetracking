@@ -60,6 +60,18 @@ public class RestApiController {
         }
     }
 
+    @RequestMapping(value="/delete/{username}" ,method= RequestMethod.DELETE)
+    public ResponseEntity<String> deleteUser(@PathVariable(value="username") String username){
+        System.out.println("deleting " + username);
+        try {
+            userService.deleteUser(username);
+            return new ResponseEntity<String>("", HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<String>("", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
 
 }

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {NgForm} from '@angular/forms';
 import {AuthService} from '../services/auth.service';
 import {User} from '../model/user.model';
+import {Creds} from '../model/creds.model';
 
 @Component({
   selector: 'app-registration',
@@ -20,11 +21,9 @@ export class RegistrationComponent implements OnInit {
       form.value.username,
       form.value.firstName,
       form.value.lastName,
-      form.value.password,
       form.value.email,
       form.value.phone,
-      form.value.secQuestion,
-      form.value.secAnswer);
+      new Creds(null, form.value.password, form.value.secQuestion, form.value.secAnswer, false));
     this.authService.registration(user);
   }
 }

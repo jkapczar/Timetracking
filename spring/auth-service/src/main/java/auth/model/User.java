@@ -14,7 +14,9 @@ import java.time.LocalDateTime;
 @Table(name = "USERCREDS")
 @NamedQueries({
         @NamedQuery(name = "User.findById", query = "Select u from User u where  u.id = :id"),
-        @NamedQuery(name = "User.findUsername", query = "Select u from User u where u.username = :username")
+        @NamedQuery(name = "User.findUsername", query = "Select u from User u where u.username = :username"),
+        @NamedQuery(name = "User.updateStatus", query = "Update User u set u.active = CASE u.active " +
+                "WHEN TRUE THEN FALSE ELSE TRUE END where u.username = :username")
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class User {
@@ -36,6 +38,9 @@ public class User {
     @NotNull
     @Column(name = "secanswer")
     private String secAnswer;
+    @NotNull
+    @Column(name = "active")
+    private boolean active = false;
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdOn;

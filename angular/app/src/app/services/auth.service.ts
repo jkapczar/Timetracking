@@ -5,6 +5,7 @@ import {tap} from 'rxjs/operators';
 import {Router} from '@angular/router';
 import {User} from '../model/user.model';
 import base64url from 'base64url';
+import {Creds} from '../model/creds.model';
 
 @Injectable({
   providedIn: 'root'
@@ -53,6 +54,27 @@ export class AuthService {
     this.http.post('http://localhost:8762/auth/registration', JSON.stringify(user)).subscribe(resData => {
       console.log(resData);
     });
+  }
+
+  updateCredentials(creds: Creds) {
+    this.http.post('http://localhost:8762/auth/update', JSON.stringify(creds)).subscribe(resData => {
+      console.log(resData);
+    });
+  }
+
+  updateStatus(username: string) {
+    const url = `http://localhost:8762/auth/status/${username}`;
+    return this.http.post<Creds>(url, '', {observe: 'response'});
+  }
+
+  getCredentials(username?: string) {
+    if (!username) {
+      username = `${this.user.getValue().sub}`;
+    }
+    console.log(username);
+    const url = `http://localhost:8762/auth/${username}`;
+    console.log(url);
+    return this.http.get<Creds>(url, {observe: 'response'});
   }
 
 

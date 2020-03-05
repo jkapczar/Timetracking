@@ -55,14 +55,12 @@ public class UserDao {
         }
     }
 
-    public void delete(User u) throws Exception {
+    public void deleteByUsername(String username) throws Exception {
         try {
-            em.remove(u);
+            em.createNamedQuery("User.deleteUsername").setParameter("username", username).executeUpdate();
         }catch (Exception e) {
             throw new Exception(e);
         }
     }
-
-
 
 }

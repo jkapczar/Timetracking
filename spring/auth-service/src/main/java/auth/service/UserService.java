@@ -17,11 +17,23 @@ public class UserService {
         this.userDao = userDao;
     }
 
+    public User findUserByUsername(String username) throws Exception {
+        return userDao.findByUsername(username);
+    }
+
+    public User findUserById(Long id) throws Exception {
+        return userDao.findById(id);
+    }
+
     public void createUser(User u) throws Exception {
         userDao.save(u);
     }
 
-    public User findUserByUsername(String username) throws Exception {
-        return userDao.findByUsername(username);
+    public void updateUser(User u) throws Exception {
+        userDao.update(u);
+    }
+
+    public void updateUserStatus(String username) throws Exception {
+        userDao.updateStatus(username);
     }
 }
