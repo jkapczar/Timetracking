@@ -18,6 +18,10 @@ zuul:
       path: /users/**
       serviceId: login-service
       stripPrefix: false
+    groupService:
+      path: /groups/**
+      serviceId: group-service
+      stripPrefix: false
     ui:
       path: /**
       url: http://localhost:4200

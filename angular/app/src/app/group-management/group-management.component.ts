@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {NgForm} from '@angular/forms';
+import {GroupService} from '../services/group.service';
 
 @Component({
   selector: 'app-group-management',
@@ -8,7 +9,7 @@ import {NgForm} from '@angular/forms';
 })
 export class GroupManagementComponent implements OnInit {
 
-  constructor() { }
+  constructor(private groupService: GroupService) { }
 
   groups: string[] = ['g1', 'g2', 'g3'];
   users: string[] = ['u1', 'u2', 'u3'];
@@ -40,6 +41,10 @@ export class GroupManagementComponent implements OnInit {
   onDelete(form: NgForm) {
     console.log('delete');
     console.log(form.value);
+  }
+
+  onTest() {
+    this.groupService.getGroupsTest().subscribe(resData => {console.log(resData);});
   }
 
 }

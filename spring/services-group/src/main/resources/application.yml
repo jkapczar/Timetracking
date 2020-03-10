@@ -1,0 +1,27 @@
+spring:
+  data:
+    neo4j:
+      uri: bolt://192.168.99.100
+      username: neo4j
+      password: neo4j
+  application:
+    name: group-service
+
+server:
+  port: 9102
+
+eureka:
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    hostname: localhost
+
+logging:
+  level:
+    com:
+      netflix:
+        eureka: INFO
+        discovery: INFO
