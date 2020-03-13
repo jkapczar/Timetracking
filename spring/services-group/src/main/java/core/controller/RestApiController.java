@@ -15,10 +15,7 @@ import jdk.nashorn.internal.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping({"/groups"})
@@ -26,6 +23,7 @@ public class RestApiController {
 
     private GroupDao groupDao;
     private UserDao userDao;
+    private ObjectMapper mapper = new ObjectMapper();
 
     @Autowired
     public RestApiController(GroupDao groupDao, UserDao userDao) {
@@ -35,11 +33,11 @@ public class RestApiController {
 
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     public ResponseEntity<String> createGroup(@RequestBody String body) {
-        ObjectMapper mapper = new ObjectMapper();
+
         Group group = new Group();
         try {
             JsonNode jsonNodeRoot = mapper.readTree(body);
-            User teamLeader = this.userDao.getUserByusername(jsonNodeRoot.get("teamLeader").asText());
+            User teamLeader = this.userDao.findUserByUserName(jsonNodeRoot.get("teamLeader").asText());
             System.out.println(teamLeader.getUsername());
             group.setName(jsonNodeRoot.get("groupName").asText());
             group.setTeamLeader(teamLeader);
@@ -63,6 +61,34 @@ public class RestApiController {
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<String>("", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping(value = "/get/{groupName}", method = RequestMethod.GET)
+    public ResponseEntity<Group> getGroup(@PathVariable String groupName) {
+        Group group = null;
+        try {
+             group = this.groupDao.findGroupByName(groupName);
+             System.out.println(group.getName());
+             for (User u: group.getMembers()) {
+                System.out.println(u.getUsername());
+             }
+            return new ResponseEntity<Group>(group, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<Group>(group, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping(value = "/allUnassignedUsers", method = RequestMethod.GET)
+    public ResponseEntity<List<String>> getAllUnassignedUsers() {
+        List<String> users = new ArrayList<>();
+        try {
+            users = this.userDao.findAllUnassignedUsers();
+            return new ResponseEntity<List<String>>(users, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<List<String>>(users, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -90,11 +116,11 @@ public class RestApiController {
         }
     }
 
-    //TODO find by group name and delete
-    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
-    public ResponseEntity<String> deleteGroup(@RequestBody String body) {
+    @RequestMapping(value = "/delete/{groupName}", method = RequestMethod.DELETE)
+    public ResponseEntity<String> deleteGroup(@PathVariable String groupName) {
         try {
-            //Group g = groupDao.findById(null);
+            Group group = this.groupDao.findGroupByName(groupName);
+            this.groupDao.delete(group);
             return new ResponseEntity<String>("", HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();

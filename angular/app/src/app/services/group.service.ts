@@ -18,6 +18,15 @@ export class GroupService {
       );
   }
 
+  getUnassignedUsers() {
+    return this.http.get<string[]>('http://localhost:8762/groups/allUnassignedUsers', {observe: 'response'});
+  }
+
+  getGroup(groupName: string) {
+    const url = `http://localhost:8762/groups/get/${groupName}`;
+    return this.http.get(url, {observe: 'response'});
+  }
+
   getGroups() {
     return this.http.get<string[]>('http://localhost:8762/groups/allGroups', {observe: 'response'});
   }
@@ -26,8 +35,9 @@ export class GroupService {
     return this.http.get<string[]>('http://localhost:8762/groups/allUsers', {observe: 'response'});
   }
 
-  deleteGroup() {
-    return this.http.post('http://localhost:8762/groups/delete', '', {observe: 'response'});
+  deleteGroup(groupName: string) {
+    const url = `http://localhost:8762/groups/delete/${groupName}`;
+    return this.http.delete(url, {observe: 'response'});
   }
 
 }

@@ -11,5 +11,8 @@ public interface UserDao extends CrudRepository<User, Long> {
     List<String> getUserNames();
 
     @Query("MATCH (n:User {username: $username}) return n")
-    User getUserByusername(String username);
+    User findUserByUserName(String username);
+
+    @Query("MATCH(n:User) where not  (n) <- [:MEMBER] - (:Group) return n.username")
+    List<String> findAllUnassignedUsers();
 }

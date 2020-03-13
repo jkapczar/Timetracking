@@ -1,5 +1,3 @@
-<button type="button" class="btn btn-danger" (click)="onTest()">test</button>
-<br>
 <h3>Create new group</h3>
 <div class="row">
   <div class="col-md-4">
@@ -7,8 +5,8 @@
       <label for="name">Group name:</label>
       <input id="name" type="text" name="groupName" class="form-control" ngModel required>
       <label for="teamLeader">Team Leader:</label>
-      <p-dropdown id="teamLeader" name="selectedTeamLeader" [options]="users" [(ngModel)]="selectedUser"
-                  ngModel required placeholder="Select a team leader!">
+      <p-dropdown id="teamLeader" name="selectedTeamLeader" [options]="users"
+                  ngModel required placeholder="Choose">
       </p-dropdown>
       <button type="submit" class="btn btn-primary">Create</button>
     </form>
@@ -20,37 +18,38 @@
 <h3>Update group</h3>
 
 <form #updateGroupForm="ngForm" (ngSubmit)="onUpdate(updateGroupForm)">
-
-<div class="row">
-  <div class="col-md-4">
-    <label for="group">Group:</label>
+  <div class="row">
+    <div class="col-md-4">
+      <label for="updateGroup">Group:</label>
+    </div>
   </div>
-</div>
   <div class="row">
     <div class="col-md-4">
     <p-dropdown
-      id="group"
+      id="updateGroup"
       name="selectedGroup"
-      [options]="test"
-      [(ngModel)]="selectedGroup"
-      optionLabel="name">
+      [options]="groups"
+      (onChange)="groupSelection($event)"
+      required
+      ngModel
+      placeholder="Choose">
     </p-dropdown>
     </div>
   </div>
   <div class="row">
     <div class="col-md-4">
-    <label for="updateTeamLeader">Team Leader:</label>
+      <label for="updateTeamLeader">Team Leader:</label>
     </div>
   </div>
-      <div class="row">
-        <div class="col-md-4">
-    <p-dropdown
-      id="updateTeamLeader"
-      name="selectedupdateTeamLeader"
-      [options]="test"
-      [(ngModel)]="selectedUser"
-      optionLabel="name">
-
+  <div class="row">
+    <div class="col-md-4">
+      <p-dropdown
+        id="updateTeamLeader"
+        name="selectedTeamLeader"
+        [options]="users"
+        required
+        ngModel
+        placeholder="Choose">
     </p-dropdown>
 
   </div>
@@ -66,12 +65,11 @@
       <div class="col-md-4">
     <p-multiSelect
       id="selectedDeputies"
-      defaultLabel="selectedDepitues"
-      [options]="test"
-      [(ngModel)]="selectedDeputies"
-      optionLabel="name"
-      name="selectedDeputies"
+      name="selectedDesputies"
+      [options]="users"
       [style] = "{'width': '260px'}"
+      ngModel
+      required
       ></p-multiSelect>
   </div>
 </div>
@@ -80,10 +78,11 @@
   <div class="col-md-4">
     <p-pickList
       [source]="sourceUsers"
-      [target]="targerUsers"
+      [target]="targetUsers"
       [showSourceControls]="false"
       [showTargetControls]="false"
-      name="stusers">
+      name="stusers"
+      >
       <ng-template let-item pTemplate="item">
         <div class="ui-helper-clearfix">
           <div style="font-size:14px;float:right;margin:15px 5px 0 0">{{item}}</div>
@@ -101,11 +100,13 @@
 <h3>Delete group</h3>
 <div class="row">
   <div class="col-md-4">
-    <label for="groupd">Group:</label>
-    <select  id="groupd" name="selectedGroup" class="selectpicker form-control" ngModel>
-      <option *ngFor="let user of users" > {{user}} </option>
-    </select>
-    <button type="button" class="btn btn-danger">Delete</button>
+    <form #deleteForm="ngForm" (ngSubmit)="onDelete(deleteForm)">
+    <label for="deleteGroup">Group:</label>
+    <p-dropdown  id="deleteGroup" name="groupName" [options]="groups"
+                 placeholder="Choose" ngModel required>
+    </p-dropdown>
+    <button type="submit" class="btn btn-danger">Delete</button>
+    </form>
   </div>
 </div>
 

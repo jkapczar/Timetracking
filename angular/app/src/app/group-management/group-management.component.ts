@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {NgForm} from '@angular/forms';
 import {GroupService} from '../services/group.service';
 
@@ -8,7 +8,7 @@ import {GroupService} from '../services/group.service';
   styleUrls: ['./group-management.component.css']
 })
 export class GroupManagementComponent implements OnInit {
-
+  @ViewChild('updateGroupForm') updateForm: NgForm;
   constructor(private groupService: GroupService) { }
 
   groups = [];
@@ -22,8 +22,8 @@ export class GroupManagementComponent implements OnInit {
     {name: 'Rome', code: 'RM'},
     {name: 'London', code: 'LDN'}];
 
-  sourceUsers = ['u1', 'u2', 'u3'];
-  targerUsers = ['u4', 'u5', 'u6'];
+  sourceUsers = ['init'];
+  targetUsers = ['init'];
   //////////////////////////////////////
 
 
@@ -37,6 +37,15 @@ export class GroupManagementComponent implements OnInit {
       for (const item of resData.body) {
         this.groups.push({label: item, value: item});
       }
+    });
+    this.groupService.getUnassignedUsers().subscribe(resData => {
+      this.sourceUsers.splice(0,1);
+      for (const item of resData.body) {
+        this.sourceUsers.push(item);
+      }
+      // this.updateForm.form.updateValueAndValidity();
+      console.log('updated');
+      console.log(this.sourceUsers);
     });
   }
 
@@ -56,15 +65,27 @@ export class GroupManagementComponent implements OnInit {
   onUpdate(form: NgForm) {
     console.log('update');
     console.log(form.value);
+    console.log(this.sourceUsers);
+    console.log(this.targetUsers);
   }
 
   onDelete(form: NgForm) {
     console.log('delete');
     console.log(form.value);
+    if (form.valid) {
+      this.groupService.deleteGroup(form.value.groupName).subscribe(resData => {
+        console.log(resData);
+      });
+    } else {
+      console.log('invalid form');
+    }
   }
 
-  onTest() {
-    // this.groupService.getGroupsTest().subscribe(resData => {console.log(resData);});
+  groupSelection(event: any) {
+    console.log(event.value);
+    this.groupService.getGroup(event.value).subscribe(resData => {
+      console.log(resData);
+    });
   }
 
 
