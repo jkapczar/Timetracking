@@ -11,26 +11,46 @@ export class GroupManagementComponent implements OnInit {
 
   constructor(private groupService: GroupService) { }
 
-  groups: string[] = ['g1', 'g2', 'g3'];
-  users: string[] = ['u1', 'u2', 'u3'];
+  groups = [];
+  users = [];
   teamLeaders: string[] = ['t1', 't2', 't3'];
   selectedDeputies = [];
-  selectedUser = 'a';
-  selectedGroup = 'aa';
+  selectedUser = '';
+  selectedGroup = '';
 
   test = [{name: 'New York', code: 'NY'},
     {name: 'Rome', code: 'RM'},
-    {name: 'London', code: 'LDN'},];
+    {name: 'London', code: 'LDN'}];
 
   sourceUsers = ['u1', 'u2', 'u3'];
   targerUsers = ['u4', 'u5', 'u6'];
+  //////////////////////////////////////
+
 
   ngOnInit() {
+    this.groupService.getUsers().subscribe(resData => {
+      for (const item of resData.body) {
+        this.users.push({label: item, value: item});
+      }
+    });
+    this.groupService.getGroups().subscribe(resData => {
+      for (const item of resData.body) {
+        this.groups.push({label: item, value: item});
+      }
+    });
   }
 
   onCreate(form: NgForm) {
     console.log('create group');
     console.log(form.value);
+    console.log(form.valid);
+    if (form.valid) {
+      this.groupService.createGroup(form.value.groupName, form.value.selectedTeamLeader).subscribe(resData => {
+        console.log(resData);
+      });
+    } else {
+      console.log('invalid form');
+    }
   }
 
   onUpdate(form: NgForm) {
@@ -44,7 +64,8 @@ export class GroupManagementComponent implements OnInit {
   }
 
   onTest() {
-    this.groupService.getGroupsTest().subscribe(resData => {console.log(resData);});
+    // this.groupService.getGroupsTest().subscribe(resData => {console.log(resData);});
   }
+
 
 }

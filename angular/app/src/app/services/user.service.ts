@@ -1,10 +1,8 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpResponse} from '@angular/common/http';
-import {Router} from '@angular/router';
-import {exhaust, exhaustMap, map, tap} from 'rxjs/operators';
+import {tap} from 'rxjs/operators';
 import {AuthService} from './auth.service';
 import {User} from '../model/user.model';
-import {pipe} from 'rxjs';
 
 
 @Injectable({
@@ -13,7 +11,6 @@ import {pipe} from 'rxjs';
 export class UserService {
 
   constructor(private http: HttpClient,
-              private router: Router,
               private authService: AuthService) {}
 
   getAllUsers() {

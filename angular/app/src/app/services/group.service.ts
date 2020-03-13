@@ -7,11 +7,27 @@ import {tap} from 'rxjs/operators';
   providedIn: 'root'
 })
 export class GroupService {
-  constructor(private http: HttpClient,
-              private router: Router) {
+  constructor(private http: HttpClient) {
   }
 
-  getGroupsTest() {
-    return this.http.get('http://localhost:8762/groups/all', {observe: 'response'});
+  createGroup(groupName: string, teamLeader: string) {
+    return this.http.post(
+      'http://localhost:8762/groups/create',
+      {groupName, teamLeader},
+      {observe: 'response'}
+      );
   }
+
+  getGroups() {
+    return this.http.get<string[]>('http://localhost:8762/groups/allGroups', {observe: 'response'});
+  }
+
+  getUsers() {
+    return this.http.get<string[]>('http://localhost:8762/groups/allUsers', {observe: 'response'});
+  }
+
+  deleteGroup() {
+    return this.http.post('http://localhost:8762/groups/delete', '', {observe: 'response'});
+  }
+
 }
