@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Router} from '@angular/router';
 import {tap} from 'rxjs/operators';
+import {Group} from '../model/Group.model';
 
 @Injectable({
   providedIn: 'root'
@@ -24,7 +25,11 @@ export class GroupService {
 
   getGroup(groupName: string) {
     const url = `http://localhost:8762/groups/get/${groupName}`;
-    return this.http.get(url, {observe: 'response'});
+    return this.http.get<Group>(url, {observe: 'response'});
+  }
+
+  updateGroup(group: Group) {
+    return this.http.post('http://localhost:8762/groups/update', group, {observe: 'response'});
   }
 
   getGroups() {

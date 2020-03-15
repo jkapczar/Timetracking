@@ -1,6 +1,8 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {NgForm} from '@angular/forms';
 import {GroupService} from '../services/group.service';
+import {Group} from '../model/Group.model';
+import {stringify} from 'querystring';
 
 @Component({
   selector: 'app-group-management',
@@ -16,7 +18,7 @@ export class GroupManagementComponent implements OnInit {
   teamLeaders: string[] = ['t1', 't2', 't3'];
   selectedDeputies = [];
   selectedUser = '';
-  selectedGroup = '';
+  selectedGroup: Group;
 
   test = [{name: 'New York', code: 'NY'},
     {name: 'Rome', code: 'RM'},
@@ -39,13 +41,13 @@ export class GroupManagementComponent implements OnInit {
       }
     });
     this.groupService.getUnassignedUsers().subscribe(resData => {
-      this.sourceUsers.splice(0,1);
+      this.sourceUsers.splice(0, 1);
       for (const item of resData.body) {
         this.sourceUsers.push(item);
       }
       // this.updateForm.form.updateValueAndValidity();
-      console.log('updated');
-      console.log(this.sourceUsers);
+      // console.log('updated');
+      // console.log(this.sourceUsers);
     });
   }
 
@@ -63,10 +65,16 @@ export class GroupManagementComponent implements OnInit {
   }
 
   onUpdate(form: NgForm) {
-    console.log('update');
     console.log(form.value);
-    console.log(this.sourceUsers);
-    console.log(this.targetUsers);
+    if (this.selectedGroup) {
+      this.selectedGroup.members = this.targetUsers.map(e => ({username: e}));
+      this.selectedGroup.deputies = form.value.selectedDeputies.map(e => ({username: e}));
+      this.selectedGroup.teamLeader = {username: form.value.selectedTeamLeader};
+      console.log(this.selectedGroup);
+      this.groupService.updateGroup(this.selectedGroup).subscribe(resData => {
+        console.log(resData);
+      });
+    }
   }
 
   onDelete(form: NgForm) {
@@ -84,7 +92,19 @@ export class GroupManagementComponent implements OnInit {
   groupSelection(event: any) {
     console.log(event.value);
     this.groupService.getGroup(event.value).subscribe(resData => {
-      console.log(resData);
+      this.selectedGroup = resData.body;
+      console.log(this.selectedGroup);
+      this.updateForm.form.patchValue({
+        selectedTeamLeader: this.selectedGroup.teamLeader == null ? '' : this.selectedGroup.teamLeader.username,
+        selectedDesputies: this.selectedGroup.deputies.map(e => e.username == null ? '' : e.username),
+      });
+      this.targetUsers = this.selectedGroup.members.map(e => e.username == null ? '' : e.username);
+    });
+    this.groupService.getUnassignedUsers().subscribe(resData => {
+      this.sourceUsers = [];
+      for (const item of resData.body) {
+        this.sourceUsers.push(item);
+      }
     });
   }
 

@@ -15,6 +15,7 @@ import jdk.nashorn.internal.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -42,25 +43,83 @@ public class RestApiController {
             group.setName(jsonNodeRoot.get("groupName").asText());
             group.setTeamLeader(teamLeader);
             this.groupDao.save(group);
-            return new ResponseEntity<String>("", HttpStatus.OK);
+            return new ResponseEntity<>("", HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<String>("", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     // TODO create group object from body
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     public ResponseEntity<String> updateGroup(@RequestBody String body) {
-        Group group = new Group();
+
         try {
-            // User user = userDao.findByUsername()
-            group.setName("");
-            group.setTeamLeader(null);
-            return new ResponseEntity<String>("", HttpStatus.OK);
+            JsonNode jsonNodeRoot = mapper.readTree(body);
+            Group old = mapper.readValue(body, Group.class);
+            Group group = groupDao.findGroupByName(jsonNodeRoot.get("name").asText());
+
+            System.out.println(body);
+            System.out.println(old);
+            return new ResponseEntity<>("", HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<String>("", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping(value = "/test", method = RequestMethod.GET)
+    @Transactional
+    public ResponseEntity<String> testGroup(@RequestBody String body) {
+        try {
+
+            User u = userDao.findUserByUserName("u4");
+            Group g = groupDao.findGroupByName("test2");
+
+            g.removeMember(u);
+            groupDao.save(g);
+
+            /*
+            User u = userDao.findUserByUserName("u1");
+            Group g = groupDao.findGroupByName("test2");
+            u.setMemberOf(g);
+            userDao.save(u);
+*/
+
+
+            return new ResponseEntity<>("", HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping(value = "/test2", method = RequestMethod.GET)
+    public ResponseEntity<String> testGroup2(@RequestBody String body) {
+        try {
+            User u1 = new User();
+            User u2 = new User();
+            User u3 = new User();
+            User u4 = new User();
+            u1.setUsername("u1");
+            u2.setUsername("u2");
+            u3.setUsername("u3");
+            u4.setUsername("u4");
+            Group g = new Group();
+            Group g2 = new Group();
+            g.setName("test");
+            g.getMembers().add(u1);
+            g.getMembers().add(u2);
+            g2.setName("test2");
+            g2.getMembers().add(u3);
+            g2.getMembers().add(u4);
+            groupDao.save(g);
+            groupDao.save(g2);
+
+            return new ResponseEntity<>("", HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -69,14 +128,10 @@ public class RestApiController {
         Group group = null;
         try {
              group = this.groupDao.findGroupByName(groupName);
-             System.out.println(group.getName());
-             for (User u: group.getMembers()) {
-                System.out.println(u.getUsername());
-             }
-            return new ResponseEntity<Group>(group, HttpStatus.OK);
+            return new ResponseEntity<>(group, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<Group>(group, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(group, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -85,10 +140,10 @@ public class RestApiController {
         List<String> users = new ArrayList<>();
         try {
             users = this.userDao.findAllUnassignedUsers();
-            return new ResponseEntity<List<String>>(users, HttpStatus.OK);
+            return new ResponseEntity<>(users, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<List<String>>(users, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(users, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -97,10 +152,10 @@ public class RestApiController {
         List<String> groupNames = new ArrayList<>();
         try {
             groupNames = this.groupDao.getGroupNames();
-            return new ResponseEntity(groupNames, HttpStatus.OK);
+            return new ResponseEntity<>(groupNames, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity(groupNames, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(groupNames, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -109,10 +164,10 @@ public class RestApiController {
         List<String> userNames = new ArrayList<>();
         try {
             userNames = this.userDao.getUserNames();
-            return new ResponseEntity(userNames, HttpStatus.OK);
+            return new ResponseEntity<>(userNames, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity(userNames, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(userNames, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -121,10 +176,10 @@ public class RestApiController {
         try {
             Group group = this.groupDao.findGroupByName(groupName);
             this.groupDao.delete(group);
-            return new ResponseEntity<String>("", HttpStatus.OK);
+            return new ResponseEntity<>("", HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<String>("", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

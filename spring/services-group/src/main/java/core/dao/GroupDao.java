@@ -13,6 +13,6 @@ public interface GroupDao extends CrudRepository<Group, Long> {
 
     // TODO return users ands relationships as well
     // https://community.neo4j.com/t/spring-boot-ogm-relationship-is-not-getting-mapped-in-nodeentity/3510
-    @Query("MATCH (n:Group {name: $name}) return n")
+    @Query("MATCH (n:Group {name: $name})-[r]->(u:User) return *")
     Group findGroupByName(String name);
 }
