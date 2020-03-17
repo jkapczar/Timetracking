@@ -52,6 +52,8 @@ public class Group {
     public void addTeamLeader(User user) {
         user.setTeamLeaderIn(this);
         this.teamLeader = user;
+        user.setMemberOf(null);
+        this.getMembers().remove(user);
     }
 
     public void removeTeamLeader(User user) {

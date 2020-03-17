@@ -32,6 +32,14 @@ export class GroupService {
     return this.http.post('http://localhost:8762/groups/update', group, {observe: 'response'});
   }
 
+  getAvailableTeamLeaders() {
+    return this.http.get<string[]>('http://localhost:8762/groups/availableTeamLeaders', {observe: 'response'});
+  }
+
+  getTeamLeaders() {
+    return this.http.get<string[]>('http://localhost:8762/groups/teamLeaders', {observe: 'response'});
+  }
+
   getGroups() {
     return this.http.get<string[]>('http://localhost:8762/groups/allGroups', {observe: 'response'});
   }

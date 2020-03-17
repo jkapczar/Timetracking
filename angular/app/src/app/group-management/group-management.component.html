@@ -5,7 +5,7 @@
       <label for="name">Group name:</label>
       <input id="name" type="text" name="groupName" class="form-control" ngModel required>
       <label for="teamLeader">Team Leader:</label>
-      <p-dropdown id="teamLeader" name="selectedTeamLeader" [options]="users"
+      <p-dropdown id="teamLeader" name="selectedTeamLeader" [options]="teamLeaders"
                   ngModel required placeholder="Choose">
       </p-dropdown>
       <button type="submit" class="btn btn-primary">Create</button>
@@ -46,8 +46,7 @@
       <p-dropdown
         id="updateTeamLeader"
         name="selectedTeamLeader"
-        [options]="users"
-        required
+        [options]="teamLeadersUpdate"
         ngModel
         placeholder="Choose">
     </p-dropdown>
@@ -66,10 +65,9 @@
     <p-multiSelect
       id="selectedDeputies"
       name="selectedDeputies"
-      [options]="users"
+      [options]="deputiesUpdate"
       [style] = "{'width': '260px'}"
       ngModel
-      required
       ></p-multiSelect>
   </div>
 </div>

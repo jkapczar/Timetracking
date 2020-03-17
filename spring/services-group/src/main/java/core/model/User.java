@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import lombok.Data;
 import org.neo4j.ogm.annotation.*;
+import org.springframework.data.neo4j.annotation.QueryResult;
 
 @NodeEntity
 @Data
