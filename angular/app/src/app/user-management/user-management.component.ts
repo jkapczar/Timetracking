@@ -14,6 +14,7 @@ import {Creds} from '../model/creds.model';
   styleUrls: ['./user-management.component.css']
 })
 export class UserManagementComponent implements OnInit {
+  @ViewChild('selectionForm') selectionForm: NgForm;
   @ViewChild('userInformation') userInformationForm: NgForm;
   @ViewChild('userCredentials') userCredentialsForm: NgForm;
   constructor(private userService: UserService,
@@ -34,7 +35,9 @@ export class UserManagementComponent implements OnInit {
     });
     this.userService.getUser().subscribe( resData => {
       this.setUI(resData);
-      this.selectedUser = this.user.username;
+      this.selectionForm.form.setValue({
+        userSelection: this.user.username
+      });
     });
     this.authService.getCredentials().subscribe(resData => {
       this.setCredsUI(resData);

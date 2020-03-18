@@ -1,8 +1,10 @@
 <div class="row">
   <div class="col-md-6">
-    <h5>User selection:</h5>
-    <label for="userSelection">Selected user:</label>
-    <p-dropdown id="userSelection" [options]="users" [(ngModel)]="selectedUser" (ngModelChange)="onSelect()"></p-dropdown>
+    <form #selectionForm="ngForm">
+      <h5>User selection:</h5>
+      <label for="userSelection">Selected user:</label>
+      <p-dropdown id="userSelection" name="userSelection" [options]="users" [(ngModel)]="selectedUser" (ngModelChange)="onSelect()"></p-dropdown>
+    </form>
   </div>
 </div>
 

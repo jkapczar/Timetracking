@@ -16,8 +16,9 @@ import {MatchValueDirective} from './shared/must-match.directive';
 import {DropdownDirective} from './shared/dropdown.directive';
 import { MenuComponent } from './menu/menu.component';
 import { GroupManagementComponent } from './group-management/group-management.component';
-import {DropdownModule, MultiSelectModule, PickListModule} from 'primeng';
+import {DropdownModule, FullCalendarModule, MultiSelectModule, PickListModule} from 'primeng';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+
 
 @NgModule({
   declarations: [
@@ -33,16 +34,17 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
     MenuComponent,
     GroupManagementComponent
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    FormsModule,
-    HttpClientModule,
-    PickListModule,
-    MultiSelectModule,
-    BrowserAnimationsModule,
-    DropdownModule
-  ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        FormsModule,
+        HttpClientModule,
+        PickListModule,
+        MultiSelectModule,
+        BrowserAnimationsModule,
+        DropdownModule,
+        FullCalendarModule
+    ],
   providers: [
     {
       provide: HTTP_INTERCEPTORS,

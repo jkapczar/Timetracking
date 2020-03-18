@@ -7,6 +7,9 @@ spring:
 
 
 zuul:
+  host:
+    socket-timeout-millis: 20000
+    connect-timeout-millis: 20000
   ignoredServices: '*'
   routes:
     authService:
@@ -28,11 +31,15 @@ zuul:
 
 
 
+ribbon:
+  ConnectTimeout: 10000
+  ReadTimeout: 10000
+
+
 logging:
   level:
     org:
       springframework:
         cloud:
           netflix: INFO
-
 

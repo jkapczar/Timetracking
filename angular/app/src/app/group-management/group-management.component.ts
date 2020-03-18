@@ -82,7 +82,6 @@ export class GroupManagementComponent implements OnInit {
   groupSelection(event: any) {
     this.groupService.getGroup(event.value).subscribe(resData => {
       this.selectedGroup = resData.body;
-      console.log(this.selectedGroup);
       this.teamLeadersUpdate = [];
       this.teamLeadersUpdate = this.teamLeadersUpdate.concat(this.teamLeaders);
       this.deputiesUpdate = [];
@@ -93,17 +92,19 @@ export class GroupManagementComponent implements OnInit {
       for (const item of this.selectedGroup.deputies) {
         this.deputiesUpdate.push({label: item.username, value: item.username});
       }
+      this.deputiesUpdate = this.deputiesUpdate.filter((element, index, arr) => arr.map(e => e.value).indexOf(element.value) === index);
       if (this.selectedGroup.teamLeader) {
         this.teamLeadersUpdate.push({label: this.selectedGroup.teamLeader.username, value: this.selectedGroup.teamLeader.username});
         this.deputiesUpdate = this.deputiesUpdate.filter((element, index, array) =>
           element.value !== this.selectedGroup.teamLeader.username);
       }
 
+      // TODO we don't need map
       this.updateForm.form.patchValue({
         selectedTeamLeader: this.selectedGroup.teamLeader == null ? '' : this.selectedGroup.teamLeader.username,
-        selectedDeputies: this.selectedGroup.deputies.map(e => e.username == null ? '' : e.username),
+        selectedDeputies: this.selectedGroup.deputies.map(e => e.username),
       });
-      this.targetUsers = this.selectedGroup.members.map(e => e.username == null ? '' : e.username);
+      this.targetUsers = this.selectedGroup.members.map(e => e.username);
     });
     this.sourceUsers = [];
     this.sourceUsers = this.sourceUsers.concat(this.unAssignedUsers);
@@ -112,6 +113,8 @@ export class GroupManagementComponent implements OnInit {
   private onReInit() {
     this.sourceUsers = [''];
     this.targetUsers = [''];
+    this.deputiesUpdate = [];
+    this.teamLeadersUpdate = [];
     this.groupService.getUnassignedUsers().subscribe(resData => {
       this.unAssignedUsers = [];
       for (const item of resData.body) {

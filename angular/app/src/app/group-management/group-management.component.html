@@ -6,7 +6,7 @@
       <input id="name" type="text" name="groupName" class="form-control" ngModel required>
       <label for="teamLeader">Team Leader:</label>
       <p-dropdown id="teamLeader" name="selectedTeamLeader" [options]="teamLeaders"
-                  ngModel required placeholder="Choose">
+                  ngModel required placeholder="Choose" filter="true">
       </p-dropdown>
       <button type="submit" class="btn btn-primary">Create</button>
     </form>
@@ -32,7 +32,8 @@
       (onChange)="groupSelection($event)"
       required
       ngModel
-      placeholder="Choose">
+      placeholder="Choose"
+      filter="true">
     </p-dropdown>
     </div>
   </div>
@@ -48,7 +49,8 @@
         name="selectedTeamLeader"
         [options]="teamLeadersUpdate"
         ngModel
-        placeholder="Choose">
+        placeholder="Choose"
+        filter="true">
     </p-dropdown>
 
   </div>
@@ -68,6 +70,7 @@
       [options]="deputiesUpdate"
       [style] = "{'width': '260px'}"
       ngModel
+      filter="true"
       ></p-multiSelect>
   </div>
 </div>
@@ -75,11 +78,14 @@
 <div class="row" style="padding-top: 50px">
   <div class="col-md-4">
     <p-pickList
+      sourceHeader="Unassigned Users"
+      targetHeader="Group Members"
       [source]="sourceUsers"
       [target]="targetUsers"
       [showSourceControls]="false"
       [showTargetControls]="false"
-      name="stusers"
+      id="memberPickList"
+      name="memberPickList"
       >
       <ng-template let-item pTemplate="item">
         <div class="ui-helper-clearfix">
@@ -101,7 +107,7 @@
     <form #deleteForm="ngForm" (ngSubmit)="onDelete(deleteForm)">
     <label for="deleteGroup">Group:</label>
     <p-dropdown  id="deleteGroup" name="groupName" [options]="groups"
-                 placeholder="Choose" ngModel required>
+                 placeholder="Choose" ngModel required filter="true">
     </p-dropdown>
     <button type="submit" class="btn btn-danger">Delete</button>
     </form>
