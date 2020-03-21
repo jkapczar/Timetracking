@@ -33,13 +33,13 @@ public class RestApiController {
         User user = null;
         try {
             user = userService.findUserByUsername(username);
-            return new ResponseEntity<User>(user, HttpStatus.OK);
+            return new ResponseEntity<>(user, HttpStatus.OK);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new ResponseEntity<User>(user, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(user, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @RequestMapping(value="/auth/registration" ,method= RequestMethod.POST)
@@ -56,13 +56,13 @@ public class RestApiController {
             u.setSecAnswer(encoder.encode(u.getSecAnswer()));
             System.out.println(u);
             userService.createUser(u);
-            return new ResponseEntity<String>("", HttpStatus.OK);
+            return new ResponseEntity<>("", HttpStatus.OK);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new ResponseEntity<String>("", HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>("", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @RequestMapping(value="/auth/status/{username}" ,method= RequestMethod.POST)
@@ -70,13 +70,13 @@ public class RestApiController {
         try {
             System.out.println("change status" + username);
             userService.updateUserStatus(username);
-            return new ResponseEntity<String>("", HttpStatus.OK);
+            return new ResponseEntity<>("", HttpStatus.OK);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new ResponseEntity<String>("", HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>("", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @RequestMapping(value="/auth/update" ,method= RequestMethod.POST)
@@ -93,13 +93,13 @@ public class RestApiController {
             }
             oldUser.setSecQuestion(u.getSecQuestion());
             userService.updateUser(oldUser);
-            return new ResponseEntity<String>("", HttpStatus.OK);
+            return new ResponseEntity<>("", HttpStatus.OK);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new ResponseEntity<String>("", HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>("", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     // TODO pw reset function

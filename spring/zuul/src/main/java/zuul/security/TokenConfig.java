@@ -47,6 +47,10 @@ public class TokenConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/groups/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/groups/**").permitAll()
                 .antMatchers(HttpMethod.DELETE, "/groups/**").permitAll()
+                // calendar
+                .antMatchers(HttpMethod.GET, "/calendar/**").permitAll()
+                .antMatchers(HttpMethod.POST, "/calendar/**").permitAll()
+                .antMatchers(HttpMethod.DELETE, "/calendar/**").permitAll()
                 .anyRequest().authenticated();
     }
 }

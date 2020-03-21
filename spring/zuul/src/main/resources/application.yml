@@ -25,9 +25,13 @@ zuul:
       path: /groups/**
       serviceId: group-service
       stripPrefix: false
-    ui:
-      path: /**
-      url: http://localhost:4200
+    calendarService:
+      path: /calendar/**
+      serviceId: calendar-service
+      stripPrefix: false
+    #ui:
+    #  path: /**
+    #  url: http://localhost:4200
 
 
 

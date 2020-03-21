@@ -28,9 +28,9 @@ public class RestApiController {
         List<String> users = new ArrayList<>();
         try {
             users = userService.findAllUsers();
-            return new ResponseEntity<List<String>>(users, HttpStatus.OK);
+            return new ResponseEntity<>(users, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<List<String>>(users, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(users, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -40,10 +40,10 @@ public class RestApiController {
         try {
             user = userService.findUserByUsername(username);
             System.out.println(user);
-            return new ResponseEntity<User>(user, HttpStatus.OK);
+            return new ResponseEntity<>(user, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<User>(user, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(user, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -53,10 +53,10 @@ public class RestApiController {
         try {
             User u =  mapper.readValue(input, User.class);
             userService.updateUser(u);
-            return new ResponseEntity<String>("", HttpStatus.OK);
+            return new ResponseEntity<>("", HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<String>("", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -65,10 +65,10 @@ public class RestApiController {
         System.out.println("deleting " + username);
         try {
             userService.deleteUser(username);
-            return new ResponseEntity<String>("", HttpStatus.OK);
+            return new ResponseEntity<>("", HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<String>("", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
