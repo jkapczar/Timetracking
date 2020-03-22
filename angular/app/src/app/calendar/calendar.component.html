@@ -1,5 +1,14 @@
 <form>
-<p-fullCalendar #fc
-  [events]="events" [options]="options"
-    ></p-fullCalendar>
+<full-calendar
+  #fullcalendar
+  [editable]="false"
+  [selectable]="true"
+  [displayEventEnd]="true"
+  [eventTimeFormat]="timeFormat"
+  [events]="eventsModel"
+  [header]="options.header"
+  [customButtons]="options.customButtons"
+  (select)="onSelect($event)"
+  [plugins]="options.plugins"
+></full-calendar>
 </form>

@@ -16,8 +16,9 @@ import {MatchValueDirective} from './shared/must-match.directive';
 import {DropdownDirective} from './shared/dropdown.directive';
 import { MenuComponent } from './menu/menu.component';
 import { GroupManagementComponent } from './group-management/group-management.component';
-import {DropdownModule, FullCalendarModule, MultiSelectModule, PickListModule} from 'primeng';
+import {DropdownModule, MultiSelectModule, PickListModule} from 'primeng';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import { FullCalendarModule } from '@fullcalendar/angular';
 
 
 @NgModule({
