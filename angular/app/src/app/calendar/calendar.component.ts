@@ -1,15 +1,16 @@
-import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import {OptionsInput} from '@fullcalendar/core';
 import {FullCalendarComponent} from '@fullcalendar/angular';
 import {DateSelectionApi} from '@fullcalendar/core/Calendar';
+import {MenuItem} from 'primeng';
 
 
 @Component({
   selector: 'app-calendar',
   templateUrl: './calendar.component.html',
+  encapsulation: ViewEncapsulation.None,
   styleUrls: ['./calendar.component.css']
 })
 export class CalendarComponent implements OnInit, AfterViewInit {
@@ -18,10 +19,15 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
   options: OptionsInput;
   eventsModel: any;
-  timeFormat = {hour: '2-digit',
+  timeFormat = {
+    hour: '2-digit',
     minute: '2-digit',
-    meridiem: false};
+    meridiem: false
+  };
   @ViewChild('fullcalendar', { static: false }) fullcalendar: FullCalendarComponent;
+
+  items: MenuItem[];
+
   ngOnInit() {
     this.eventsModel = [
       { allDay: false,
@@ -56,12 +62,37 @@ export class CalendarComponent implements OnInit, AfterViewInit {
       plugins: [dayGridPlugin, interactionPlugin]
     };
 
+    this.items = [
+      {label: 'Update', icon: 'pi pi-fw pi-refresh', command: () => {
+          this.update();
+        }},
+      {label: 'Delete', icon: 'pi pi-fw pi-times', command: () => {
+          this.delete();
+        }},
+      {label: 'Angular.io', icon: 'pi pi-fw pi-external-link', url: 'http://angular.io'},
+      {label: 'Theming', icon: 'pi pi-fw pi-cog', routerLink: ['/theming']}
+    ];
+
   }
 
   onSelect(event: DateSelectionApi) {
+    console.log(this.fullcalendar.getApi().view.activeStart);
+    console.log(this.fullcalendar.getApi().view.activeEnd);
     console.log('ge');
     console.log(event.start);
     console.log(event.end);
+  }
+
+  save() {
+    console.log('save');
+  }
+
+  update() {
+    console.log('update');
+  }
+
+  delete() {
+    console.log('delete');
   }
 
   updateHeader() {
