@@ -1,19 +1,57 @@
 <form>
   <br><br>
-  <p-panel toggleable="true">
-    <p-table [value]="eventsModel" editMode="row">
-      <ng-template pTemplate="header">
+  <p-panel
+    *ngIf="selectedDayEvents.length > 0"
+    toggleable="true"
+    header="{{getSelectedDay()}}">
+    <p-table #mytable [value]="selectedDayEvents" editMode="row" (onEditComplete)="onEditComplete()">
+      <ng-template pTemplate="header" >
         <tr>
           <th>Start</th>
           <th>End</th>
-          <th>Edit</th>
         </tr>
       </ng-template>
-      <ng-template pTemplate="body" let-item>
+      <ng-template pTemplate="body" let-rowData let-ri="rowIndex">
         <tr>
-          <td>{{item.start}}</td>
-          <td>{{item.end}}</td>
-          <td><button>Edit</button></td>
+          <td pEditableColumn>
+            <p-cellEditor>
+              <ng-template pTemplate="input" >
+                <input pInputText name="startHour" type="number" [(ngModel)]="rowData.startHour">
+              </ng-template>
+              <ng-template pTemplate="output">
+                {{rowData.startHour}}
+              </ng-template>
+            </p-cellEditor>
+            :
+            <p-cellEditor>
+              <ng-template pTemplate="input">
+                <input pInputText name="startMinute" type="number" [(ngModel)]="rowData.startMinute">
+              </ng-template>
+              <ng-template pTemplate="output">
+                {{rowData.startMinute}}
+              </ng-template>
+            </p-cellEditor>
+          </td>
+          <td pEditableColumn>
+            <p-cellEditor>
+              <ng-template pTemplate="input">
+                <input pInputText name="endHour" type="number" [(ngModel)]="rowData.endHour">
+              </ng-template>
+              <ng-template pTemplate="output">
+                {{rowData.endHour}}
+              </ng-template>
+            </p-cellEditor>
+            :
+            <p-cellEditor>
+              <ng-template pTemplate="input">
+                <input pInputText name="endMinute" type="number" [(ngModel)]="rowData.endMinute">
+              </ng-template>
+              <ng-template pTemplate="output">
+                {{rowData.endMinute}}
+              </ng-template>
+            </p-cellEditor>
+          </td>
+
         </tr>
       </ng-template>
     </p-table>

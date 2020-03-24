@@ -1,7 +1,7 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {NgForm} from '@angular/forms';
 import {GroupService} from '../services/group.service';
-import {Group} from '../model/Group.model';
+import {Group} from '../model/group.model';
 import {stringify} from 'querystring';
 
 @Component({

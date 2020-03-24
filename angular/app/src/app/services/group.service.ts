@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Router} from '@angular/router';
 import {tap} from 'rxjs/operators';
-import {Group} from '../model/Group.model';
+import {Group} from '../model/group.model';
 
 @Injectable({
   providedIn: 'root'
