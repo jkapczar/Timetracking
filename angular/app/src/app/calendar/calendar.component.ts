@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
+import {AfterViewInit, Component, OnInit, TemplateRef, ViewChild, ViewEncapsulation} from '@angular/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import {OptionsInput} from '@fullcalendar/core';
@@ -6,6 +6,8 @@ import {FullCalendarComponent} from '@fullcalendar/angular';
 import {DateSelectionApi} from '@fullcalendar/core/Calendar';
 import {MenuItem, TableBody} from 'primeng';
 import {CalendarEvent} from '../model/event.model';
+import {NgbActiveModal, NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {NgbModalWindow} from '@ng-bootstrap/ng-bootstrap/modal/modal-window';
 
 
 @Component({
@@ -16,8 +18,8 @@ import {CalendarEvent} from '../model/event.model';
 })
 export class CalendarComponent implements OnInit {
   @ViewChild('fullcalendar', { static: false }) fullcalendar: FullCalendarComponent;
-  @ViewChild('mytable', { static : false}) table;
-  constructor() { }
+  @ViewChild('content', { static: false }) modalWindow;
+  constructor(private modalService: NgbModal) { }
 
   options: OptionsInput;
   eventsModel: CalendarEvent[] = [];
@@ -33,7 +35,8 @@ export class CalendarComponent implements OnInit {
   editing = false;
   multipleDaySelection = false;
   selectedDayEvents: CalendarEvent[] = [];
-  selectedCalendarEvent: any;
+  modalHeader: string;
+  activeModal: NgbActiveModal;
   ngOnInit() {
     const a = new CalendarEvent('',
       'workTime',
@@ -43,7 +46,7 @@ export class CalendarComponent implements OnInit {
       'black',
       false);
     const b = new CalendarEvent('Holiday',
-      'Holiday',
+      'holiday',
       new Date('2020-03-26T00:00:00'),
       new Date('2020-03-26T00:00:00'),
       'purple',
@@ -75,44 +78,44 @@ export class CalendarComponent implements OnInit {
       },
       plugins: [dayGridPlugin, interactionPlugin]
     };
-
-    this.items = [
-      {label: 'Update', icon: 'pi pi-fw pi-refresh', command: () => {
-          this.update();
-        }},
-      {label: 'Delete', icon: 'pi pi-fw pi-times', command: () => {
-          this.delete();
-        }},
-      {label: 'Angular.io', icon: 'pi pi-fw pi-external-link', url: 'http://angular.io'},
-      {label: 'Theming', icon: 'pi pi-fw pi-cog', routerLink: ['/theming']}
-    ];
-
   }
 
   onSelect(event: DateSelectionApi) {
     if (Math.abs(event.end.getDate() - event.start.getDate()) === 1) {
+      this.setModalHeader(event.start);
       this.multipleDaySelection = false;
       this.selectedDayEvents = this.getEventOnDate(event.start);
       console.log(this.selectedDayEvents);
     } else {
       console.log('m');
+      this.setModalHeader(event.start, event.end);
       this.selectedDayEvents = [];
       this.multipleDaySelection = true;
     }
+    this.activeModal = this.modalService.open(this.modalWindow);
   }
 
   private getEventOnDate(date: Date) {
     console.log(date.getFullYear(), (date.getMonth() + 1), date.getDate());
     return this.eventsModel.filter(
       element => (element.start.getDate() === date.getDate()
-      && element.start.getMonth() === date.getMonth()
-      && element.start.getFullYear() === date.getFullYear()));
+        && element.start.getMonth() === date.getMonth()
+        && element.start.getFullYear() === date.getFullYear()));
   }
 
-  getSelectedDay() {
-   return (String(this.selectedDayEvents[0].start.getFullYear()) + '.' +
-    String(this.pad(this.selectedDayEvents[0].start.getMonth() + 1))  + '.' +
-    String(this.pad(this.selectedDayEvents[0].start.getDate())));
+  setModalHeader(start: Date, end?: Date) {
+    if (!end) {
+      this.modalHeader = (String(start.getFullYear()) + '.' +
+        String(this.pad(start.getMonth() + 1))  + '.' +
+        String(this.pad(start.getDate())) + '.');
+    } else {
+      this.modalHeader = (String(start.getFullYear()) + '.' +
+        String(this.pad(start.getMonth() + 1))  + '.' +
+        String(this.pad(start.getDate())) + '. - ' +
+        String(end.getFullYear()) + '.' +
+          String(end.getMonth() + 1)  + '.' +
+          String(this.pad((end.getDate() - 1))) + '.');
+    }
   }
 
   pad(num: number) {
@@ -122,30 +125,63 @@ export class CalendarComponent implements OnInit {
     return num;
   }
 
-  onEditInit() {
-    console.log('edit');
-    console.log(this.selectedCalendarEvent);
+  // TODO
+  checkValidity(event: CalendarEvent) {
+    for (const e of this.selectedDayEvents) {
+      if (true) {
+        console.log('TODO');
+      }
+    }
   }
 
-  onCellEdit(e: CalendarEvent) {
-    // console.log(e);
-    this.selectedCalendarEvent = e;
+  onRowEditInit(data: any) {
+    console.log(data);
   }
 
-  onEditComplete() {
-    console.log(this.selectedDayEvents);
+  onRowEditSave(data: any) {
+    console.log(data);
+  }
+
+  onRowEditCancel(data: any, index: number) {
+    console.log(data, index);
+  }
+
+  addNewCalendarEvent(type: string) {
+    if (type === 'workTime') {
+      this.selectedDayEvents = this.selectedDayEvents.filter(element => element.groupId === 'workTime');
+      this.selectedDayEvents.push(new CalendarEvent('',
+        'workTime',
+        new Date('2020-03-21T00:00:00'),
+        new Date('2020-03-21T00:00:00'),
+        'yellow',
+        'black',
+        false));
+    } else {
+      this.selectedDayEvents = [];
+      this.selectedDayEvents.push(new CalendarEvent('Holiday',
+        'holiday',
+        new Date('2020-03-21T00:00:00'),
+        new Date('2020-03-21T00:00:00'),
+        'purple',
+        'black',
+        true));
+    }
+  }
+
+  deleteCalendarEvent() {
+    console.log('delete');
   }
 
   save() {
     console.log('save');
-    console.log(this.selectedDayEvents);
+    this.activeModal.close();
   }
 
-  update() {
-    console.log('update');
+
+
+  setHoliday() {
+    this.selectedDayEvents = [];
+    console.log('setHoliday');
   }
 
-  delete() {
-    console.log('delete');
-  }
 }

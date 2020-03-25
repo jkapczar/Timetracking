@@ -1,80 +1,121 @@
-<form>
-  <br><br>
-  <p-panel
-    *ngIf="selectedDayEvents.length > 0"
-    toggleable="true"
-    header="{{getSelectedDay()}}">
-    <p-table #mytable [value]="selectedDayEvents" editMode="row" (onEditComplete)="onEditComplete()">
+<ng-template #content let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">{{modalHeader}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p-table
+      [value]="selectedDayEvents"
+      editMode="row"
+      *ngIf="selectedDayEvents.length > 0 && !multipleDaySelection && selectedDayEvents[0].groupId === 'workTime'">
       <ng-template pTemplate="header" >
         <tr>
           <th>Start</th>
           <th>End</th>
+          <th>Edit</th>
+          <th>Delete</th>
         </tr>
       </ng-template>
-      <ng-template pTemplate="body" let-rowData let-ri="rowIndex">
-        <tr>
-          <td pEditableColumn>
+      <ng-template pTemplate="body" let-rowData let-editing="editing" let-ri="rowIndex">
+        <tr [pEditableRow]="rowData">
+          <td>
             <p-cellEditor>
               <ng-template pTemplate="input" >
-                <input pInputText name="startHour" type="number" [(ngModel)]="rowData.startHour">
+                <input name="startHour" type="number" [(ngModel)]="rowData.startHour">
               </ng-template>
               <ng-template pTemplate="output">
-                {{rowData.startHour}}
+                {{pad(rowData.startHour)}}
               </ng-template>
             </p-cellEditor>
             :
             <p-cellEditor>
               <ng-template pTemplate="input">
-                <input pInputText name="startMinute" type="number" [(ngModel)]="rowData.startMinute">
+                <input name="startMinute" type="number" [(ngModel)]="rowData.startMinute">
               </ng-template>
               <ng-template pTemplate="output">
-                {{rowData.startMinute}}
+                {{pad(rowData.startMinute)}}
               </ng-template>
             </p-cellEditor>
           </td>
-          <td pEditableColumn>
+          <td>
             <p-cellEditor>
               <ng-template pTemplate="input">
-                <input pInputText name="endHour" type="number" [(ngModel)]="rowData.endHour">
+                <input name="endHour" type="number" [(ngModel)]="rowData.endHour">
               </ng-template>
               <ng-template pTemplate="output">
-                {{rowData.endHour}}
+                {{pad(rowData.endHour)}}
               </ng-template>
             </p-cellEditor>
             :
             <p-cellEditor>
               <ng-template pTemplate="input">
-                <input pInputText name="endMinute" type="number" [(ngModel)]="rowData.endMinute">
+                <input name="endMinute" type="number" [(ngModel)]="rowData.endMinute">
               </ng-template>
               <ng-template pTemplate="output">
-                {{rowData.endMinute}}
+                {{pad(rowData.endMinute)}}
               </ng-template>
             </p-cellEditor>
           </td>
-
+          <td style="text-align:center">
+            <button *ngIf="!editing"
+                    pButton
+                    type="button"
+                    pInitEditableRow
+                    icon="pi pi-pencil"
+                    class="ui-button-info"
+                    (click)="onRowEditInit(rowData)"></button>
+            <button *ngIf="editing"
+                    pButton
+                    type="button"
+                    pSaveEditableRow
+                    icon="pi pi-check"
+                    class="ui-button-success"
+                    style="margin-right: .5em"
+                    (click)="onRowEditSave(rowData)"></button>
+            <button *ngIf="editing"
+                    pButton
+                    type="button"
+                    pCancelEditableRow
+                    icon="pi pi-times"
+                    class="ui-button-danger"
+                    (click)="onRowEditCancel(rowData, ri)"></button>
+          </td>
+          <td style="text-align:center">
+            <button *ngIf="!editing"
+                    pButton
+                    type="button"
+                    icon="pi pi-times"
+                    class="ui-button-danger"
+                    (click)="deleteCalendarEvent()"></button>
+          </td>
         </tr>
       </ng-template>
     </p-table>
+    <p
+      *ngIf="selectedDayEvents.length > 0 && !multipleDaySelection && selectedDayEvents[0].groupId === 'holiday'">
+      A Holiday was set on this day!
+    </p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="addNewCalendarEvent('workTime')">Add new event</button>
+    <button type="button" class="btn btn-primary" (click)="addNewCalendarEvent('holiday')">Set Holiday</button>
+    <button type="button" class="btn btn-primary" (click)="save()">Save</button>
+  </div>
+</ng-template>
 
-    <p-footer>
-      <div class="ui-helper-clearfix">
-        <p-splitButton [style]="{'float':'right'}" label="Save" icon="pi pi-check" (onClick)="save()" [model]="items"></p-splitButton>
-      </div>
-    </p-footer>
-  </p-panel>
-
-<br><br>
-
-<full-calendar
-  #fullcalendar
-  [editable]="false"
-  [selectable]="true"
-  [displayEventEnd]="true"
-  [eventTimeFormat]="timeFormat"
-  [events]="eventsModel"
-  [header]="options.header"
-  [customButtons]="options.customButtons"
-  (select)="onSelect($event)"
-  [plugins]="options.plugins"
-></full-calendar>
+<form>
+  <full-calendar
+    #fullcalendar
+    [editable]="false"
+    [selectable]="true"
+    [displayEventEnd]="true"
+    [eventTimeFormat]="timeFormat"
+    [events]="eventsModel"
+    [header]="options.header"
+    [customButtons]="options.customButtons"
+    (select)="onSelect($event)"
+    [plugins]="options.plugins"
+  ></full-calendar>
 </form>
