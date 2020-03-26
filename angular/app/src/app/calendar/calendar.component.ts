@@ -8,6 +8,7 @@ import {MenuItem, TableBody} from 'primeng';
 import {CalendarEvent} from '../model/event.model';
 import {NgbActiveModal, NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {NgbModalWindow} from '@ng-bootstrap/ng-bootstrap/modal/modal-window';
+import {CalendarService} from '../services/calendar.service';
 
 
 @Component({
@@ -19,7 +20,8 @@ import {NgbModalWindow} from '@ng-bootstrap/ng-bootstrap/modal/modal-window';
 export class CalendarComponent implements OnInit {
   @ViewChild('fullcalendar', { static: false }) fullcalendar: FullCalendarComponent;
   @ViewChild('content', { static: false }) modalWindow;
-  constructor(private modalService: NgbModal) { }
+  constructor(private modalService: NgbModal,
+              private calendarService: CalendarService) { }
 
   options: OptionsInput;
   eventsModel: CalendarEvent[] = [];
@@ -30,36 +32,16 @@ export class CalendarComponent implements OnInit {
     hour12: false
   };
 
-  items: MenuItem[] = [];
-
   editing = false;
   multipleDaySelection = false;
   selectedDayEvents: CalendarEvent[] = [];
   modalHeader: string;
   activeModal: NgbActiveModal;
+  validEventTime = true;
+  activeSelection: DateSelectionApi;
   ngOnInit() {
-    const a = new CalendarEvent('',
-      'workTime',
-      new Date('2020-03-21T08:30:00'),
-      new Date('2020-03-21T12:40:00'),
-      'yellow',
-      'black',
-      false);
-    const b = new CalendarEvent('Holiday',
-      'holiday',
-      new Date('2020-03-26T00:00:00'),
-      new Date('2020-03-26T00:00:00'),
-      'purple',
-      'black',
-      true);
-    const c = new CalendarEvent('',
-      'workTime',
-      new Date('2020-03-21T15:30:00'),
-      new Date('2020-03-21T17:00:00'),
-      'yellow',
-      'black',
-      false);
-    this.eventsModel = [a, b, c];
+
+    this.eventsModel = this.calendarService.getEvents();
 
     this.options = {
       editable: false,
@@ -81,26 +63,38 @@ export class CalendarComponent implements OnInit {
   }
 
   onSelect(event: DateSelectionApi) {
-    if (Math.abs(event.end.getDate() - event.start.getDate()) === 1) {
-      this.setModalHeader(event.start);
+    this.activeSelection = event;
+    this.dayOffset();
+    this.selectedDayEvents = [];
+    if (Math.abs(this.activeSelection.end.getDate() - this.activeSelection.start.getDate()) === 0) {
+      this.setModalHeader(this.activeSelection.start);
       this.multipleDaySelection = false;
-      this.selectedDayEvents = this.getEventOnDate(event.start);
-      console.log(this.selectedDayEvents);
+      this.selectedDayEvents = this.getEventsOnDate(this.activeSelection.start);
     } else {
       console.log('m');
-      this.setModalHeader(event.start, event.end);
-      this.selectedDayEvents = [];
+      this.setModalHeader(this.activeSelection.start, this.activeSelection.end);
+      this.selectedDayEvents = this.getEventsOnDate(this.activeSelection.start, this.activeSelection.end);
       this.multipleDaySelection = true;
     }
+    console.log(this.selectedDayEvents);
     this.activeModal = this.modalService.open(this.modalWindow);
   }
 
-  private getEventOnDate(date: Date) {
-    console.log(date.getFullYear(), (date.getMonth() + 1), date.getDate());
+  private getEventsOnDate(startDate: Date, endDate?: Date) {
+    console.log(startDate, endDate);
+    if (!endDate) {
+      return this.eventsModel.filter(
+        element => (element.start.getDate() === startDate.getDate()
+          && element.start.getMonth() === startDate.getMonth()
+          && element.start.getFullYear() === startDate.getFullYear()));
+    }
     return this.eventsModel.filter(
-      element => (element.start.getDate() === date.getDate()
-        && element.start.getMonth() === date.getMonth()
-        && element.start.getFullYear() === date.getFullYear()));
+      element => (element.start.getDate() >= startDate.getDate()
+        && element.end.getDate() <= endDate.getDate()
+        && element.start.getMonth() >= startDate.getMonth()
+        && element.end.getMonth() <= endDate.getMonth()
+        && element.start.getFullYear() >= startDate.getFullYear()
+        && element.end.getFullYear() <= endDate.getFullYear()));
   }
 
   setModalHeader(start: Date, end?: Date) {
@@ -114,54 +108,108 @@ export class CalendarComponent implements OnInit {
         String(this.pad(start.getDate())) + '. - ' +
         String(end.getFullYear()) + '.' +
           String(end.getMonth() + 1)  + '.' +
-          String(this.pad((end.getDate() - 1))) + '.');
+          String(this.pad((end.getDate()))) + '.');
     }
   }
 
   pad(num: number) {
-    if (num < 10) {
+    if (num < 10 && num != null) {
       return ('0' + String(num));
     }
     return num;
   }
 
-  // TODO
-  checkValidity(event: CalendarEvent) {
+  // TODO ora perc range
+  checkEventTimeValidity(event: CalendarEvent) {
+    // TODO
+    // HA csak az ora vagy csak a perc van kitoltve
+
+    if (event.startHour != null && event.startMinute == null || event.startHour == null && event.startMinute != null) {
+      console.log('1');
+      return false;
+    }
+
+    if (event.endHour != null && event.endMinute == null || event.endHour == null && event.endMinute != null) {
+      console.log('2');
+      return false;
+    }
+
+    event.setDates();
+
+    if (!event.start) {
+      console.log('3');
+      return false;
+    }
+
     for (const e of this.selectedDayEvents) {
-      if (true) {
-        console.log('TODO');
+      if (e === event) {
+        continue;
+      }
+
+      if ((event.start < e.start || event.start < e.end) || (event.end == null && e.end == null)) {
+        console.log('4');
+        return false;
+      }
+
+      if (event.end == null) {
+        continue;
+      }
+
+      if (event.start > event.end) {
+        console.log('5');
+        return false;
+      }
+
+      if (
+          (
+            (event.start.getTime() > e.start.getTime() && event.start.getTime() < e.end.getTime())
+            || (event.end.getTime() < e.end.getTime() && event.end.getTime() > e.start.getTime())
+          )
+            ||
+          (
+            (e.start.getTime() > event.start.getTime() && e.end.getTime() < event.end.getTime())
+            || (e.start.getTime() < event.start.getTime() && e.end.getTime() > event.end.getTime())
+          )
+        ) {
+        console.log('6');
+        return false;
       }
     }
+    return true;
   }
 
   onRowEditInit(data: any) {
     console.log(data);
   }
 
-  onRowEditSave(data: any) {
+  onRowEditSave(data: CalendarEvent) {
+    this.validEventTime = this.checkEventTimeValidity(data);
     console.log(data);
   }
 
+  // TODO load original
   onRowEditCancel(data: any, index: number) {
     console.log(data, index);
   }
-
+  // TODO change date
   addNewCalendarEvent(type: string) {
     if (type === 'workTime') {
       this.selectedDayEvents = this.selectedDayEvents.filter(element => element.groupId === 'workTime');
-      this.selectedDayEvents.push(new CalendarEvent('',
+      const newEvent = new CalendarEvent('',
         'workTime',
-        new Date('2020-03-21T00:00:00'),
-        new Date('2020-03-21T00:00:00'),
+        new Date(this.activeSelection.start.getTime()),
+        new Date(this.activeSelection.end.getTime()),
         'yellow',
         'black',
-        false));
+        false);
+      this.selectedDayEvents.push(newEvent);
+      this.validEventTime = this.checkEventTimeValidity(newEvent);
     } else {
       this.selectedDayEvents = [];
       this.selectedDayEvents.push(new CalendarEvent('Holiday',
         'holiday',
-        new Date('2020-03-21T00:00:00'),
-        new Date('2020-03-21T00:00:00'),
+        new Date(this.activeSelection.start.getTime()),
+        new Date(this.activeSelection.end.getTime()),
         'purple',
         'black',
         true));
@@ -174,14 +222,50 @@ export class CalendarComponent implements OnInit {
 
   save() {
     console.log('save');
+
+    console.log(this.activeSelection);
+    console.log(this.eventsModel);
+    console.log(this.selectedDayEvents);
+
+    this.eventsModel = this.eventsModel.filter(element => !(
+      (element.start.getTime() >= this.activeSelection.start.getTime()) &&
+      (element.end.getTime() <= this.activeSelection.end.getTime())
+    ));
+    this.eventsModel = this.eventsModel.concat(this.selectedDayEvents);
+
     this.activeModal.close();
   }
 
+  setHolidays() {
+    this.clearEvents();
+    const date = this.activeSelection.start;
+    const endDate = this.activeSelection.end;
 
+    while (date.getTime() <= endDate.getTime()) {
+      this.selectedDayEvents.push(new CalendarEvent('Holiday',
+        'holiday',
+        new Date(date.getTime()),
+        new Date(date.getTime()),
+        'purple',
+        'black',
+        true));
+      date.setDate(date.getDate() + 1);
+    }
 
-  setHoliday() {
-    this.selectedDayEvents = [];
-    console.log('setHoliday');
+  }
+
+  clearEvents() {
+    const startDate = this.activeSelection.start;
+    const endDate = this.activeSelection.end;
+    this.selectedDayEvents = this.selectedDayEvents.filter(element =>
+      !((element.start.getTime() >= startDate.getTime()) && (element.start.getTime() <= endDate.getTime())));
+  }
+
+  private dayOffset() {
+    this.activeSelection.end.setDate(this.activeSelection.end.getDate() - 1);
+    this.activeSelection.end.setHours(23);
+    this.activeSelection.end.setMinutes(59);
+    this.activeSelection.end.setSeconds(59);
   }
 
 }

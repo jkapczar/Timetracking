@@ -29,7 +29,7 @@
                 {{pad(rowData.startHour)}}
               </ng-template>
             </p-cellEditor>
-            :
+            <span *ngIf="rowData.startHour != null && rowData.startMinute!=null">:</span>
             <p-cellEditor>
               <ng-template pTemplate="input">
                 <input name="startMinute" type="number" [(ngModel)]="rowData.startMinute">
@@ -48,7 +48,7 @@
                 {{pad(rowData.endHour)}}
               </ng-template>
             </p-cellEditor>
-            :
+            <span *ngIf="rowData.endHour != null && rowData.endMinute!=null">:</span>
             <p-cellEditor>
               <ng-template pTemplate="input">
                 <input name="endMinute" type="number" [(ngModel)]="rowData.endMinute">
@@ -99,9 +99,32 @@
     </p>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-primary" (click)="addNewCalendarEvent('workTime')">Add new event</button>
-    <button type="button" class="btn btn-primary" (click)="addNewCalendarEvent('holiday')">Set Holiday</button>
-    <button type="button" class="btn btn-primary" (click)="save()">Save</button>
+    <p *ngIf="!validEventTime">Invalid event Time</p>
+    <button
+      type="button"
+      class="btn btn-primary"
+      (click)="clearEvents()"
+      *ngIf="multipleDaySelection">Clear Events</button>
+    <button
+      type="button"
+      class="btn btn-primary"
+      (click)="addNewCalendarEvent('workTime')"
+      *ngIf="!multipleDaySelection">Add new event</button>
+    <button
+      type="button"
+      class="btn btn-primary"
+      (click)="addNewCalendarEvent('holiday')"
+      *ngIf="!multipleDaySelection">Set Holiday</button>
+    <button
+      type="button"
+      class="btn btn-primary"
+      (click)="setHolidays()"
+      *ngIf="multipleDaySelection">Set Holidays</button>
+    <button
+      type="button"
+      class="btn btn-primary"
+      (click)="save()"
+      [disabled]="!validEventTime">Save</button>
   </div>
 </ng-template>
 
