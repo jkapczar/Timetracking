@@ -1,3 +1,5 @@
+import {DatePipe} from '@angular/common';
+
 export class CalendarEvent {
   startHour: number;
   startMinute: number;

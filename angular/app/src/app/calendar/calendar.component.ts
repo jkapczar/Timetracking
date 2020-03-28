@@ -1,6 +1,7 @@
 import {AfterViewInit, Component, OnInit, TemplateRef, ViewChild, ViewEncapsulation} from '@angular/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import bootstrapPlugin from '@fullcalendar/bootstrap';
 import {OptionsInput} from '@fullcalendar/core';
 import {FullCalendarComponent} from '@fullcalendar/angular';
 import {DateSelectionApi} from '@fullcalendar/core/Calendar';
@@ -9,6 +10,8 @@ import {CalendarEvent} from '../model/event.model';
 import {NgbActiveModal, NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {NgbModalWindow} from '@ng-bootstrap/ng-bootstrap/modal/modal-window';
 import {CalendarService} from '../services/calendar.service';
+import {not} from 'rxjs/internal-compatibility';
+import {$} from 'protractor';
 
 
 @Component({
@@ -29,8 +32,9 @@ export class CalendarComponent implements OnInit {
     hour: '2-digit',
     minute: '2-digit',
     meridiem: false,
-    hour12: false
+    hour12: false,
   };
+
 
   editing = false;
   multipleDaySelection = false;
@@ -39,31 +43,35 @@ export class CalendarComponent implements OnInit {
   activeModal: NgbActiveModal;
   validEventTime = true;
   activeSelection: DateSelectionApi;
+
+  checkedIn = false;
+
   ngOnInit() {
 
     this.eventsModel = this.calendarService.getEvents();
 
     this.options = {
       editable: false,
+      themeSystem: 'bootstrap',
       customButtons: {
-        myCustomButton: {
-          text: 'custom!',
-          click() {
-            alert('clicked the custom button!');
-          }
+        checkInOutButton: {
+          text: 'Check In',
+          click: () => this.checkInOut()
         }
       },
       header: {
-        left: 'prev dayGrid today myCustomButton',
+        left: 'prev checkInOutButton',
         center: 'title',
         right: 'next'
       },
-      plugins: [dayGridPlugin, interactionPlugin]
+      plugins: [dayGridPlugin, interactionPlugin, bootstrapPlugin]
     };
   }
 
   onSelect(event: DateSelectionApi) {
+    console.log(event);
     this.activeSelection = event;
+    console.log('active selection: ', this.activeSelection);
     this.dayOffset();
     this.selectedDayEvents = [];
     if (Math.abs(this.activeSelection.end.getDate() - this.activeSelection.start.getDate()) === 0) {
@@ -120,6 +128,7 @@ export class CalendarComponent implements OnInit {
   }
 
   // TODO ora perc range
+  // TODO full time jon be de eggyik event endje nullos
   checkEventTimeValidity(event: CalendarEvent) {
     // TODO
     // HA csak az ora vagy csak a perc van kitoltve
@@ -191,10 +200,12 @@ export class CalendarComponent implements OnInit {
   onRowEditCancel(data: any, index: number) {
     console.log(data, index);
   }
-  // TODO change date
+
   addNewCalendarEvent(type: string) {
     if (type === 'workTime') {
       this.selectedDayEvents = this.selectedDayEvents.filter(element => element.groupId === 'workTime');
+      console.log(new Date(this.activeSelection.start.getTime()));
+      console.log(new Date(this.activeSelection.end.getTime()));
       const newEvent = new CalendarEvent('',
         'workTime',
         new Date(this.activeSelection.start.getTime()),
@@ -216,29 +227,68 @@ export class CalendarComponent implements OnInit {
     }
   }
 
-  deleteCalendarEvent() {
-    console.log('delete');
+  deleteCalendarEvent(index: number) {
+    this.selectedDayEvents.splice(index, 1);
   }
 
   save() {
     console.log('save');
 
-    console.log(this.activeSelection);
-    console.log(this.eventsModel);
-    console.log(this.selectedDayEvents);
-
-    this.eventsModel = this.eventsModel.filter(element => !(
+    this.eventsModel = this.eventsModel.filter(element =>  !(
       (element.start.getTime() >= this.activeSelection.start.getTime()) &&
       (element.end.getTime() <= this.activeSelection.end.getTime())
     ));
-    this.eventsModel = this.eventsModel.concat(this.selectedDayEvents);
 
+    this.eventsModel = this.eventsModel.concat(this.selectedDayEvents);
     this.activeModal.close();
+  }
+
+  checkInOut() {
+    if (!this.checkedIn) {
+      // TODO Check time ranges hova menthetek
+      const newEvent = new CalendarEvent('',
+        'workTime',
+        new Date(),
+        null,
+        'yellow',
+        'black',
+        false);
+      if (this.checkEventTimeValidity(newEvent)) {
+        console.log('valid');
+        this.eventsModel = this.eventsModel.concat(newEvent);
+        console.log(this.eventsModel);
+      } else {
+        console.log('invalid');
+      }
+    } else {
+      console.log('check out');
+      const today = new Date();
+      const calendarEvent = this.getLastUnFinishedEnvent();
+      calendarEvent.end = today;
+      const index = this.eventsModel.findIndex(element =>
+        element.start.getFullYear() === today.getFullYear() &&
+        element.start.getMonth() === today.getMonth() &&
+        element.start.getDate() === today.getDate() &&
+        element.end === null);
+      this.eventsModel.splice(index, 1);
+      this.eventsModel = this.eventsModel.concat(calendarEvent);
+      console.log(this.eventsModel);
+    }
+    this.checkedIn = !this.checkedIn;
+  }
+
+  getLastUnFinishedEnvent() {
+    const today = new Date();
+    return this.eventsModel.find(element =>
+      element.start.getFullYear() === today.getFullYear() &&
+      element.start.getMonth() === today.getMonth() &&
+      element.start.getDate() === today.getDate() &&
+      element.end === null);
   }
 
   setHolidays() {
     this.clearEvents();
-    const date = this.activeSelection.start;
+    const date = new Date(this.activeSelection.start);
     const endDate = this.activeSelection.end;
 
     while (date.getTime() <= endDate.getTime()) {

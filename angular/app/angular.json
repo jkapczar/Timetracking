@@ -33,6 +33,7 @@
               "node_modules/@fullcalendar/timegrid/main.css",
               "node_modules/@fullcalendar/list/main.css",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "node_modules/@fullcalendar/bootstrap/main.css",
               "src/styles.css"
             ],
             "scripts": []

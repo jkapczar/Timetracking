@@ -10,7 +10,7 @@ export class CalendarService {
   events: CalendarEvent[] = [
   new CalendarEvent('',
     'workTime',
-    new Date('2020-03-21T08:30:00'),
+    new Date('2020-03-21T01:00:00'),
     new Date('2020-03-21T12:00:00'),
     'yellow',
     'black',

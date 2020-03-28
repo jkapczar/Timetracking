@@ -88,7 +88,7 @@
                     type="button"
                     icon="pi pi-times"
                     class="ui-button-danger"
-                    (click)="deleteCalendarEvent()"></button>
+                    (click)="deleteCalendarEvent(ri)"></button>
           </td>
         </tr>
       </ng-template>
@@ -104,7 +104,7 @@
       type="button"
       class="btn btn-primary"
       (click)="clearEvents()"
-      *ngIf="multipleDaySelection">Clear Events</button>
+      >Clear Events</button>
     <button
       type="button"
       class="btn btn-primary"
