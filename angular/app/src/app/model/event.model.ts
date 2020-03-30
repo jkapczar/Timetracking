@@ -1,17 +1,28 @@
 import {DatePipe} from '@angular/common';
 
+export interface CalendarUser {
+  id: number;
+  username: string;
+  defaultNumOfHOs: number;
+  defaultNumOfHolidays: number;
+  numOfHOs: number;
+  numOfHolidays: number;
+}
+
 export class CalendarEvent {
   startHour: number;
   startMinute: number;
   endHour: number;
   endMinute: number;
-  constructor(public title: string,
+  constructor(public id: number,
+              public title: string,
               public groupId: string,
               public start: Date,
               public end: Date,
               public backgroundColor: string,
               public textColor: string,
-              public allDay: boolean) {
+              public allDay: boolean,
+              public user?: CalendarUser) {
     this.startHour = this.start.getHours();
     this.startMinute = this.start.getMinutes();
     if (this.end) {

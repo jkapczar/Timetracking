@@ -1,42 +1,122 @@
 package core.controller;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import core.dao.EventDao;
 import core.dao.UserDao;
+import core.model.Event;
 import core.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
+import java.util.*;
 
 @RestController
 @RequestMapping("/calendar")
 public class RestApiController {
 
     private UserDao userDao;
+    private EventDao eventDao;
+    private ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    private DateTimeFormatter formatter = new DateTimeFormatterBuilder()
+            .appendPattern("yyyy-MM-dd[ HH:mm:ss]")
+            .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
+            .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
+            .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
+            .toFormatter();
 
     @Autowired
-    public RestApiController(UserDao userDao) {
+    public RestApiController(UserDao userDao, EventDao eventDao) {
         this.userDao = userDao;
+        this.eventDao = eventDao;
     }
 
-    @RequestMapping(value="/test" ,method= RequestMethod.GET)
-    public ResponseEntity<List<User>> test(){
-        List<User> users = new ArrayList<>();
+    @RequestMapping(value="/{username}/{start}/{end}" ,method= RequestMethod.GET)
+    public ResponseEntity<Set<Event>> findEvents(@PathVariable String username,
+                                                 @PathVariable String start,
+                                                 @PathVariable String end){
+        Set<Event> events = new HashSet<>();
         try {
-            User u = new User();
-            u.setUsername("test2");
-            userDao.save(u);
-            users = userDao.findAll();
-            System.out.println("users: " + users.size());
-            return new ResponseEntity<>(users, HttpStatus.OK);
+
+            LocalDateTime startTime = LocalDateTime.parse(start, formatter);
+            LocalDateTime endTime = LocalDateTime.parse(end, formatter);
+
+            System.out.println(startTime + " " + endTime);
+
+            User user = this.userDao.findUserByUsername(username);
+
+            System.out.println(user);
+
+            events = this.eventDao.findEvents(user.getId(), startTime, endTime);
+
+            return new ResponseEntity<>(events, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<>(users, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(events, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @RequestMapping(value="/{username}/save" ,method= RequestMethod.POST)
+    public ResponseEntity<Set<Event>> saveEvents(@RequestBody String input, @PathVariable String username){
+        Set<Event> result = new HashSet<>();
+        try {
+            System.out.println(username);
+            System.out.println(input);
+
+            User u = this.userDao.findUserByUsername(username);
+
+            List<Event> events = mapper.readValue(input, mapper.getTypeFactory().constructCollectionType(List.class, Event.class));
+
+            for (Event e:events) {
+                e.setUser(u);
+            }
+
+            for (Event e:events) {
+                System.out.println(e);
+            }
+
+            result = new HashSet<Event>((Collection) this.eventDao.saveAll(events));
+
+
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(result, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    //TODO remove username param
+    @RequestMapping(value="/delete" ,method= RequestMethod.POST)
+    public ResponseEntity<String> deleteEvents(@RequestBody String input){
+        try {
+            System.out.println(input);
+
+
+            List<Event> events = mapper.readValue(input, mapper.getTypeFactory().constructCollectionType(List.class, Event.class));
+
+
+            for (Event e:events) {
+                System.out.println(e);
+            }
+
+            this.eventDao.deleteAll(events);
+
+            return new ResponseEntity<>("", HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+
 
 }
