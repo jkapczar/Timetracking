@@ -1,6 +1,6 @@
 import {Inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {CalendarEvent} from '../model/event.model';
+import {CalendarEvent, CalendarUser} from '../model/event.model';
 import {AuthService} from './auth.service';
 import {User} from '../model/user.model';
 import {map} from 'rxjs/operators';
@@ -15,9 +15,10 @@ export class CalendarService {
               private authService: AuthService) {}
 
 
-  // TODO replace username
-  saveEvents(events: CalendarEvent[]) {
-    const username = 'test';
+  saveEvents(events: CalendarEvent[], username?: string) {
+    if (!username) {
+      username = `${this.authService.user.getValue().sub}`;
+    }
     const url = `http://localhost:8762/calendar/${username}/save`;
     return this.http.post<CalendarEvent[]>(url,
       events, {observe: 'response'}).pipe(map(res => {
@@ -40,6 +41,14 @@ export class CalendarService {
     return this.http.post('http://localhost:8762/calendar/delete', events, {observe: 'response'});
   }
 
+
+  getCalendarOwner(username?: string) {
+    if (!username) {
+      username = `${this.authService.user.getValue().sub}`;
+    }
+    const url = `http://localhost:8762/calendar/${username}`;
+    return this.http.get<CalendarUser>(url, {observe: 'response'});
+  }
 
   private createResponseObjects(data: CalendarEvent[]) {
     const tmp: CalendarEvent[] = [];

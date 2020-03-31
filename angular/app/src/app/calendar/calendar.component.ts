@@ -5,9 +5,11 @@ import bootstrapPlugin from '@fullcalendar/bootstrap';
 import {OptionsInput} from '@fullcalendar/core';
 import {FullCalendarComponent} from '@fullcalendar/angular';
 import {DateSelectionApi} from '@fullcalendar/core/Calendar';
-import {CalendarEvent} from '../model/event.model';
+import {CalendarEvent, CalendarUser} from '../model/event.model';
 import {NgbActiveModal, NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {CalendarService} from '../services/calendar.service';
+import {NgForm} from '@angular/forms';
+import {GroupService} from '../services/group.service';
 
 
 
@@ -19,10 +21,13 @@ import {CalendarService} from '../services/calendar.service';
 })
 export class CalendarComponent implements OnInit, AfterViewInit {
   constructor(private modalService: NgbModal,
-              private calendarService: CalendarService) { }
+              private calendarService: CalendarService,
+              private groupService: GroupService) { }
 
   @ViewChild('fullcalendar', { static: false }) fullcalendar: FullCalendarComponent;
   @ViewChild('content', { static: false }) modalWindow;
+  @ViewChild('userSelectionForm', { static: false }) userSelectionForm;
+  @ViewChild('userDetailsForm', { static: false }) userDetailsForm;
 
   options: OptionsInput;
   eventsModel: CalendarEvent[] = [];
@@ -38,13 +43,30 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
   checkedIn = false;
 
+
+  users: {label: string, value: string}[] = [];
+  selectedUser: string;
+  calendarOwner: CalendarUser;
+
   timeFormat = (date: Date) => {
     return  this.getTime(date);
   }
 
+  // TODO set selected user with auth
   ngOnInit() {
-
     this.eventsModel = [];
+    this.groupService.getGroupByTeamLeader().subscribe(resData => {
+      console.log(resData);
+      if (resData.body) {
+        for (const e of resData.body) {
+          this.users.push({label: e, value: e});
+        }
+        this.userSelectionForm.form.setValue(
+          {calendarUser: this.users}
+        );
+      }
+    });
+    this.setCalendarOwner();
 
     this.options = {
       editable: false,
@@ -69,30 +91,65 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   }
 
   onSelect(event: DateSelectionApi) {
-    console.log(event);
     this.activeSelection = event;
-    console.log('active selection: ', this.activeSelection);
     this.dayOffset();
     this.selectedDayEvents = [];
+    this.selectedDayEvents = this.getEventsOnDate(this.activeSelection.start, this.activeSelection.end);
     if (Math.abs(this.activeSelection.end.getDate() - this.activeSelection.start.getDate()) === 0) {
       this.setModalHeader(this.activeSelection.start);
       this.multipleDaySelection = false;
-      this.selectedDayEvents = this.getEventsOnDate(this.activeSelection.start);
     } else {
-      console.log('m');
       this.setModalHeader(this.activeSelection.start, this.activeSelection.end);
-      this.selectedDayEvents = this.getEventsOnDate(this.activeSelection.start, this.activeSelection.end);
       this.multipleDaySelection = true;
     }
-    console.log(this.selectedDayEvents);
     this.activeModal = this.modalService.open(this.modalWindow);
   }
 
-  pad(num: number) {
-    if (num < 10 && num != null) {
-      return ('0' + String(num));
+  userSelection(form: NgForm) {
+    this.selectedUser = this.userSelectionForm.form.value.calendarUser;
+    if (this.selectedUser) {
+      this.setCalendarOwner(this.selectedUser);
+      this.fetchEvents(this.selectedUser);
     }
-    return num;
+  }
+
+  userDetailsUpdate(form: NgForm) {
+    console.log(form);
+  }
+
+  checkInOut() {
+    const tmp: CalendarEvent[] = [];
+    if (!this.checkedIn) {
+      // TODO Check time ranges hova menthetek
+      const newEvent = new CalendarEvent(null,
+        '',
+        'workTime',
+        new Date(),
+        null,
+        'yellow',
+        'black',
+        false);
+      if (this.checkEventTimeValidity(newEvent)) {
+        tmp.push(newEvent);
+        this.calendarService.saveEvents(tmp, this.selectedUser).subscribe(resData => {
+          this.eventsModel = this.eventsModel.concat(resData);
+        });
+      } else {
+      }
+    } else {
+      const today = new Date();
+      const calendarEvent = this.getLastUnFinishedEvent();
+      console.log('getLastUnFinishedEvent', calendarEvent);
+      calendarEvent.end = today;
+      this.eventsModel = this.eventsModel.filter(element => element.id !== calendarEvent.id);
+      console.log(this.eventsModel);
+      tmp.push(calendarEvent);
+      this.calendarService.saveEvents(tmp, this.selectedUser).subscribe(resData => {
+        this.eventsModel = this.eventsModel.concat(resData);
+      });
+    }
+    console.log('Checkout', this.eventsModel);
+    this.checkedIn = !this.checkedIn;
   }
 
   onRowEditInit(data: any) {
@@ -135,7 +192,6 @@ export class CalendarComponent implements OnInit, AfterViewInit {
         'black',
         true));
     }
-    console.log(this.selectedDayEvents);
   }
 
   deleteCalendarEvent(index: number) {
@@ -143,13 +199,12 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   }
 
   async save() {
-    console.log('save');
 
     let tmp = this.getEventsOnDate(this.activeSelection.start, this.activeSelection.end);
 
     this.eventsModel = this.eventsModel.filter(element =>  !(
       (element.start.getTime() >= this.activeSelection.start.getTime()) &&
-      (element.end.getTime() <= this.activeSelection.end.getTime())
+      (element.start.getTime() <= this.activeSelection.end.getTime())
     ));
 
     tmp = tmp.filter(element => (element.id != null && this.selectedDayEvents.indexOf(element) === -1));
@@ -157,55 +212,13 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     await this.calendarService.deleteEvents(tmp).subscribe(resData => {
       console.log(resData);
     });
-
-    this.calendarService.saveEvents(this.selectedDayEvents).subscribe(resData => {
+    console.log(this.selectedUser);
+    await this.calendarService.saveEvents(this.selectedDayEvents, this.selectedUser).subscribe(resData => {
       console.log(resData);
       this.eventsModel = this.eventsModel.concat(resData);
+      console.log('events after save ', this.eventsModel);
     });
     this.activeModal.close();
-  }
-
-  checkInOut() {
-    const tmp: CalendarEvent[] = [];
-    if (!this.checkedIn) {
-      // TODO Check time ranges hova menthetek
-      const newEvent = new CalendarEvent(null,
-        '',
-        'workTime',
-        new Date(),
-        null,
-        'yellow',
-        'black',
-        false);
-      if (this.checkEventTimeValidity(newEvent)) {
-        console.log('valid');
-        // this.eventsModel = this.eventsModel.concat(newEvent)
-        tmp.push(newEvent);
-        this.calendarService.saveEvents(tmp).subscribe(resData => {
-          this.eventsModel = this.eventsModel.concat(resData);
-        });
-        console.log(this.eventsModel);
-      } else {
-        console.log('invalid');
-      }
-    } else {
-      console.log('check out');
-      const today = new Date();
-      const calendarEvent = this.getLastUnFinishedEvent();
-      calendarEvent.end = today;
-      const index = this.eventsModel.findIndex(element =>
-        element.start.getFullYear() === today.getFullYear() &&
-        element.start.getMonth() === today.getMonth() &&
-        element.start.getDate() === today.getDate() &&
-        element.end === null);
-      this.eventsModel.splice(index, 1);
-      tmp.push(calendarEvent);
-      this.calendarService.saveEvents(tmp).subscribe(resData => {
-        this.eventsModel = this.eventsModel.concat(resData);
-      });
-      console.log(this.eventsModel);
-    }
-    this.checkedIn = !this.checkedIn;
   }
 
   setHolidays() {
@@ -234,13 +247,20 @@ export class CalendarComponent implements OnInit, AfterViewInit {
       !((element.start.getTime() >= startDate.getTime()) && (element.start.getTime() <= endDate.getTime())));
   }
 
+  pad(num: number) {
+    if (num < 10 && num != null) {
+      return ('0' + String(num));
+    }
+    return num;
+  }
+
   private getLastUnFinishedEvent() {
     const today = new Date();
     return this.eventsModel.find(element =>
+      element.end === null &&
       element.start.getFullYear() === today.getFullYear() &&
       element.start.getMonth() === today.getMonth() &&
-      element.start.getDate() === today.getDate() &&
-      element.end === null);
+      element.start.getDate() === today.getDate());
   }
 
   private getEventsOnDate(startDate: Date, endDate?: Date) {
@@ -253,11 +273,21 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     }
     return this.eventsModel.filter(
       element => (element.start.getDate() >= startDate.getDate()
-        && element.end.getDate() <= endDate.getDate()
         && element.start.getMonth() >= startDate.getMonth()
-        && element.end.getMonth() <= endDate.getMonth()
         && element.start.getFullYear() >= startDate.getFullYear()
-        && element.end.getFullYear() <= endDate.getFullYear()));
+        && element.start.getFullYear() <= endDate.getFullYear()
+        && element.start.getMonth() <= endDate.getMonth()
+        && element.start.getDate() <= endDate.getDate()));
+  }
+
+  private setCalendarOwner(username?: string) {
+    this.calendarService.getCalendarOwner(username).subscribe(resData => {
+      this.calendarOwner = resData.body;
+      this.userDetailsForm.form.setValue({
+        defNumOfHolidays: this.calendarOwner.defaultNumOfHolidays,
+        defNumOfHomeOffice: this.calendarOwner.defaultNumOfHOs
+      });
+    });
   }
 
   private getDate(date: Date) {
@@ -269,14 +299,14 @@ export class CalendarComponent implements OnInit, AfterViewInit {
       (date.end ? (this.pad(date.end.hour) + ':' + this.pad(date.end.minute)) : '');
   }
 
-  private fetchEvents() {
+  private fetchEvents(username?: string) {
     this.calendarService.getEvents(
       this.getDate(this.fullcalendar.getApi().view.activeStart),
       this.getDate(this.fullcalendar.getApi().view.activeEnd),
-      'test').subscribe(resData => {
-      this.eventsModel = resData;
-      console.log(this.eventsModel);
-      this.setCheckInStatus();
+      username).subscribe(resData => {
+        this.eventsModel = resData;
+        console.log(this.eventsModel);
+        this.setCheckInStatus();
     });
   }
 
@@ -336,7 +366,8 @@ export class CalendarComponent implements OnInit, AfterViewInit {
         continue;
       }
 
-      if (((event.start < e.start || event.start < e.end) && event.end == null) || (event.end == null && e.end == null)) {
+      if (((event.start < e.start || event.start < e.end) && event.end == null)
+        || (event.end == null && e.end == null)) {
         console.log('4');
         return false;
       }

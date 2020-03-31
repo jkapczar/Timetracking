@@ -64,28 +64,20 @@ public class RestApiController {
         }
     }
 
+    // TODO remove get user part
     @RequestMapping(value="/{username}/save" ,method= RequestMethod.POST)
     public ResponseEntity<Set<Event>> saveEvents(@RequestBody String input, @PathVariable String username){
         Set<Event> result = new HashSet<>();
         try {
-            System.out.println(username);
-            System.out.println(input);
-
             User u = this.userDao.findUserByUsername(username);
 
-            List<Event> events = mapper.readValue(input, mapper.getTypeFactory().constructCollectionType(List.class, Event.class));
+            List<Event> events = mapper.readValue(input,
+                    mapper.getTypeFactory().constructCollectionType(List.class, Event.class));
 
             for (Event e:events) {
                 e.setUser(u);
             }
-
-            for (Event e:events) {
-                System.out.println(e);
-            }
-
             result = new HashSet<Event>((Collection) this.eventDao.saveAll(events));
-
-
             return new ResponseEntity<>(result, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
@@ -93,22 +85,12 @@ public class RestApiController {
         }
     }
 
-    //TODO remove username param
     @RequestMapping(value="/delete" ,method= RequestMethod.POST)
     public ResponseEntity<String> deleteEvents(@RequestBody String input){
         try {
-            System.out.println(input);
-
-
-            List<Event> events = mapper.readValue(input, mapper.getTypeFactory().constructCollectionType(List.class, Event.class));
-
-
-            for (Event e:events) {
-                System.out.println(e);
-            }
-
+            List<Event> events = mapper.readValue(input,
+                    mapper.getTypeFactory().constructCollectionType(List.class, Event.class));
             this.eventDao.deleteAll(events);
-
             return new ResponseEntity<>("", HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
@@ -116,7 +98,16 @@ public class RestApiController {
         }
     }
 
-
-
+    @RequestMapping(value="/{username}" ,method= RequestMethod.GET)
+    public ResponseEntity<User> getCalendarOwner(@PathVariable String username){
+        User u = null;
+        try {
+            u = this.userDao.findUserByUsername(username);
+            return new ResponseEntity<>(u, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(u, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 }

@@ -3,12 +3,14 @@ import {HttpClient} from '@angular/common/http';
 import {Router} from '@angular/router';
 import {tap} from 'rxjs/operators';
 import {Group} from '../model/group.model';
+import {AuthService} from './auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GroupService {
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient,
+              private authService: AuthService) {
   }
 
   createGroup(groupName: string, teamLeader: string) {
@@ -38,6 +40,15 @@ export class GroupService {
 
   getTeamLeaders() {
     return this.http.get<string[]>('http://localhost:8762/groups/teamLeaders', {observe: 'response'});
+  }
+
+  // TODO check privilege TL or deputy?
+  getGroupByTeamLeader(username?: string) {
+    if (!username) {
+      username = `${this.authService.user.getValue().sub}`;
+    }
+    const url = `http://localhost:8762/groups/members/${username}`;
+    return this.http.get<string[]>(url, {observe: 'response'});
   }
 
   getGroups() {

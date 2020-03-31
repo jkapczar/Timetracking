@@ -129,59 +129,6 @@ public class RestApiController {
         }
     }
 
-    @RequestMapping(value = "/test", method = RequestMethod.GET)
-    @Transactional
-    public ResponseEntity<String> testGroup(@RequestBody String body) {
-        try {
-
-            User u = userDao.findUserByUserName("u4");
-
-            System.out.println(u);
-
-            /*
-            User u = userDao.findUserByUserName("u1");
-            Group g = groupDao.findGroupByName("test2");
-            u.setMemberOf(g);
-            userDao.save(u);
-*/
-
-
-            return new ResponseEntity<>("", HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>("", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @RequestMapping(value = "/test2", method = RequestMethod.GET)
-    public ResponseEntity<String> testGroup2(@RequestBody String body) {
-        try {
-            User u1 = new User();
-            User u2 = new User();
-            User u3 = new User();
-            User u4 = new User();
-            u1.setUsername("u1");
-            u2.setUsername("u2");
-            u3.setUsername("u3");
-            u4.setUsername("u4");
-            Group g = new Group();
-            Group g2 = new Group();
-            g.setName("test");
-            g.getMembers().add(u1);
-            g.getMembers().add(u2);
-            g2.setName("test2");
-            g2.getMembers().add(u3);
-            g2.getMembers().add(u4);
-            groupDao.save(g);
-            groupDao.save(g2);
-
-            return new ResponseEntity<>("", HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>("", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
     @RequestMapping(value = "/get/{groupName}", method = RequestMethod.GET)
     public ResponseEntity<Group> getGroup(@PathVariable String groupName) {
         Group group = null;
@@ -218,6 +165,26 @@ public class RestApiController {
         }
     }
 
+    @RequestMapping(value = "/members/{username}", method = RequestMethod.GET)
+    public ResponseEntity<Set<String>> getTeamMembers(@PathVariable String username) {
+        Set<String> users = new HashSet<>();
+        try {
+            Group g = this.groupDao.findGroupMembersByTeamLeader(username);
+
+            if (g != null) {
+                users.addAll(g.getDeputies().stream().map(e->e.getUsername())
+                        .collect(Collectors.toList()));
+                users.addAll(g.getMembers().stream().map(e->e.getUsername())
+                        .collect(Collectors.toList()));
+                users.add(g.getTeamLeader().getUsername());
+            }
+
+            return new ResponseEntity<>(users, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(users, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @RequestMapping(value = "/allUnassignedUsers", method = RequestMethod.GET)
     public ResponseEntity<Set<String>> getAllUnassignedUsers() {
