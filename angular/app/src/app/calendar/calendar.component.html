@@ -191,16 +191,42 @@
 
   <br><br>
 
-  <full-calendar
-    #fullcalendar
-    [editable]="false"
-    [selectable]="true"
-    [displayEventEnd]="true"
-    [eventTimeFormat]="timeFormat"
-    [events]="eventsModel"
-    [header]="options.header"
-    [customButtons]="options.customButtons"
-    (select)="onSelect($event)"
-    [plugins]="options.plugins"
-  ></full-calendar>
+<div class="row">
+  <div class="col"><h3>{{calendarHeader}}</h3></div>
+  <div class="col">
+    <button
+      (click)="getNextMonth()"
+      type="button"
+      class="btn btn-primary"
+      style="float: right; margin-left: 3%;">
+        <i class="fas fa-chevron-right"></i>
+    </button>
+    <button
+      (click)="getPreviousMonth()"
+      type="button"
+      class="btn btn-primary"
+      style="float: right; margin-left: 3%;">
+        <i class="fas fa-chevron-left"></i>
+    </button>
+    <button
+      (click)="checkInOut()"
+      type="button"
+      class="btn btn-primary"
+      style="float: right; margin-left: 3%;">
+      <i *ngIf="!checkedIn" class="far fa-calendar-check"></i>
+      <i *ngIf="checkedIn" class="fas fa-home"></i>
+    </button>
+  </div>
+</div>
+<full-calendar
+  #fullcalendar
+  [editable]="false"
+  [selectable]="true"
+  [displayEventEnd]="true"
+  [eventTimeFormat]="timeFormat"
+  [events]="eventsModel"
+  [header]="options.header"
+  [customButtons]="options.customButtons"
+  (select)="onSelect($event)"
+  [plugins]="options.plugins"></full-calendar>
 

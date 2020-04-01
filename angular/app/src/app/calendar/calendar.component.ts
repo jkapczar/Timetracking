@@ -35,6 +35,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   multipleDaySelection = false;
   selectedDayEvents: CalendarEvent[] = [];
   modalHeader: string;
+  calendarHeader = '';
   activeModal: NgbActiveModal;
   validEventTime = true;
   activeSelection: DateSelectionApi;
@@ -46,6 +47,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   selectedUser: string;
   calendarOwner: CalendarUser;
 
+
   timeFormat = (date: Date) => {
     return  this.getTime(date);
   }
@@ -53,8 +55,8 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   // TODO set selected user with auth
   ngOnInit() {
     this.eventsModel = [];
+    this.setHeaderDate();
     this.getCalendarOwner().then(r => (this.setUserData(r.body), this.fetchUsers(r.body.username)));
-
     this.options = {
       header: false,
       plugins: [dayGridPlugin, interactionPlugin, bootstrapPlugin]
@@ -62,7 +64,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-   this.fetchEvents();
+    this.fetchEvents();
   }
 
   onSelect(event: DateSelectionApi) {
@@ -129,6 +131,20 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     }
     console.log('Checkout', this.eventsModel);
     this.checkedIn = !this.checkedIn;
+  }
+
+  getNextMonth() {
+    console.log('next');
+    this.fullcalendar.getApi().next();
+    this.fetchEvents(this.selectedUser);
+    this.setHeaderDate(this.fullcalendar.getApi().view.currentStart);
+  }
+
+  getPreviousMonth() {
+    console.log('prev');
+    this.fullcalendar.getApi().prev();
+    this.fetchEvents(this.selectedUser);
+    this.setHeaderDate(this.fullcalendar.getApi().view.currentStart);
   }
 
   onRowEditInit(data: any) {
@@ -231,6 +247,13 @@ export class CalendarComponent implements OnInit, AfterViewInit {
       return ('0' + String(num));
     }
     return num;
+  }
+
+  private setHeaderDate(date?: Date) {
+    if (!date) {
+      date = new Date();
+    }
+    this.calendarHeader = date.getFullYear() + ' ' + date.toLocaleString('default', { month: 'long' });
   }
 
   private getLastUnFinishedEvent() {
