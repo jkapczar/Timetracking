@@ -110,4 +110,18 @@ public class RestApiController {
         }
     }
 
+    @RequestMapping(value="/updateOwner" ,method= RequestMethod.POST)
+    public ResponseEntity<User> updateCalendarOwner(@RequestBody String input){
+        User u = null;
+        try {
+            User newUser = mapper.readValue(input, User.class);
+            System.out.println(newUser);
+            u = this.userDao.save(newUser);
+            return new ResponseEntity<>(u, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(u, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

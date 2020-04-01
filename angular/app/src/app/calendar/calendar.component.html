@@ -1,4 +1,4 @@
-<ng-template #content let-modal>
+<ng-template #modalWindow let-modal>
   <div class="modal-header">
     <h4 class="modal-title" id="modal-basic-title">{{modalHeader}}</h4>
     <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
@@ -130,7 +130,7 @@
 
 <p-panel header="User selection" [toggleable]="false">
   <div class="row">
-    <form #userSelectionForm="ngForm" (ngSubmit)="userSelection(userSelectionForm)">
+    <form #userSelectionForm="ngForm">
     <div class="col-md-8">
         <div class="row">
           <div class="col">
@@ -143,6 +143,7 @@
               id="selectUserCalendar"
               name="calendarUser"
               [options]="users"
+              [(ngModel)]="selectedUser"
               ngModel
               placeholder="Choose"
               filter="true">
@@ -151,7 +152,7 @@
         </div>
         <div class="row" style="padding-top: 10px">
           <div class="col">
-            <button type="submit" class="btn btn-primary">Select</button>
+            <button type="button" class="btn btn-primary" (click)="userSelection()">Select</button>
           </div>
         </div>
     </div>

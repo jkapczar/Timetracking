@@ -50,6 +50,10 @@ export class CalendarService {
     return this.http.get<CalendarUser>(url, {observe: 'response'});
   }
 
+  updateCalendarOwner(owner: CalendarUser) {
+    return this.http.post<CalendarUser>('http://localhost:8762/calendar/updateOwner', owner, {observe: 'response'});
+  }
+
   private createResponseObjects(data: CalendarEvent[]) {
     const tmp: CalendarEvent[] = [];
     for (const e of data) {

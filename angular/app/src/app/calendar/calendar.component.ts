@@ -11,8 +11,6 @@ import {CalendarService} from '../services/calendar.service';
 import {NgForm} from '@angular/forms';
 import {GroupService} from '../services/group.service';
 
-
-
 @Component({
   selector: 'app-calendar',
   templateUrl: './calendar.component.html',
@@ -25,7 +23,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
               private groupService: GroupService) { }
 
   @ViewChild('fullcalendar', { static: false }) fullcalendar: FullCalendarComponent;
-  @ViewChild('content', { static: false }) modalWindow;
+  @ViewChild('modalWindow', { static: false }) modalWindow;
   @ViewChild('userSelectionForm', { static: false }) userSelectionForm;
   @ViewChild('userDetailsForm', { static: false }) userDetailsForm;
 
@@ -55,33 +53,10 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   // TODO set selected user with auth
   ngOnInit() {
     this.eventsModel = [];
-    this.groupService.getGroupByTeamLeader().subscribe(resData => {
-      console.log(resData);
-      if (resData.body) {
-        for (const e of resData.body) {
-          this.users.push({label: e, value: e});
-        }
-        this.userSelectionForm.form.setValue(
-          {calendarUser: this.users}
-        );
-      }
-    });
-    this.setCalendarOwner();
+    this.getCalendarOwner().then(r => (this.setUserData(r.body), this.fetchUsers(r.body.username)));
 
     this.options = {
-      editable: false,
-      themeSystem: 'bootstrap',
-      customButtons: {
-        checkInOutButton: {
-          text: 'Check In',
-          click: () => this.checkInOut()
-        }
-      },
-      header: {
-        left: 'prev checkInOutButton',
-        center: 'title',
-        right: 'next'
-      },
+      header: false,
       plugins: [dayGridPlugin, interactionPlugin, bootstrapPlugin]
     };
   }
@@ -92,7 +67,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
   onSelect(event: DateSelectionApi) {
     this.activeSelection = event;
-    this.dayOffset();
+    this.setDayOffset();
     this.selectedDayEvents = [];
     this.selectedDayEvents = this.getEventsOnDate(this.activeSelection.start, this.activeSelection.end);
     if (Math.abs(this.activeSelection.end.getDate() - this.activeSelection.start.getDate()) === 0) {
@@ -105,16 +80,20 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     this.activeModal = this.modalService.open(this.modalWindow);
   }
 
-  userSelection(form: NgForm) {
-    this.selectedUser = this.userSelectionForm.form.value.calendarUser;
+  userSelection() {
     if (this.selectedUser) {
-      this.setCalendarOwner(this.selectedUser);
+      this.getCalendarOwner(this.selectedUser).then(r => this.setUserData(r.body));
       this.fetchEvents(this.selectedUser);
     }
   }
 
   userDetailsUpdate(form: NgForm) {
     console.log(form);
+    this.calendarOwner.defaultNumOfHolidays = form.form.value.defNumOfHolidays;
+    this.calendarOwner.defaultNumOfHOs = form.form.value.defNumOfHomeOffice;
+    this.calendarService.updateCalendarOwner(this.calendarOwner).subscribe(resData => {
+      this.calendarOwner = resData.body;
+    });
   }
 
   checkInOut() {
@@ -280,14 +259,16 @@ export class CalendarComponent implements OnInit, AfterViewInit {
         && element.start.getDate() <= endDate.getDate()));
   }
 
-  private setCalendarOwner(username?: string) {
-    this.calendarService.getCalendarOwner(username).subscribe(resData => {
-      this.calendarOwner = resData.body;
+  private async getCalendarOwner(username?: string) {
+    return await this.calendarService.getCalendarOwner(username).toPromise();
+  }
+
+  private setUserData(user: CalendarUser) {
+      this.calendarOwner = user;
       this.userDetailsForm.form.setValue({
         defNumOfHolidays: this.calendarOwner.defaultNumOfHolidays,
         defNumOfHomeOffice: this.calendarOwner.defaultNumOfHOs
       });
-    });
   }
 
   private getDate(date: Date) {
@@ -310,7 +291,21 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     });
   }
 
-  private dayOffset() {
+  private fetchUsers(username?: string) {
+      this.groupService.getGroupByTeamLeader(username).subscribe(resData => {
+        if (resData.body) {
+          for (const e of resData.body) {
+            this.users.push({label: e, value: e});
+          }
+          this.userSelectionForm.form.patchValue(
+            {calendarUser: this.users}
+          );
+        }
+        this.selectedUser = this.calendarOwner.username;
+      });
+  }
+
+  private setDayOffset() {
     this.activeSelection.end.setDate(this.activeSelection.end.getDate() - 1);
     this.activeSelection.end.setHours(23);
     this.activeSelection.end.setMinutes(59);
