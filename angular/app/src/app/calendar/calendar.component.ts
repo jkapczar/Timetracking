@@ -39,9 +39,11 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   activeModal: NgbActiveModal;
   validEventTime = true;
   activeSelection: DateSelectionApi;
-
+  buttonItems = [];
   checkedIn = false;
 
+  isHOAllowed = true;
+  isHolidayAllowed = true;
 
   users: {label: string, value: string}[] = [];
   selectedUser: string;
@@ -72,15 +74,54 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     this.setDayOffset();
     this.selectedDayEvents = [];
     this.selectedDayEvents = this.getEventsOnDate(this.activeSelection.start, this.activeSelection.end);
-    if (Math.abs(this.activeSelection.end.getDate() - this.activeSelection.start.getDate()) === 0) {
+    console.log(this.selectedDayEvents);
+    const days = this.getDayDifference(this.activeSelection.start, this.activeSelection.end);
+    if (days === 1) {
       this.setModalHeader(this.activeSelection.start);
       this.multipleDaySelection = false;
+      this.manageHOAndHolidayRequests();
     } else {
       this.setModalHeader(this.activeSelection.start, this.activeSelection.end);
       this.multipleDaySelection = true;
+      this.manageHOAndHolidayRequests();
     }
     this.activeModal = this.modalService.open(this.modalWindow);
   }
+////////////////////
+  manageHOAndHolidayRequests(type?: string) {
+    console.log(this.calendarOwner);
+    const days = this.getDayDifference(this.activeSelection.start, this.activeSelection.end);
+    console.log(days);
+    // TODO remove this (update calendarowner in the save func only)
+    if (type) {
+      if (type === 'holiday') {
+        this.calendarOwner.numOfHolidays = this.calendarOwner.numOfHolidays + days;
+      } else {
+        this.calendarOwner.numOfHOs = this.calendarOwner.numOfHOs + days;
+      }
+    }
+    console.log(this.calendarOwner);
+    console.log(days >= (this.calendarOwner.defaultNumOfHolidays - this.calendarOwner.numOfHolidays));
+    console.log(days >= (this.calendarOwner.defaultNumOfHOs - this.calendarOwner.numOfHOs));
+    if (days > (this.calendarOwner.defaultNumOfHolidays - this.calendarOwner.numOfHolidays)) {
+      this.isHolidayAllowed = true;
+    } else {
+      this.isHolidayAllowed = false;
+    }
+    if (days > (this.calendarOwner.defaultNumOfHOs - this.calendarOwner.numOfHOs)) {
+      this.isHOAllowed = true;
+    } else {
+      this.isHOAllowed = false;
+    }
+    console.log(this.isHOAllowed, this.isHolidayAllowed);
+  }
+
+  getDayDifference(start: Date, end: Date) {
+    return Math.ceil((Math.abs(start.getTime() - end.getTime())) / (1000 * 3600 * 24));
+  }
+//////////////////////////
+
+
 
   userSelection() {
     if (this.selectedUser) {
@@ -176,16 +217,36 @@ export class CalendarComponent implements OnInit, AfterViewInit {
         false);
       this.selectedDayEvents.push(newEvent);
       this.validEventTime = this.checkEventTimeValidity(newEvent);
+    } else if (type === 'holiday') {
+      this.manageHOAndHolidayRequests('holiday');
+      if (this.multipleDaySelection) {
+        this.setEvents('Holiday', 'holiday', 'purple');
+      } else {
+        this.selectedDayEvents = [];
+        this.selectedDayEvents.push(new CalendarEvent(null,
+          'Holiday',
+          'holiday',
+          new Date(this.activeSelection.start.getTime()),
+          new Date(this.activeSelection.start.getTime()),
+          'purple',
+          'black',
+          true));
+      }
     } else {
-      this.selectedDayEvents = [];
-      this.selectedDayEvents.push(new CalendarEvent(null,
-        'Holiday',
-        'holiday',
-        new Date(this.activeSelection.start.getTime()),
-        new Date(this.activeSelection.start.getTime()),
-        'purple',
-        'black',
-        true));
+      this.manageHOAndHolidayRequests('homeOffice');
+      if (this.multipleDaySelection) {
+        this.setEvents('HomeOffice', 'homeOffice', 'blue');
+      } else {
+        this.selectedDayEvents = [];
+        this.selectedDayEvents.push(new CalendarEvent(null,
+          'HomeOffice',
+          'homeOffice',
+          new Date(this.activeSelection.start.getTime()),
+          new Date(this.activeSelection.start.getTime()),
+          'blue',
+          'black',
+          true));
+      }
     }
   }
 
@@ -194,6 +255,12 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   }
 
   async save() {
+
+    console.log(this.calendarOwner);
+
+    await this.calendarService.updateCalendarOwner(this.calendarOwner).subscribe(resData => {
+      this.calendarOwner = resData.body;
+    });
 
     let tmp = this.getEventsOnDate(this.activeSelection.start, this.activeSelection.end);
 
@@ -204,42 +271,34 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
     tmp = tmp.filter(element => (element.id != null && this.selectedDayEvents.indexOf(element) === -1));
 
+    console.log('delete', tmp);
+
     await this.calendarService.deleteEvents(tmp).subscribe(resData => {
       console.log(resData);
     });
-    console.log(this.selectedUser);
     await this.calendarService.saveEvents(this.selectedDayEvents, this.selectedUser).subscribe(resData => {
       console.log(resData);
       this.eventsModel = this.eventsModel.concat(resData);
-      console.log('events after save ', this.eventsModel);
     });
     this.activeModal.close();
-  }
-
-  setHolidays() {
-    this.clearEvents();
-    const date = new Date(this.activeSelection.start);
-    const endDate = this.activeSelection.end;
-
-    while (date.getTime() <= endDate.getTime()) {
-      this.selectedDayEvents.push(new CalendarEvent(null,
-        'Holiday',
-        'holiday',
-        new Date(date.getTime()),
-        new Date(date.getTime()),
-        'purple',
-        'black',
-        true));
-      date.setDate(date.getDate() + 1);
-    }
-
   }
 
   clearEvents() {
     const startDate = this.activeSelection.start;
     const endDate = this.activeSelection.end;
+
+    for (const calEvent of this.selectedDayEvents) {
+      if (calEvent.groupId === 'holiday') {
+        this.calendarOwner.numOfHolidays -= 1;
+      } else if (calEvent.groupId === 'homeOffice') {
+        this.calendarOwner.numOfHOs -= 1;
+      }
+    }
+
+    console.log(this.selectedDayEvents);
     this.selectedDayEvents = this.selectedDayEvents.filter(element =>
       !((element.start.getTime() >= startDate.getTime()) && (element.start.getTime() <= endDate.getTime())));
+    console.log(this.selectedDayEvents);
   }
 
   pad(num: number) {
@@ -247,6 +306,24 @@ export class CalendarComponent implements OnInit, AfterViewInit {
       return ('0' + String(num));
     }
     return num;
+  }
+
+  private setEvents(title: string, groupId: string, color: string) {
+    this.clearEvents();
+    const date = new Date(this.activeSelection.start);
+    const endDate = this.activeSelection.end;
+
+    while (date.getTime() <= endDate.getTime()) {
+      this.selectedDayEvents.push(new CalendarEvent(null,
+        title,
+        groupId,
+        new Date(date.getTime()),
+        new Date(date.getTime()),
+        color,
+        'black',
+        true));
+      date.setDate(date.getDate() + 1);
+    }
   }
 
   private setHeaderDate(date?: Date) {
@@ -267,19 +344,9 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
   private getEventsOnDate(startDate: Date, endDate?: Date) {
     console.log(startDate, endDate);
-    if (!endDate) {
-      return this.eventsModel.filter(
-        element => (element.start.getDate() === startDate.getDate()
-          && element.start.getMonth() === startDate.getMonth()
-          && element.start.getFullYear() === startDate.getFullYear()));
-    }
+    console.log(this.eventsModel);
     return this.eventsModel.filter(
-      element => (element.start.getDate() >= startDate.getDate()
-        && element.start.getMonth() >= startDate.getMonth()
-        && element.start.getFullYear() >= startDate.getFullYear()
-        && element.start.getFullYear() <= endDate.getFullYear()
-        && element.start.getMonth() <= endDate.getMonth()
-        && element.start.getDate() <= endDate.getDate()));
+      element => (element.start.getTime() >= startDate.getTime() && element.start.getTime() <= endDate.getTime()));
   }
 
   private async getCalendarOwner(username?: string) {

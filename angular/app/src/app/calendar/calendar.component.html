@@ -1,6 +1,7 @@
 <ng-template #modalWindow let-modal>
   <div class="modal-header">
     <h4 class="modal-title" id="modal-basic-title">{{modalHeader}}</h4>
+    <p *ngIf="!validEventTime">Invalid event Time</p>
     <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
       <span aria-hidden="true">&times;</span>
     </button>
@@ -93,33 +94,31 @@
         </tr>
       </ng-template>
     </p-table>
-    <p
-      *ngIf="selectedDayEvents.length > 0 && !multipleDaySelection && selectedDayEvents[0].groupId === 'holiday'">
-      A Holiday was set on this day!
-    </p>
   </div>
   <div class="modal-footer">
-    <p *ngIf="!validEventTime">Invalid event Time</p>
     <button
       type="button"
       class="btn btn-primary"
       (click)="clearEvents()"
-      >Clear Events</button>
+      >Clear</button>
     <button
       type="button"
       class="btn btn-primary"
-      (click)="addNewCalendarEvent('workTime')"
-      *ngIf="!multipleDaySelection">Add new event</button>
+      (click)="addNewCalendarEvent('homeOffice')"
+      [disabled]="isHOAllowed"
+    >Home Office</button>
     <button
       type="button"
       class="btn btn-primary"
       (click)="addNewCalendarEvent('holiday')"
-      *ngIf="!multipleDaySelection">Set Holiday</button>
+      [disabled]="isHolidayAllowed"
+    >Holiday</button>
     <button
       type="button"
       class="btn btn-primary"
-      (click)="setHolidays()"
-      *ngIf="multipleDaySelection">Set Holidays</button>
+      (click)="addNewCalendarEvent('workTime')"
+      *ngIf="!multipleDaySelection"
+    >New</button>
     <button
       type="button"
       class="btn btn-primary"
