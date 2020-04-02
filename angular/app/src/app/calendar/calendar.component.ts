@@ -48,6 +48,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   users: {label: string, value: string}[] = [];
   selectedUser: string;
   calendarOwner: CalendarUser;
+  calendarProps = {holiday: 0, ho: 0};
 
 
   timeFormat = (date: Date) => {
@@ -72,6 +73,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   onSelect(event: DateSelectionApi) {
     this.activeSelection = event;
     this.setDayOffset();
+    this.setCalendarOwnerProps();
     this.selectedDayEvents = [];
     this.selectedDayEvents = this.getEventsOnDate(this.activeSelection.start, this.activeSelection.end);
     console.log(this.selectedDayEvents);
@@ -92,23 +94,22 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     console.log(this.calendarOwner);
     const days = this.getDayDifference(this.activeSelection.start, this.activeSelection.end);
     console.log(days);
-    // TODO remove this (update calendarowner in the save func only)
     if (type) {
       if (type === 'holiday') {
-        this.calendarOwner.numOfHolidays = this.calendarOwner.numOfHolidays + days;
+        this.calendarProps.holiday = this.calendarProps.holiday + days;
       } else {
-        this.calendarOwner.numOfHOs = this.calendarOwner.numOfHOs + days;
+        this.calendarProps.ho = this.calendarProps.ho + days;
       }
     }
     console.log(this.calendarOwner);
-    console.log(days >= (this.calendarOwner.defaultNumOfHolidays - this.calendarOwner.numOfHolidays));
-    console.log(days >= (this.calendarOwner.defaultNumOfHOs - this.calendarOwner.numOfHOs));
-    if (days > (this.calendarOwner.defaultNumOfHolidays - this.calendarOwner.numOfHolidays)) {
+    console.log(days >= (this.calendarOwner.defaultNumOfHolidays - this.calendarProps.holiday));
+    console.log(days >= (this.calendarOwner.defaultNumOfHOs - this.calendarProps.ho));
+    if (days > (this.calendarOwner.defaultNumOfHolidays - this.calendarProps.holiday)) {
       this.isHolidayAllowed = true;
     } else {
       this.isHolidayAllowed = false;
     }
-    if (days > (this.calendarOwner.defaultNumOfHOs - this.calendarOwner.numOfHOs)) {
+    if (days > (this.calendarOwner.defaultNumOfHOs - this.calendarProps.ho)) {
       this.isHOAllowed = true;
     } else {
       this.isHOAllowed = false;
@@ -136,6 +137,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     this.calendarOwner.defaultNumOfHOs = form.form.value.defNumOfHomeOffice;
     this.calendarService.updateCalendarOwner(this.calendarOwner).subscribe(resData => {
       this.calendarOwner = resData.body;
+      this.setUserData(this.calendarOwner);
     });
   }
 
@@ -256,10 +258,10 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
   async save() {
 
-    console.log(this.calendarOwner);
-
+    this.reSetCalendarOwnerProps();
     await this.calendarService.updateCalendarOwner(this.calendarOwner).subscribe(resData => {
       this.calendarOwner = resData.body;
+      this.setUserData(this.calendarOwner);
     });
 
     let tmp = this.getEventsOnDate(this.activeSelection.start, this.activeSelection.end);
@@ -289,9 +291,9 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
     for (const calEvent of this.selectedDayEvents) {
       if (calEvent.groupId === 'holiday') {
-        this.calendarOwner.numOfHolidays -= 1;
+        this.calendarProps.holiday -= 1;
       } else if (calEvent.groupId === 'homeOffice') {
-        this.calendarOwner.numOfHOs -= 1;
+        this.calendarProps.ho -= 1;
       }
     }
 
@@ -355,10 +357,21 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
   private setUserData(user: CalendarUser) {
       this.calendarOwner = user;
+      this.setCalendarOwnerProps();
       this.userDetailsForm.form.setValue({
         defNumOfHolidays: this.calendarOwner.defaultNumOfHolidays,
         defNumOfHomeOffice: this.calendarOwner.defaultNumOfHOs
       });
+  }
+
+  private setCalendarOwnerProps() {
+    this.calendarProps.holiday = this.calendarOwner.numOfHolidays;
+    this.calendarProps.ho = this.calendarOwner.numOfHOs;
+  }
+
+  private reSetCalendarOwnerProps() {
+    this.calendarOwner.numOfHolidays = this.calendarProps.holiday;
+    this.calendarOwner.numOfHOs = this.calendarProps.ho;
   }
 
   private getDate(date: Date) {
