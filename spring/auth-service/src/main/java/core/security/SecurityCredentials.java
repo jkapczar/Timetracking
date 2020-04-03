@@ -1,4 +1,4 @@
-package auth.security;
+package core.security;
 
 import common.security.JwtConfig;
 import org.springframework.beans.factory.annotation.Autowired;

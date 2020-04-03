@@ -51,7 +51,7 @@ export class AuthService {
   }
 
   registration(user: User) {
-    this.http.post('http://localhost:8762/auth/registration', JSON.stringify(user)).subscribe(resData => {
+    this.http.post('http://localhost:8762/auth/registration', JSON.stringify(user), {observe: 'response'}).subscribe(resData => {
       console.log(resData);
     });
   }

@@ -25,4 +25,7 @@ public interface UserDao extends CrudRepository<User, Long> {
     @Query("match (n:User) where (n)<-[:TEAMLEADER]-(:Group) return n.username")
     Set<String> findTeamLeaders();
 
+    @Query("match(n:User {username: $username}) detach delete n")
+    void deleteUserByUsername(String username);
+
 }

@@ -1,6 +1,7 @@
 package core.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -13,13 +14,10 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity(name = "User")
-@Table(name = "USERS", uniqueConstraints={@UniqueConstraint(columnNames={"username"})})
-@NamedQueries({
-        @NamedQuery(name = "User.findAll", query = "Select u.username from User u"),
-        @NamedQuery(name = "User.findById", query = "Select u from User u where  u.id = :id"),
-        @NamedQuery(name = "User.findUsername", query = "Select u from User u where u.username = :username"),
-        @NamedQuery(name = "User.deleteUsername", query = "Delete from User u where u.username = :username")
+@Table(name = "USERS", uniqueConstraints={
+        @UniqueConstraint(columnNames="username",name = "usernameConstraint")
 })
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class User {
     @Id
     @NotNull

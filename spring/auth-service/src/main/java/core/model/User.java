@@ -1,4 +1,4 @@
-package auth.model;
+package core.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
@@ -11,12 +11,8 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity(name = "User")
-@Table(name = "USERCREDS")
-@NamedQueries({
-        @NamedQuery(name = "User.findById", query = "Select u from User u where  u.id = :id"),
-        @NamedQuery(name = "User.findUsername", query = "Select u from User u where u.username = :username"),
-        @NamedQuery(name = "User.updateStatus", query = "Update User u set u.active = CASE u.active " +
-                "WHEN TRUE THEN FALSE ELSE TRUE END where u.username = :username")
+@Table(name = "USERCREDS", uniqueConstraints={
+        @UniqueConstraint(columnNames="username",name = "usernameConstraint")
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class User {

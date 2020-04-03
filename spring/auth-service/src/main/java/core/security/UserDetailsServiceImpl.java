@@ -1,6 +1,6 @@
-package auth.security;
+package core.security;
 
-import auth.service.UserService;
+import core.dao.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -15,11 +15,11 @@ import java.util.List;
 @Service("UserDetailsService")
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    private UserService userService;
+    private UserDao userDao;
 
     @Autowired
-    public UserDetailsServiceImpl(UserService userService) {
-        this.userService = userService;
+    public UserDetailsServiceImpl(UserDao userDao) {
+        this.userDao = userDao;
     }
 
 
@@ -28,7 +28,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         try {
-            auth.model.User u = userService.findUserByUsername(username);
+            core.model.User u = userDao.findByUsername(username);
             List<GrantedAuthority> grantedAuthorities = AuthorityUtils.commaSeparatedStringToAuthorityList("USER");
             return new User(u.getUsername(),u.getPassword(),grantedAuthorities);
         } catch (Exception e) {

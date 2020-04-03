@@ -1,6 +1,6 @@
-package auth.security;
+package core.security;
 
-import auth.model.User;
+import core.model.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import common.security.JwtConfig;
 import io.jsonwebtoken.Jwts;
@@ -14,7 +14,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;

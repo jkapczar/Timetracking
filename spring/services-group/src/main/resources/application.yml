@@ -1,4 +1,14 @@
 spring:
+  rabbitmq:
+    host: 192.168.99.100
+    listener:
+      simple:
+        retry:
+          enabled: false
+    template:
+      reply-timeout: 15000
+      retry:
+        enabled: false
   data:
     neo4j:
       uri: bolt://192.168.99.100

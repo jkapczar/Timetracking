@@ -3,31 +3,29 @@ package core.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import core.dao.UserDao;
 import core.model.User;
-import core.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/users")
 public class RestApiController {
 
-    private UserService userService;
+    private UserDao userDao;
 
     @Autowired
-    RestApiController(UserService userService) {
-        this.userService = userService;
+    RestApiController(UserDao userDao) {
+        this.userDao = userDao;
     }
 
     @RequestMapping(value="/all" ,method= RequestMethod.GET)
-    public ResponseEntity<List<String>> getAllUsers(){
-        List<String> users = new ArrayList<>();
+    public ResponseEntity<Set<String>> getAllUsers(){
+        Set<String> users = new HashSet<>();
         try {
-            users = userService.findAllUsers();
+            users = userDao.findAllUserNames();
             return new ResponseEntity<>(users, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(users, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -38,7 +36,7 @@ public class RestApiController {
     public ResponseEntity<User> getUser(@PathVariable(value="username") String username){
         User user = null;
         try {
-            user = userService.findUserByUsername(username);
+            user = userDao.findByUsername(username);
             System.out.println(user);
             return new ResponseEntity<>(user, HttpStatus.OK);
         } catch (Exception e) {
@@ -52,7 +50,7 @@ public class RestApiController {
         ObjectMapper mapper = new ObjectMapper();
         try {
             User u =  mapper.readValue(input, User.class);
-            userService.updateUser(u);
+            userDao.save(u);
             return new ResponseEntity<>("", HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
@@ -64,7 +62,7 @@ public class RestApiController {
     public ResponseEntity<String> deleteUser(@PathVariable(value="username") String username){
         System.out.println("deleting " + username);
         try {
-            userService.deleteUser(username);
+            userDao.deleteUserByUserName(username);
             return new ResponseEntity<>("", HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
