@@ -19,7 +19,7 @@ public class Receiver {
     private ObjectMapper mapper = new ObjectMapper();
 
     @RabbitListener(queues = "user.createAuth.requests")
-    public Boolean receive(String input) {
+    public Boolean create(String input) {
         System.out.println("RECEIVED IN USER " + LocalDateTime.now().toString());
         System.out.println(input);
         User u = null;
@@ -41,5 +41,15 @@ public class Receiver {
         }
 
         return true;
+    }
+
+    @RabbitListener(queues = "#{autoDeleteQueue.name}")
+    public void delete(String input) {
+        System.out.println(input);
+        try {
+            this.userDao.deleteUserByUserName(input);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

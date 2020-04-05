@@ -1,6 +1,7 @@
 package core.dao;
 
 import core.model.User;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -18,5 +19,9 @@ public interface UserDao extends CrudRepository<User, Long> {
 
     @Query("Update User u set u.active = CASE u.active WHEN TRUE THEN FALSE ELSE TRUE END where u.username = :username")
     public void updateStatus(@Param("username") String username);
+
+    @Modifying
+    @Query("Delete from User u where u.username = :username")
+    public void deleteUserByUserName(@Param("username") String username);
 
 }

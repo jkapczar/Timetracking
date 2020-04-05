@@ -40,4 +40,15 @@ public class Receiver {
         }
         return true;
     }
+
+    @RabbitListener(queues = "#{autoDeleteQueue.name}")
+    public void delete(String input) {
+        System.out.println(input);
+        try {
+            this.userDao.deleteUserByUsername(input);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }

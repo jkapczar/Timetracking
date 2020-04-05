@@ -2,6 +2,8 @@
 package core.messaging;
 
 import org.springframework.amqp.core.DirectExchange;
+import org.springframework.amqp.core.FanoutExchange;
+import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -14,7 +16,10 @@ public class Sender {
     @Autowired
     private DirectExchange exchange;
 
-    public Boolean send(String message) {
+    @Autowired
+    private FanoutExchange fanout;
+
+    public Boolean sendCreate(String message) {
         System.out.println("START " + message + " " + LocalDateTime.now());
         Boolean s = (Boolean) template
                 .convertSendAndReceive(exchange.getName(),
@@ -22,6 +27,10 @@ public class Sender {
                         message);
         System.out.println("RECEIVED " + message + " RESULT " +  s + " " + LocalDateTime.now());
         return s;
+    }
+
+    public void sendDelete(String message) {
+        template.convertAndSend(fanout.getName(),"user.delete" ,message);
     }
 
 

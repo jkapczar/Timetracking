@@ -103,12 +103,25 @@ public class RestApiController {
         return new ResponseEntity<>("", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @RequestMapping(value="/auth/delete/{username}" ,method= RequestMethod.POST)
+    public ResponseEntity<String> deleteUser(@PathVariable String username) {
+        Boolean result = null;
+        try {
+            this.userDao.deleteUserByUserName(username);
+            this.sender.sendDelete(username);
+            return new ResponseEntity<>("", HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>("", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     private boolean createUser(User user, String input) {
        User u = null;
        Boolean s = null;
        try {
            u = this.userDao.save(user);
-           s = this.sender.send(input);
+           s = this.sender.sendCreate(input);
        } catch (Exception e) {
            e.printStackTrace();
            return false;
