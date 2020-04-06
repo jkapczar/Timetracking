@@ -30,6 +30,7 @@ export class AuthService {
         this.token.next(resData.headers.get('Authorization'));
         const user = JSON.parse(base64url.decode(this.token.value.split('.')[1]));
         this.user.next(user);
+        console.log(user);
         localStorage.setItem('userToken', this.token.value);
       }));
   }

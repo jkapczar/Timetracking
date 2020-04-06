@@ -1,19 +1,14 @@
-<div class="row">
-  <div class="col-md-6">
-    <form #selectionForm="ngForm">
-      <h5>User selection:</h5>
-      <label for="userSelection">Selected user:</label>
-      <p-dropdown id="userSelection" name="userSelection" [options]="users" [(ngModel)]="selectedUser" (ngModelChange)="onSelect()"></p-dropdown>
-    </form>
-  </div>
-</div>
+<app-user-admin-view
+  (selectedUserEmitter)="setSelectedUser($event)"
+  [user] = user
+  [active] = active
+></app-user-admin-view>
 
-<hr>
+<h4>Current user: {{user?user.username:''}}</h4>
 
 <div class="row d-flex justify-content-center">
   <div class="col-md-4">
     <form #userInformation="ngForm" (ngSubmit)="onSubmitUserInformation(userInformation)">
-
           <h5>Personal information</h5>
           <div class="form-group">
             <label for="firstName">First name:</label>
@@ -58,21 +53,3 @@
       </div>
 </div>
 
-<hr>
-
-<div class="row">
-  <div class="col-md-6">
-    <label for="userDeletion">Delete selected user: </label>
-    <button id="userDeletion" type="button" class="btn btn-danger" (click)="onDelete()">Delete</button>
-  </div>
-  <div class="col-md-6" *ngIf="this.active; else activeElse">
-    <label for="userDeactivation">Deactivate selected user: </label>
-    <button id="userDeactivation" type="button" class="btn btn-danger" (click)="onActivate()">Deactivate</button>
-  </div>
-  <ng-template #activeElse>
-    <div class="col-md-6">
-      <label for="userActivate">Activate selected user: </label>
-      <button id="userActivate" type="button" class="btn btn-danger" (click)="onActivate()">Activate</button>
-    </div>
-  </ng-template>
-</div>

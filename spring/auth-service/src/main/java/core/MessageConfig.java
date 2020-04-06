@@ -15,8 +15,13 @@ public class MessageConfig {
     }
 
     @Bean
-    public DirectExchange exchange() {
+    public DirectExchange userExchange() {
         return new DirectExchange("user.createAuth");
+    }
+
+    @Bean
+    public DirectExchange groupExchange() {
+        return new DirectExchange("group.privilege");
     }
 
     @Bean

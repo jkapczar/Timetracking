@@ -8,7 +8,25 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class MessageConfig {
+    // group
+    @Bean(name = "groupExchange")
+    public DirectExchange groupExchange() {
+        return new DirectExchange("group.privilege");
+    }
 
+    @Bean
+    public Queue groupQueue() {
+        return new Queue("group.privilege.requests");
+    }
+
+    @Bean
+    public Binding groupBinding(DirectExchange groupExchange,
+                           Queue groupQueue) {
+        return BindingBuilder.bind(groupQueue)
+                .to(groupExchange)
+                .with("privilege");
+    }
+    // user deletion
     @Bean
     public FanoutExchange fanout() {
         return new FanoutExchange("user.delete");
@@ -25,7 +43,7 @@ public class MessageConfig {
         return BindingBuilder.bind(autoDeleteQueue)
                 .to(fanout);
     }
-
+    // user creation
     @Bean(name = "calendarExchange")
     public DirectExchange calendarExchange() {
         return new DirectExchange("user.createCalendar");

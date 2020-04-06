@@ -17,6 +17,7 @@ public interface UserDao extends CrudRepository<User, Long> {
     @Query("Select u from User u where u.username = :username")
     public User findByUsername(@Param("username") String username);
 
+    @Modifying
     @Query("Update User u set u.active = CASE u.active WHEN TRUE THEN FALSE ELSE TRUE END where u.username = :username")
     public void updateStatus(@Param("username") String username);
 

@@ -165,6 +165,7 @@ public class RestApiController {
         }
     }
 
+    // TODO Incorrect result size: expected at most 1
     @RequestMapping(value = "/members/{username}", method = RequestMethod.GET)
     public ResponseEntity<Set<String>> getTeamMembers(@PathVariable String username) {
         Set<String> users = new HashSet<>();

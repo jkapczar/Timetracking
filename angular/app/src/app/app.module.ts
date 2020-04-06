@@ -19,6 +19,7 @@ import { GroupManagementComponent } from './group-management/group-management.co
 import {DropdownModule, MultiSelectModule, PanelModule, PickListModule, SplitButtonModule, TableModule} from 'primeng';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import { FullCalendarModule } from '@fullcalendar/angular';
+import { UserAdminComponent } from './user-management/user-admin/user-admin.component';
 
 
 @NgModule({
@@ -33,7 +34,8 @@ import { FullCalendarModule } from '@fullcalendar/angular';
     MatchValueDirective,
     DropdownDirective,
     MenuComponent,
-    GroupManagementComponent
+    GroupManagementComponent,
+    UserAdminComponent
   ],
   imports: [
     BrowserModule,

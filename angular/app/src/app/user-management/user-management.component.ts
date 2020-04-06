@@ -1,11 +1,8 @@
-import {AfterViewChecked, Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {NgForm} from '@angular/forms';
 import {UserService} from '../services/user.service';
 import {AuthService} from '../services/auth.service';
 import {User} from '../model/user.model';
-import {map} from 'rxjs/operators';
-import {Observable, pipe} from 'rxjs';
-import {Dropdown, DropdownModule} from 'primeng';
 import {Creds} from '../model/creds.model';
 
 @Component({
@@ -14,44 +11,32 @@ import {Creds} from '../model/creds.model';
   styleUrls: ['./user-management.component.css']
 })
 export class UserManagementComponent implements OnInit {
-  @ViewChild('selectionForm') selectionForm: NgForm;
   @ViewChild('userInformation') userInformationForm: NgForm;
   @ViewChild('userCredentials') userCredentialsForm: NgForm;
   constructor(private userService: UserService,
               private authService: AuthService) { }
 
-  users = [];
-  selectedUser: string;
+
   user: User;
-  creds: Creds;
+  credentials: Creds;
   active = true;
 
-  // TODO work on selection, and placeholders
-  ngOnInit() {
-    this.userService.getAllUsers().subscribe(data => {
-      for (const item of data.body) {
-        this.users.push({label: item, value: item});
-      }
-    });
-    this.userService.getUser().subscribe( resData => {
-      this.setUI(resData);
-      this.selectionForm.form.setValue({
-        userSelection: this.user.username
-      });
-    });
-    this.authService.getCredentials().subscribe(resData => {
-      this.setCredsUI(resData);
-    });
+  ngOnInit() {}
+
+  onSubmitUserInformation(form: NgForm) {
+    const user = new User(this.user.id, this.user.username, form.value.firstName,
+      form.value.lastName, form.value.email, form.value.phone);
+    this.userService.updateUser(user);
   }
 
-  private setUser(username: string) {
-    console.log('username: ' + username);
-    this.userService.getUser(username).subscribe(resData => {
-      this.setUI(resData);
-    });
-    this.authService.getCredentials(username).subscribe(resData => {
-      this.setCredsUI(resData);
-    });
+  onSubmitUserCredentials(form: NgForm) {
+    const credentials = new Creds(this.user.id, form.value.password,
+      form.value.secQuestion, form.value.secAnswer, this.active);
+    this.authService.updateCredentials(credentials);
+  }
+
+  setSelectedUser(username: string) {
+    this.setUser(username);
   }
 
   private setUI(resData) {
@@ -65,48 +50,25 @@ export class UserManagementComponent implements OnInit {
     });
   }
 
-  private setCredsUI(resData) {
-    this.creds = new Creds(resData.body.id, resData.body.password, resData.body.secQuestion,
+  private setCredentialsUI(resData) {
+    this.credentials = new Creds(resData.body.id, resData.body.password, resData.body.secQuestion,
       resData.body.secAnswer, resData.body.active);
     this.userCredentialsForm.form.setValue({
-      password: this.creds.password,
-      confirmPassword: this.creds.password,
-      secQuestion: this.creds.secQuestion,
-      secAnswer: this.creds.secAnswer
+      password: this.credentials.password,
+      confirmPassword: this.credentials.password,
+      secQuestion: this.credentials.secQuestion,
+      secAnswer: this.credentials.secAnswer
     });
-    this.active = this.creds.active;
+    this.active = this.credentials.active;
   }
 
-  onSubmitUserInformation(form: NgForm) {
-    const user = new User(this.user.id, this.user.username, form.value.firstName,
-      form.value.lastName, form.value.email, form.value.phone);
-    this.userService.updateUser(user);
-  }
-
-  onSubmitUserCredentials(form: NgForm) {
-    const creds = new Creds(this.user.id, form.value.password,
-      form.value.secQuestion, form.value.secAnswer, this.active);
-    this.authService.updateCredentials(creds);
-  }
-
-  onActivate() {
-    console.log(this.selectedUser);
-    this.authService.updateStatus(this.selectedUser).subscribe(resData => {
-      console.log(resData);
-      this.active = !this.active;
+  private setUser(username: string) {
+    console.log('username: ' + username);
+    this.userService.getUser(username).subscribe(resData => {
+      this.setUI(resData);
     });
-  }
-
-  onDelete() {
-    console.log('deleting ' + this.selectedUser);
-    this.userService.deleteUser(this.selectedUser).subscribe(resData => {
-      console.log(resData.status);
-      this.users.splice(this.users.indexOf(this.selectedUser), 1);
-      this.userInformationForm.reset();
+    this.authService.getCredentials(username).subscribe(resData => {
+      this.setCredentialsUI(resData);
     });
-  }
-
-  onSelect() {
-    this.setUser(this.selectedUser);
   }
 }

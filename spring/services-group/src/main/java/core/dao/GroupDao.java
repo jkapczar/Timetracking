@@ -3,6 +3,7 @@ package core.dao;
 import core.model.Group;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 
 import java.util.Set;
@@ -19,5 +20,8 @@ public interface GroupDao extends CrudRepository<Group, Long> {
 
     @Query("match(n:User {username: $username}) where (n)<-[:TEAMLEADER|:DEPUTY]-(:Group) return n")
     Group privilegeCheck(String username);
+
+    @Query("match(n:User {username: $username})<-[:TEAMLEADER|:DEPUTY]-(g:Group) return g.name")
+    Set<String> getUserPrivileges(String username);
 
 }

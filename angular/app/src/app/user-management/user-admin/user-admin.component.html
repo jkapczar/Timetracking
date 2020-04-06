@@ -1,0 +1,26 @@
+<div class="row">
+  <div class="col" style="display: contents">
+    <div class="col-md-3">
+      <form #selectionForm="ngForm">
+        <label for="userSelection">Selected user:</label>
+        <p-dropdown id="userSelection" name="userSelection" [options]="users" [(ngModel)]="selectedUser" (ngModelChange)="onSelect()"></p-dropdown>
+      </form>
+    </div>
+    <div class="col-md-4">
+      <label for="userDeletion">Delete selected user: </label>
+      <button id="userDeletion" type="button" class="btn btn-danger" (click)="onDelete()">Delete</button>
+    </div>
+    <div class="col-md-5" *ngIf="this.active; else activeElse">
+      <label for="userDeactivation">Deactivate selected user: </label>
+      <button id="userDeactivation" type="button" class="btn btn-danger" (click)="onActivate()">Deactivate</button>
+    </div>
+    <ng-template #activeElse>
+      <div class="col-md-5">
+        <label for="userActivate">Activate selected user: </label>
+        <button id="userActivate" type="button" class="btn btn-danger" (click)="onActivate()">Activate</button>
+      </div>
+    </ng-template>
+  </div>
+</div>
+
+<hr>
