@@ -3,6 +3,7 @@ export class Creds {
               public password: string,
               public secQuestion: string,
               public secAnswer: string,
-              public active: boolean) {
+              public active: boolean,
+              public admin?: boolean) {
   }
 }

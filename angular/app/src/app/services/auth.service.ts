@@ -16,7 +16,7 @@ export class AuthService {
               private router: Router) {}
 
   token = new BehaviorSubject<string>(null);
-  user = new BehaviorSubject<string>(null);
+  user = new BehaviorSubject<{sub: string, authorities: string[], iat: number, exp: number}>(null);
 
   // TODO replace user with user Object
   login(username: string, password: string) {
@@ -65,6 +65,11 @@ export class AuthService {
 
   updateStatus(username: string) {
     const url = `http://localhost:8762/auth/status/${username}`;
+    return this.http.post<Creds>(url, '', {observe: 'response'});
+  }
+
+  updateAdmin(username: string) {
+    const url = `http://localhost:8762/auth/admin/${username}`;
     return this.http.post<Creds>(url, '', {observe: 'response'});
   }
 

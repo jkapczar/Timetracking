@@ -1,27 +1,38 @@
-import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
 import {User} from '../../model/user.model';
 import {UserService} from '../../services/user.service';
 import {NgForm} from '@angular/forms';
 import {AuthService} from '../../services/auth.service';
+import {Creds} from '../../model/creds.model';
+import {UserManagementService} from '../../services/user-management.service';
+import {Subscription} from 'rxjs';
+
 
 @Component({
   selector: 'app-user-admin-view',
   templateUrl: './user-admin.component.html',
   styleUrls: ['./user-admin.component.css']
 })
-export class UserAdminComponent implements OnInit {
+export class UserAdminComponent implements OnInit, OnDestroy {
   @ViewChild('selectionForm') selectionForm: NgForm;
   constructor(private userService: UserService,
-              private authService: AuthService) { }
+              private authService: AuthService,
+              private userManagementService: UserManagementService) { }
 
   users = [];
   selectedUser: string;
-  @Output() selectedUserEmitter = new EventEmitter<string>();
-  @Input() user: User;
-  @Input() active = true;
+  credentials: Creds;
+  admin = false;
+  active = false;
+  credentialsSubscription: Subscription;
 
   ngOnInit(): void {
     this.getAllUsers();
+    this.credentialsSubscription = this.userManagementService.credentials.subscribe(credentials => {
+      this.credentials = credentials;
+      this.admin = credentials.admin;
+      this.active = credentials.active;
+    });
   }
 
   getAllUsers() {
@@ -30,17 +41,29 @@ export class UserAdminComponent implements OnInit {
       for (const item of data.body) {
         this.users.push({label: item, value: item});
       }
-      this.selectionForm.form.setValue({
-        userSelection: this.user ? this.user.username : ''
+      this.selectionForm.form.patchValue({
+        userSelection: this.authService.user.value.sub
       });
     });
   }
 
   onActivate() {
-    console.log(this.selectedUser);
     this.authService.updateStatus(this.selectedUser).subscribe(resData => {
       console.log(resData);
       this.active = !this.active;
+      this.credentials.admin = this.admin;
+      this.credentials.active = this.active;
+      this.userManagementService.credentials.next(this.credentials);
+    });
+  }
+
+  onEnableAdmin() {
+    this.authService.updateAdmin(this.selectedUser).subscribe(resData => {
+      console.log(resData);
+      this.admin = !this.admin;
+      this.credentials.admin = this.admin;
+      this.credentials.active = this.active;
+      this.userManagementService.credentials.next(this.credentials);
     });
   }
 
@@ -54,7 +77,11 @@ export class UserAdminComponent implements OnInit {
   }
 
   onSelect() {
-    this.selectedUserEmitter.emit(this.selectedUser);
+    this.userManagementService.selectedUser.next(this.selectedUser);
+  }
+
+  ngOnDestroy(): void {
+    this.credentialsSubscription.unsubscribe();
   }
 
 }

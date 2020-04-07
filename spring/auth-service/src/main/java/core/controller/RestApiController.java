@@ -80,6 +80,18 @@ public class RestApiController {
         return new ResponseEntity<>("", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @RequestMapping(value="/auth/admin/{username}" ,method= RequestMethod.POST)
+    public ResponseEntity<String> updateAdmin(@PathVariable String username) {
+        try {
+            System.out.println("change admin" + username);
+            userDao.updateAdmin(username);
+            return new ResponseEntity<>("", HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>("", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     @RequestMapping(value="/auth/update" ,method= RequestMethod.POST)
     public ResponseEntity<String> update(@RequestBody String input) {
         User oldUser = null;

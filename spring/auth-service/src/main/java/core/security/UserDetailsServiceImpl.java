@@ -45,6 +45,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         try {
             core.model.User u = userDao.findByUsername(username);
             tmp.add("USER");
+            if (u.isAdmin()) {
+                tmp.add("ADMIN");
+            }
             List<GrantedAuthority> grantedAuthorities = AuthorityUtils
                     .commaSeparatedStringToAuthorityList(String.join(", ", tmp));
 

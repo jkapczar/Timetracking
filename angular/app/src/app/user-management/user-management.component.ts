@@ -1,27 +1,44 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {NgForm} from '@angular/forms';
 import {UserService} from '../services/user.service';
 import {AuthService} from '../services/auth.service';
 import {User} from '../model/user.model';
 import {Creds} from '../model/creds.model';
+import {UserManagementService} from '../services/user-management.service';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-user-management',
   templateUrl: './user-management.component.html',
   styleUrls: ['./user-management.component.css']
 })
-export class UserManagementComponent implements OnInit {
+export class UserManagementComponent implements OnInit, OnDestroy {
   @ViewChild('userInformation') userInformationForm: NgForm;
   @ViewChild('userCredentials') userCredentialsForm: NgForm;
   constructor(private userService: UserService,
-              private authService: AuthService) { }
+              private authService: AuthService,
+              private userManagementService: UserManagementService) { }
 
 
   user: User;
   credentials: Creds;
-  active = true;
+  selectedUserSubscription: Subscription;
+  credentialsSubscription: Subscription;
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.userService.getUser().subscribe(resData => {
+      this.setUI(resData);
+    });
+    this.authService.getCredentials().subscribe(resData => {
+      this.setCredentialsUI(resData);
+    });
+    this.selectedUserSubscription = this.userManagementService.selectedUser.subscribe(username => {
+      this.setUser(username);
+    });
+    this.credentialsSubscription = this.userManagementService.credentials.subscribe(credentials => {
+      this.credentials = credentials;
+    });
+  }
 
   onSubmitUserInformation(form: NgForm) {
     const user = new User(this.user.id, this.user.username, form.value.firstName,
@@ -31,12 +48,8 @@ export class UserManagementComponent implements OnInit {
 
   onSubmitUserCredentials(form: NgForm) {
     const credentials = new Creds(this.user.id, form.value.password,
-      form.value.secQuestion, form.value.secAnswer, this.active);
+      form.value.secQuestion, form.value.secAnswer, this.credentials.active, this.credentials.admin);
     this.authService.updateCredentials(credentials);
-  }
-
-  setSelectedUser(username: string) {
-    this.setUser(username);
   }
 
   private setUI(resData) {
@@ -51,15 +64,16 @@ export class UserManagementComponent implements OnInit {
   }
 
   private setCredentialsUI(resData) {
+    console.log(resData);
     this.credentials = new Creds(resData.body.id, resData.body.password, resData.body.secQuestion,
-      resData.body.secAnswer, resData.body.active);
+      resData.body.secAnswer, resData.body.active, resData.body.admin);
+    this.userManagementService.credentials.next(this.credentials);
     this.userCredentialsForm.form.setValue({
       password: this.credentials.password,
       confirmPassword: this.credentials.password,
       secQuestion: this.credentials.secQuestion,
       secAnswer: this.credentials.secAnswer
     });
-    this.active = this.credentials.active;
   }
 
   private setUser(username: string) {
@@ -70,5 +84,10 @@ export class UserManagementComponent implements OnInit {
     this.authService.getCredentials(username).subscribe(resData => {
       this.setCredentialsUI(resData);
     });
+  }
+
+  ngOnDestroy(): void {
+    this.selectedUserSubscription.unsubscribe();
+    this.credentialsSubscription.unsubscribe();
   }
 }

@@ -22,6 +22,10 @@ public interface UserDao extends CrudRepository<User, Long> {
     public void updateStatus(@Param("username") String username);
 
     @Modifying
+    @Query("Update User u set u.admin = CASE u.admin WHEN TRUE THEN FALSE ELSE TRUE END where u.username = :username")
+    public void updateAdmin(@Param("username") String username);
+
+    @Modifying
     @Query("Delete from User u where u.username = :username")
     public void deleteUserByUserName(@Param("username") String username);
 

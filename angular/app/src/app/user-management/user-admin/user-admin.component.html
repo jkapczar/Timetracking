@@ -3,24 +3,29 @@
     <div class="col-md-3">
       <form #selectionForm="ngForm">
         <label for="userSelection">Selected user:</label>
-        <p-dropdown id="userSelection" name="userSelection" [options]="users" [(ngModel)]="selectedUser" (ngModelChange)="onSelect()"></p-dropdown>
+        <p-dropdown id="userSelection" name="userSelection" [options]="users" [(ngModel)]="selectedUser" (onChange)="onSelect()"></p-dropdown>
       </form>
     </div>
-    <div class="col-md-4">
-      <label for="userDeletion">Delete selected user: </label>
+    <div class="col-md-3">
       <button id="userDeletion" type="button" class="btn btn-danger" (click)="onDelete()">Delete</button>
     </div>
-    <div class="col-md-5" *ngIf="this.active; else activeElse">
-      <label for="userDeactivation">Deactivate selected user: </label>
+    <div class="col-md-3" *ngIf="this.active; else activeElse">
       <button id="userDeactivation" type="button" class="btn btn-danger" (click)="onActivate()">Deactivate</button>
     </div>
     <ng-template #activeElse>
-      <div class="col-md-5">
-        <label for="userActivate">Activate selected user: </label>
+      <div class="col-md-3">
         <button id="userActivate" type="button" class="btn btn-danger" (click)="onActivate()">Activate</button>
       </div>
     </ng-template>
   </div>
+  <div class="col-md-3" *ngIf="this.admin; else adminElse">
+    <button id="userAdmin" type="button" class="btn btn-danger" (click)="onEnableAdmin()">Disable Admin</button>
+  </div>
+  <ng-template #adminElse>
+    <div class="col-md-3">
+      <button id="userDisableAdmin" type="button" class="btn btn-danger" (click)="onEnableAdmin()">Enable Admin</button>
+    </div>
+  </ng-template>
 </div>
 
 <hr>

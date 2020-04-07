@@ -37,6 +37,9 @@ public class User {
     @NotNull
     @Column(name = "active")
     private boolean active = false;
+    @NotNull
+    @Column(name = "admin")
+    private boolean admin = false;
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdOn;
@@ -45,12 +48,5 @@ public class User {
     private LocalDateTime updatedOn;
 
     public User() {}
-
-    public User(String username, String password, String secQuestion, String secAnswer) {
-        this.username = username;
-        this.password = password;
-        this.secQuestion = secQuestion;
-        this.secAnswer = secAnswer;
-    }
 
 }
