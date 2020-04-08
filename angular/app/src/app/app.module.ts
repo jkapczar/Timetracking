@@ -20,6 +20,7 @@ import {DropdownModule, MultiSelectModule, PanelModule, PickListModule, SplitBut
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { UserAdminComponent } from './user-management/user-admin/user-admin.component';
+import { GroupAdminComponent } from './group-management/group-admin/group-admin.component';
 
 
 @NgModule({
@@ -35,7 +36,8 @@ import { UserAdminComponent } from './user-management/user-admin/user-admin.comp
     DropdownDirective,
     MenuComponent,
     GroupManagementComponent,
-    UserAdminComponent
+    UserAdminComponent,
+    GroupAdminComponent
   ],
   imports: [
     BrowserModule,

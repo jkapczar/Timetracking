@@ -56,7 +56,7 @@ public class Receiver {
     public Set<String> getUserPrivilege(String username) {
         System.out.println(username);
         Set<String> roles = new HashSet<>();
-        roles.addAll(this.groupDao.getUserPrivileges(username));
+        roles.addAll(this.groupDao.getAvailableGroupsForUser(username));
         return roles;
     }
 

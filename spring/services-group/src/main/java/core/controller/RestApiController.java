@@ -153,6 +153,18 @@ public class RestApiController {
         }
     }
 
+    @RequestMapping(value = "/availableGroups/{username}", method = RequestMethod.GET)
+    public ResponseEntity<Set<String>> getAvailableGroups(@PathVariable String username) {
+        Set<String> groups = new HashSet<>();
+        try {
+            groups = this.groupDao.getAvailableGroupsForUser(username);
+            return new ResponseEntity<>(groups, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(groups, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @RequestMapping(value = "/teamLeaders", method = RequestMethod.GET)
     public ResponseEntity<Set<String>> getTeamLeaders() {
         Set<String> users = new HashSet<>();
@@ -166,6 +178,7 @@ public class RestApiController {
     }
 
     // TODO Incorrect result size: expected at most 1
+    // egy ember lehet 1ben tl masikban deputy ez meg single groupot ad vissza
     @RequestMapping(value = "/members/{username}", method = RequestMethod.GET)
     public ResponseEntity<Set<String>> getTeamMembers(@PathVariable String username) {
         Set<String> users = new HashSet<>();

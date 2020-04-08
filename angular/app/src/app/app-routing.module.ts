@@ -8,6 +8,7 @@ import {GroupManagementComponent} from './group-management/group-management.comp
 import {UserAdminComponent} from './user-management/user-admin/user-admin.component';
 import {UserAdminGuard} from './security/user-admin.guard';
 import {UserGuard} from './security/user.guard';
+import {GroupAdminComponent} from './group-management/group-admin/group-admin.component';
 
 
 const routes: Routes = [
@@ -17,7 +18,9 @@ const routes: Routes = [
   {path: 'usermanagement', component: UserManagementComponent, canActivateChild: [UserAdminGuard], children: [
       {path: 'admin', component: UserAdminComponent}
     ]},
-  {path: 'groupmanagement', component: GroupManagementComponent},
+  {path: 'groupmanagement', component: GroupManagementComponent, children: [
+      {path: 'admin', component: GroupAdminComponent}
+    ]},
   {path: 'calendar', component: CalendarComponent}
 
 ];

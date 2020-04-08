@@ -1,19 +1,4 @@
-<h3>Create new group</h3>
-<div class="row">
-  <div class="col-md-4">
-    <form #groupCreateForm="ngForm" (ngSubmit)="onCreate(groupCreateForm)">
-      <label for="name">Group name:</label>
-      <input id="name" type="text" name="groupName" class="form-control" ngModel required>
-      <label for="teamLeader">Team Leader:</label>
-      <p-dropdown id="teamLeader" name="selectedTeamLeader" [options]="teamLeaders"
-                  ngModel required placeholder="Choose" filter="true">
-      </p-dropdown>
-      <button type="submit" class="btn btn-primary">Create</button>
-    </form>
-  </div>
-</div>
-<hr>
-
+<router-outlet></router-outlet>
 
 <h3>Update group</h3>
 
@@ -101,16 +86,8 @@
 
 
 <hr>
-<h3>Delete group</h3>
+
 <div class="row">
-  <div class="col-md-4">
-    <form #deleteForm="ngForm" (ngSubmit)="onDelete(deleteForm)">
-    <label for="deleteGroup">Group:</label>
-    <p-dropdown  id="deleteGroup" name="groupName" [options]="groups"
-                 placeholder="Choose" ngModel required filter="true">
-    </p-dropdown>
-    <button type="submit" class="btn btn-danger">Delete</button>
-    </form>
-  </div>
+
 </div>
 

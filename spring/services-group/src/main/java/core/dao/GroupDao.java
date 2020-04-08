@@ -22,6 +22,6 @@ public interface GroupDao extends CrudRepository<Group, Long> {
     Group privilegeCheck(String username);
 
     @Query("match(n:User {username: $username})<-[:TEAMLEADER|:DEPUTY]-(g:Group) return g.name")
-    Set<String> getUserPrivileges(String username);
+    Set<String> getAvailableGroupsForUser(String username);
 
 }
