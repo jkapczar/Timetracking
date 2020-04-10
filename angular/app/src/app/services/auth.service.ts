@@ -6,6 +6,7 @@ import {Router} from '@angular/router';
 import {User} from '../model/user.model';
 import base64url from 'base64url';
 import {Creds} from '../model/creds.model';
+import {AuthUser} from '../model/authUser.model';
 
 @Injectable({
   providedIn: 'root'
@@ -15,8 +16,8 @@ export class AuthService {
   constructor(private http: HttpClient,
               private router: Router) {}
 
-  token = new BehaviorSubject<string>(null);
-  user = new BehaviorSubject<{sub: string, authorities: string[], iat: number, exp: number}>(null);
+  user = new BehaviorSubject<AuthUser>(null);
+  userTemplate: {sub: string, authorities: string[], iat: number, exp: number} = null;
 
   // TODO replace user with user Object
   login(username: string, password: string) {
@@ -27,16 +28,13 @@ export class AuthService {
       }, {observe: 'response'})
       .pipe(tap(resData => {
         console.log(resData);
-        this.token.next(resData.headers.get('Authorization'));
-        const user = JSON.parse(base64url.decode(this.token.value.split('.')[1]));
-        this.user.next(user);
-        console.log(user);
-        localStorage.setItem('userToken', this.token.value);
+        const token = resData.headers.get('Authorization');
+        this.getAuthUser(token);
+        localStorage.setItem('userToken', token);
       }));
   }
   // TODO create a button for logout
   logout() {
-    this.token.next(null);
     this.user.next(null);
     this.router.navigate(['/login']);
     localStorage.removeItem('userToken');
@@ -45,9 +43,7 @@ export class AuthService {
   autoLogin() {
     const token = localStorage.getItem('userToken');
     if (token) {
-      this.token.next(token);
-      const user = JSON.parse(base64url.decode(this.token.value.split('.')[1]));
-      this.user.next(user);
+     this.getAuthUser(token);
     }
   }
 
@@ -75,12 +71,23 @@ export class AuthService {
 
   getCredentials(username?: string) {
     if (!username) {
-      username = `${this.user.getValue().sub}`;
+      username = `${this.user.getValue().username}`;
     }
     console.log(username);
     const url = `http://localhost:8762/auth/${username}`;
     console.log(url);
     return this.http.get<Creds>(url, {observe: 'response'});
+  }
+
+  getAuthUser(token: string) {
+    this.userTemplate = JSON.parse(atob(token.split('.')[1]));
+    const authUser = new AuthUser(
+      this.userTemplate.sub,
+      this.userTemplate.authorities,
+      this.userTemplate.iat,
+      this.userTemplate.exp,
+      token);
+    this.user.next(authUser);
   }
 
 

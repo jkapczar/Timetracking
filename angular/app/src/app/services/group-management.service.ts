@@ -6,6 +6,6 @@ import {Subject} from 'rxjs';
 })
 export class GroupManagementService {
   groups = new Subject<any[]>();
-  teamLeaders = new Subject<string[]>();
-  resetEvent = new EventEmitter();
+  teamLeaders = new Subject<any[]>();
+  resetEvent = new EventEmitter<any>();
 }

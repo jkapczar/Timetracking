@@ -37,6 +37,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             tmp = this.sender.sendUserPrivilegeRequest(username);
             if (tmp != null) {
                 tmp = tmp.stream().map(e -> "Group_".concat(e)).collect(Collectors.toSet());
+            } else {
+                tmp = new HashSet<>();
             }
         } catch (Exception e) {
             e.printStackTrace();

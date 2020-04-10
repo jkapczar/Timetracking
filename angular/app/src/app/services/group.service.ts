@@ -45,7 +45,7 @@ export class GroupService {
   // TODO check privilege TL or deputy?
   getGroupByTeamLeader(username?: string) {
     if (!username) {
-      username = `${this.authService.user.getValue().sub}`;
+      username = `${this.authService.user.getValue().username}`;
     }
     const url = `http://localhost:8762/groups/members/${username}`;
     return this.http.get<string[]>(url, {observe: 'response'});

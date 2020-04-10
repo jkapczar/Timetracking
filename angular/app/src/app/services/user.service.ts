@@ -23,7 +23,7 @@ export class UserService {
 
   getUser(username?: string) {
     if (!username) {
-      username = `${this.authService.user.getValue().sub}`;
+      username = `${this.authService.user.getValue().username}`;
     }
     const url = `http://localhost:8762/users/${username}`;
     return this.http.get<User>(url, {observe: 'response'});

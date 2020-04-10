@@ -29,7 +29,6 @@ export class GroupAdminComponent implements OnInit, OnDestroy {
     });
   }
 
-  // TODO reset (there will be a new group! sub inside sub?)
   onCreate(form: NgForm) {
     console.log('create group');
     console.log(form.value);
@@ -37,20 +36,22 @@ export class GroupAdminComponent implements OnInit, OnDestroy {
     if (form.valid) {
       this.groupService.createGroup(form.value.groupName, form.value.selectedTeamLeader).subscribe(resData => {
         console.log(resData);
+        this.groupManagementService.resetEvent.emit(true);
+        form.reset();
       });
     } else {
       console.log('invalid form');
     }
   }
 
-  // TODO reset
   onDelete(form: NgForm) {
     console.log('delete');
     console.log(form.value);
     if (form.valid) {
       this.groupService.deleteGroup(form.value.groupName).subscribe(resData => {
         console.log(resData);
-        // this.onReInit();
+        this.groupManagementService.resetEvent.emit(true);
+        form.reset();
       });
     } else {
       console.log('invalid form');

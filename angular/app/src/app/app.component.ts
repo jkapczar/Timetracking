@@ -1,6 +1,7 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {AuthService} from './services/auth.service';
 import {ActivatedRoute, ActivatedRouteSnapshot, Router, RouterOutlet, RouterState, RouterStateSnapshot} from '@angular/router';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -14,7 +15,9 @@ export class AppComponent implements OnInit {
 
   render = true;
 
+
   ngOnInit(): void {
     this.authService.autoLogin();
   }
+
 }

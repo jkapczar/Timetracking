@@ -1,22 +1,27 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {NgForm} from '@angular/forms';
 import {GroupService} from '../services/group.service';
 import {Group} from '../model/group.model';
 import {stringify} from 'querystring';
 import {GroupManagementService} from '../services/group-management.service';
+import {AuthUser} from '../model/authUser.model';
+import {Subscription} from 'rxjs';
+import {AuthService} from '../services/auth.service';
+import {take, tap} from 'rxjs/operators';
 
 @Component({
   selector: 'app-group-management',
   templateUrl: './group-management.component.html',
   styleUrls: ['./group-management.component.css']
 })
-export class GroupManagementComponent implements OnInit {
+export class GroupManagementComponent implements OnInit, OnDestroy {
   @ViewChild('updateGroupForm') updateForm: NgForm;
   constructor(private groupService: GroupService,
-              private groupManagementService: GroupManagementService) { }
+              private groupManagementService: GroupManagementService,
+              private authService: AuthService) { }
 
   groups = [];
-  teamLeaders = [{label: 'None', value: null}];
+  teamLeaders = [];
   teamLeadersUpdate = [];
   deputies = [];
   deputiesUpdate = [];
@@ -27,19 +32,13 @@ export class GroupManagementComponent implements OnInit {
   targetUsers = [''];
   //////////////////////////////////////
 
-  isAdmin = false;
+  eventSubscription: Subscription;
 
   ngOnInit() {
-    if (this.isAdmin) {
-      this.groupService.getGroups().subscribe(resData => {
-        for (const item of resData.body) {
-          this.groups.push({label: item, value: item});
-        }
-        this.groupManagementService.groups.next(this.groups);
-      });
-      this.onReInit();
-    }
-
+    this.onInit();
+    this.eventSubscription = this.groupManagementService.resetEvent.subscribe(change => {
+      this.onInit();
+    });
   }
 
   // TODO handle when an error happens
@@ -54,7 +53,7 @@ export class GroupManagementComponent implements OnInit {
       this.groupService.updateGroup(this.selectedGroup).subscribe(resData => {
         console.log(resData);
         form.form.reset();
-        this.onReInit();
+        this.onInit();
       });
     }
   }
@@ -88,11 +87,30 @@ export class GroupManagementComponent implements OnInit {
     this.sourceUsers = this.sourceUsers.concat(this.unAssignedUsers);
   }
 
-  private onReInit() {
+  private onInit() {
     this.sourceUsers = [''];
     this.targetUsers = [''];
     this.deputiesUpdate = [];
     this.teamLeadersUpdate = [];
+    this.groups = [];
+    if (this.authService.user.getValue().roles.includes('ADMIN')) {
+        console.log('admin');
+        this.groupService.getGroups().subscribe(resData => {
+          for (const item of resData.body) {
+            this.groups.push({label: item, value: item});
+          }
+          this.groupManagementService.groups.next(this.groups);
+        });
+      } else {
+        console.log('nem ADMIN');
+        this.groupService.getAvailableGroupsForUser(this.authService.user.getValue().username).subscribe(resData => {
+          for (const item of resData.body) {
+            this.groups.push({label: item, value: item});
+          }
+          this.groupManagementService.groups.next(this.groups);
+        });
+      }
+
     this.groupService.getUnassignedUsers().subscribe(resData => {
       this.unAssignedUsers = [];
       for (const item of resData.body) {
@@ -100,10 +118,11 @@ export class GroupManagementComponent implements OnInit {
       }
     });
     this.groupService.getAvailableTeamLeaders().subscribe(resData => {
-      this.teamLeaders = [{label: 'None', value: null}];
+      this.teamLeaders = [];
       for (const item of resData.body) {
         this.teamLeaders.push({label: item, value: item});
       }
+      this.groupManagementService.teamLeaders.next(this.teamLeaders);
     });
     this.groupService.getTeamLeaders().subscribe(resData => {
       this.deputies = [];
@@ -111,6 +130,10 @@ export class GroupManagementComponent implements OnInit {
         this.deputies.push({label: item, value: item});
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.eventSubscription.unsubscribe();
   }
 
 }

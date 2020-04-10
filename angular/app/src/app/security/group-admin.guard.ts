@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {ActivatedRoute, ActivatedRouteSnapshot, CanActivateChild, Router, RouterStateSnapshot, UrlTree} from '@angular/router';
+import {ActivatedRouteSnapshot, CanActivate, CanActivateChild, Router, RouterStateSnapshot, UrlTree} from '@angular/router';
 import {AuthService} from '../services/auth.service';
 import {Observable, of} from 'rxjs';
 import {exhaustMap, take} from 'rxjs/operators';
@@ -7,7 +7,7 @@ import {exhaustMap, take} from 'rxjs/operators';
 @Injectable({
   providedIn: 'root'
 })
-export class UserAdminGuard implements CanActivateChild {
+export class GroupAdminGuard implements CanActivateChild {
 
   constructor(private authService: AuthService,
               private router: Router) {}
@@ -18,7 +18,7 @@ export class UserAdminGuard implements CanActivateChild {
       if (user.roles.includes('ADMIN')) {
         return of(true);
       } else {
-        this.router.navigate(['usermanagement']);
+        this.router.navigate(['groupmanagement']);
         return of(false);
       }
     }));

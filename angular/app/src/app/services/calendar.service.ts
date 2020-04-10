@@ -17,7 +17,7 @@ export class CalendarService {
 
   saveEvents(events: CalendarEvent[], username?: string) {
     if (!username) {
-      username = `${this.authService.user.getValue().sub}`;
+      username = `${this.authService.user.getValue().username}`;
     }
     const url = `http://localhost:8762/calendar/${username}/save`;
     return this.http.post<CalendarEvent[]>(url,
@@ -28,7 +28,7 @@ export class CalendarService {
 
   getEvents(start: string, end: string, username?: string) {
     if (!username) {
-      username = `${this.authService.user.getValue().sub}`;
+      username = `${this.authService.user.getValue().username}`;
     }
     const url = `http://localhost:8762/calendar/${username}/${start}/${end}`;
     return this.http.get<CalendarEvent[]>(url, {observe: 'response'})
@@ -44,7 +44,7 @@ export class CalendarService {
 
   getCalendarOwner(username?: string) {
     if (!username) {
-      username = `${this.authService.user.getValue().sub}`;
+      username = `${this.authService.user.getValue().username}`;
     }
     const url = `http://localhost:8762/calendar/${username}`;
     return this.http.get<CalendarUser>(url, {observe: 'response'});

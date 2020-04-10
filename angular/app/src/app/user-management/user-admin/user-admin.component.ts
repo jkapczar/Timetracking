@@ -42,7 +42,7 @@ export class UserAdminComponent implements OnInit, OnDestroy {
         this.users.push({label: item, value: item});
       }
       this.selectionForm.form.patchValue({
-        userSelection: this.authService.user.value.sub
+        userSelection: this.authService.user.value.username
       });
     });
   }
