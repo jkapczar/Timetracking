@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
+import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import bootstrapPlugin from '@fullcalendar/bootstrap';
@@ -11,6 +11,8 @@ import {CalendarService} from '../services/calendar.service';
 import {NgForm} from '@angular/forms';
 import {GroupService} from '../services/group.service';
 import {AuthService} from '../services/auth.service';
+import {CalendarManagementService} from '../services/calendar-management.service';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-calendar',
@@ -18,16 +20,13 @@ import {AuthService} from '../services/auth.service';
   encapsulation: ViewEncapsulation.None,
   styleUrls: ['./calendar.component.css']
 })
-export class CalendarComponent implements OnInit, AfterViewInit {
+export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(private modalService: NgbModal,
               private calendarService: CalendarService,
-              private groupService: GroupService,
-              private authService: AuthService) { }
+              private calendarManagementService: CalendarManagementService) { }
 
   @ViewChild('fullcalendar', { static: false }) fullcalendar: FullCalendarComponent;
   @ViewChild('modalWindow', { static: false }) modalWindow;
-  @ViewChild('userSelectionForm', { static: false }) userSelectionForm;
-  @ViewChild('userDetailsForm', { static: false }) userDetailsForm;
 
   options: OptionsInput;
   eventsModel: CalendarEvent[] = [];
@@ -44,11 +43,11 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
   isHOAllowed = true;
   isHolidayAllowed = true;
-  isGroupOwner = false;
 
-  users: {label: string, value: string}[] = [];
   selectedUser: string;
+  selectedUserSubscription: Subscription;
   calendarOwner: CalendarUser;
+  calendarOwnerSubscription: Subscription;
   calendarProps = {holiday: 0, ho: 0};
 
 
@@ -56,14 +55,17 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     return  this.getTime(date);
   }
 
-  // TODO set selected user with auth
   ngOnInit() {
+    this.calendarOwnerSubscription = this.calendarManagementService.calendarOwner.subscribe(calendarOwner => {
+      this.calendarOwner = calendarOwner;
+      this.setCalendarOwnerProps();
+    });
+    this.selectedUserSubscription = this.calendarManagementService.selectedUser.subscribe(selectedUser => {
+      this.selectedUser = selectedUser;
+      this.fetchEvents(this.selectedUser);
+    });
     this.eventsModel = [];
     this.setHeaderDate();
-    this.isGroupOwner = this.authService.user.getValue().roles.includes('GROUPOWNER');
-    if (this.isGroupOwner) {
-      this.getCalendarOwner().then(r => (this.setUserData(r.body), this.fetchUsers(r.body.username)));
-    }
     this.options = {
       header: false,
       plugins: [dayGridPlugin, interactionPlugin, bootstrapPlugin]
@@ -74,7 +76,12 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     this.fetchEvents();
   }
 
-  onSelect(event: DateSelectionApi) {
+  ngOnDestroy(): void {
+    this.calendarOwnerSubscription.unsubscribe();
+    this.selectedUserSubscription.unsubscribe();
+  }
+
+  onDateSelect(event: DateSelectionApi) {
     this.activeSelection = event;
     this.setDayOffset();
     this.setCalendarOwnerProps();
@@ -93,57 +100,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     }
     this.activeModal = this.modalService.open(this.modalWindow);
   }
-////////////////////
-  manageHOAndHolidayRequests(type?: string) {
-    console.log(this.calendarOwner);
-    const days = this.getDayDifference(this.activeSelection.start, this.activeSelection.end);
-    console.log(days);
-    if (type) {
-      if (type === 'holiday') {
-        this.calendarProps.holiday = this.calendarProps.holiday + days;
-      } else {
-        this.calendarProps.ho = this.calendarProps.ho + days;
-      }
-    }
-    console.log(this.calendarOwner);
-    console.log(days >= (this.calendarOwner.defaultNumOfHolidays - this.calendarProps.holiday));
-    console.log(days >= (this.calendarOwner.defaultNumOfHOs - this.calendarProps.ho));
-    if (days > (this.calendarOwner.defaultNumOfHolidays - this.calendarProps.holiday)) {
-      this.isHolidayAllowed = true;
-    } else {
-      this.isHolidayAllowed = false;
-    }
-    if (days > (this.calendarOwner.defaultNumOfHOs - this.calendarProps.ho)) {
-      this.isHOAllowed = true;
-    } else {
-      this.isHOAllowed = false;
-    }
-    console.log(this.isHOAllowed, this.isHolidayAllowed);
-  }
 
-  getDayDifference(start: Date, end: Date) {
-    return Math.ceil((Math.abs(start.getTime() - end.getTime())) / (1000 * 3600 * 24));
-  }
-//////////////////////////
-
-
-
-  userSelection() {
-    if (this.selectedUser) {
-      this.getCalendarOwner(this.selectedUser).then(r => this.setUserData(r.body));
-      this.fetchEvents(this.selectedUser);
-    }
-  }
-
-  userDetailsUpdate(form: NgForm) {
-    console.log(form);
-    this.calendarOwner.defaultNumOfHolidays = form.form.value.defNumOfHolidays;
-    this.calendarOwner.defaultNumOfHOs = form.form.value.defNumOfHomeOffice;
-    this.calendarService.updateCalendarOwner(this.calendarOwner).subscribe(resData => {
-      this.calendarOwner = resData.body;
-      this.setUserData(this.calendarOwner);
-    });
-  }
 
   checkInOut() {
     const tmp: CalendarEvent[] = [];
@@ -264,9 +221,9 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
     this.reSetCalendarOwnerProps();
     await this.calendarService.updateCalendarOwner(this.calendarOwner).subscribe(resData => {
-      this.calendarOwner = resData.body;
-      this.setUserData(this.calendarOwner);
+      this.calendarManagementService.calendarOwner.next(resData.body);
     });
+
 
     let tmp = this.getEventsOnDate(this.activeSelection.start, this.activeSelection.end);
 
@@ -314,6 +271,16 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     return num;
   }
 
+  private setCalendarOwnerProps() {
+    this.calendarProps.holiday = this.calendarOwner.numOfHolidays;
+    this.calendarProps.ho = this.calendarOwner.numOfHOs;
+  }
+
+  private reSetCalendarOwnerProps() {
+    this.calendarOwner.numOfHolidays = this.calendarProps.holiday;
+    this.calendarOwner.numOfHOs = this.calendarProps.ho;
+  }
+
   private setEvents(title: string, groupId: string, color: string) {
     this.clearEvents();
     const date = new Date(this.activeSelection.start);
@@ -355,29 +322,6 @@ export class CalendarComponent implements OnInit, AfterViewInit {
       element => (element.start.getTime() >= startDate.getTime() && element.start.getTime() <= endDate.getTime()));
   }
 
-  private async getCalendarOwner(username?: string) {
-    return await this.calendarService.getCalendarOwner(username).toPromise();
-  }
-
-  private setUserData(user: CalendarUser) {
-      this.calendarOwner = user;
-      this.setCalendarOwnerProps();
-      this.userDetailsForm.form.setValue({
-        defNumOfHolidays: this.calendarOwner.defaultNumOfHolidays,
-        defNumOfHomeOffice: this.calendarOwner.defaultNumOfHOs
-      });
-  }
-
-  private setCalendarOwnerProps() {
-    this.calendarProps.holiday = this.calendarOwner.numOfHolidays;
-    this.calendarProps.ho = this.calendarOwner.numOfHOs;
-  }
-
-  private reSetCalendarOwnerProps() {
-    this.calendarOwner.numOfHolidays = this.calendarProps.holiday;
-    this.calendarOwner.numOfHOs = this.calendarProps.ho;
-  }
-
   private getDate(date: Date) {
     return date.getFullYear() + '-' + this.pad((date.getMonth() + 1)) + '-' + this.pad(date.getDate());
   }
@@ -396,20 +340,6 @@ export class CalendarComponent implements OnInit, AfterViewInit {
         console.log(this.eventsModel);
         this.setCheckInStatus();
     });
-  }
-
-  private fetchUsers(username?: string) {
-      this.groupService.getGroupByTeamLeader(username).subscribe(resData => {
-        if (resData.body) {
-          for (const e of resData.body) {
-            this.users.push({label: e, value: e});
-          }
-          this.userSelectionForm.form.patchValue(
-            {calendarUser: this.users}
-          );
-        }
-        this.selectedUser = this.calendarOwner.username;
-      });
   }
 
   private setDayOffset() {
@@ -436,6 +366,34 @@ export class CalendarComponent implements OnInit, AfterViewInit {
         String(end.getMonth() + 1)  + '.' +
         String(this.pad((end.getDate()))) + '.');
     }
+  }
+
+  private manageHOAndHolidayRequests(type?: string) {
+    console.log(this.calendarOwner);
+    const days = this.getDayDifference(this.activeSelection.start, this.activeSelection.end);
+    console.log(days);
+    if (type) {
+      if (type === 'holiday') {
+        this.calendarProps.holiday = this.calendarProps.holiday + days;
+      } else {
+        this.calendarProps.ho = this.calendarProps.ho + days;
+      }
+    }
+    if (days > (this.calendarOwner.defaultNumOfHolidays - this.calendarProps.holiday)) {
+      this.isHolidayAllowed = true;
+    } else {
+      this.isHolidayAllowed = false;
+    }
+    if (days > (this.calendarOwner.defaultNumOfHOs - this.calendarProps.ho)) {
+      this.isHOAllowed = true;
+    } else {
+      this.isHOAllowed = false;
+    }
+    console.log(this.isHOAllowed, this.isHolidayAllowed);
+  }
+
+  private getDayDifference(start: Date, end: Date) {
+    return Math.ceil((Math.abs(start.getTime() - end.getTime())) / (1000 * 3600 * 24));
   }
 
   // TODO ora perc range

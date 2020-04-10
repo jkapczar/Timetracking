@@ -21,6 +21,7 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { UserAdminComponent } from './user-management/user-admin/user-admin.component';
 import { GroupAdminComponent } from './group-management/group-admin/group-admin.component';
+import { CalendarAdminComponent } from './calendar/calendar-admin/calendar-admin.component';
 
 
 @NgModule({
@@ -37,7 +38,8 @@ import { GroupAdminComponent } from './group-management/group-admin/group-admin.
     MenuComponent,
     GroupManagementComponent,
     UserAdminComponent,
-    GroupAdminComponent
+    GroupAdminComponent,
+    CalendarAdminComponent
   ],
   imports: [
     BrowserModule,

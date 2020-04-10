@@ -9,6 +9,7 @@ import {UserAdminComponent} from './user-management/user-admin/user-admin.compon
 import {UserAdminGuard} from './security/user-admin.guard';
 import {GroupAdminComponent} from './group-management/group-admin/group-admin.component';
 import {GroupAdminGuard} from './security/group-admin.guard';
+import {CalendarAdminComponent} from './calendar/calendar-admin/calendar-admin.component';
 
 
 const routes: Routes = [
@@ -21,7 +22,9 @@ const routes: Routes = [
   {path: 'groupmanagement', component: GroupManagementComponent, canActivateChild: [GroupAdminGuard], children: [
       {path: 'admin', component: GroupAdminComponent}
     ]},
-  {path: 'calendar', component: CalendarComponent}
+  {path: 'calendar', component: CalendarComponent, children: [
+      {path: 'admin', component: CalendarAdminComponent}
+    ]}
 
 ];
 

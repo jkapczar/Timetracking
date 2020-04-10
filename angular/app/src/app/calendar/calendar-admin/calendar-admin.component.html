@@ -1,0 +1,60 @@
+<p-panel header="User selection" [toggleable]="false">
+  <div class="row">
+    <form #userSelectionForm="ngForm">
+      <div class="col-md-8">
+        <div class="row">
+          <div class="col">
+            <label for="selectUserCalendar">User calendars:</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <p-dropdown
+              id="selectUserCalendar"
+              name="calendarUser"
+              [options]="users"
+              [(ngModel)]="selectedUser"
+              ngModel
+              placeholder="Choose"
+              filter="true">
+            </p-dropdown>
+          </div>
+        </div>
+        <div class="row" style="padding-top: 10px">
+          <div class="col">
+            <button type="button" class="btn btn-primary" (click)="userSelection()">Select</button>
+          </div>
+        </div>
+      </div>
+    </form>
+    <form #userDetailsForm="ngForm" (ngSubmit)="userDetailsUpdate(userDetailsForm)" style="display: flex; padding-left: 10%">
+      <div class="col-md-6">
+        <div class="row">
+          <div class="col">
+            <label for="defNumOfHolidays">Default holidays:</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <input id="defNumOfHolidays" name="defNumOfHolidays" type="number" ngModel>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="row">
+          <div class="col">
+            <label for="defNumOfHomeOffice">Default Home office:</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <input id="defNumOfHomeOffice" name="defNumOfHomeOffice" type="number" ngModel>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-primary" style="position: absolute; bottom: 0;">Update</button>
+      </div>
+    </form>
+  </div>
+</p-panel>
