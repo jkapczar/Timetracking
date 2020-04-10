@@ -127,7 +127,7 @@
   </div>
 </ng-template>
 
-<p-panel header="User selection" [toggleable]="false">
+<p-panel header="User selection" [toggleable]="false" *ngIf="isGroupOwner">
   <div class="row">
     <form #userSelectionForm="ngForm">
     <div class="col-md-8">

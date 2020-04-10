@@ -10,6 +10,7 @@ import {NgbActiveModal, NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {CalendarService} from '../services/calendar.service';
 import {NgForm} from '@angular/forms';
 import {GroupService} from '../services/group.service';
+import {AuthService} from '../services/auth.service';
 
 @Component({
   selector: 'app-calendar',
@@ -20,7 +21,8 @@ import {GroupService} from '../services/group.service';
 export class CalendarComponent implements OnInit, AfterViewInit {
   constructor(private modalService: NgbModal,
               private calendarService: CalendarService,
-              private groupService: GroupService) { }
+              private groupService: GroupService,
+              private authService: AuthService) { }
 
   @ViewChild('fullcalendar', { static: false }) fullcalendar: FullCalendarComponent;
   @ViewChild('modalWindow', { static: false }) modalWindow;
@@ -31,7 +33,6 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   eventsModel: CalendarEvent[] = [];
 
 
-  editing = false;
   multipleDaySelection = false;
   selectedDayEvents: CalendarEvent[] = [];
   modalHeader: string;
@@ -39,11 +40,11 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   activeModal: NgbActiveModal;
   validEventTime = true;
   activeSelection: DateSelectionApi;
-  buttonItems = [];
   checkedIn = false;
 
   isHOAllowed = true;
   isHolidayAllowed = true;
+  isGroupOwner = false;
 
   users: {label: string, value: string}[] = [];
   selectedUser: string;
@@ -59,7 +60,10 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.eventsModel = [];
     this.setHeaderDate();
-    this.getCalendarOwner().then(r => (this.setUserData(r.body), this.fetchUsers(r.body.username)));
+    this.isGroupOwner = this.authService.user.getValue().roles.includes('GROUPOWNER');
+    if (this.isGroupOwner) {
+      this.getCalendarOwner().then(r => (this.setUserData(r.body), this.fetchUsers(r.body.username)));
+    }
     this.options = {
       header: false,
       plugins: [dayGridPlugin, interactionPlugin, bootstrapPlugin]
