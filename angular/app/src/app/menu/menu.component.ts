@@ -1,32 +1,20 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {AuthService} from '../services/auth.service';
-import {Subscription} from 'rxjs';
-import {exhaustMap, take} from 'rxjs/operators';
+
 
 @Component({
   selector: 'app-menu',
   templateUrl: './menu.component.html',
   styleUrls: ['./menu.component.css']
 })
-export class MenuComponent implements OnInit, OnDestroy {
+export class MenuComponent implements OnInit {
 
   constructor(private authService: AuthService) { }
 
-  isAdmin = false;
-  userSubscription: Subscription;
+  isGroupOwnerOrAdmin = false;
 
   ngOnInit() {
-    this.userSubscription = this.authService.user.subscribe(user => {
-      console.log(user);
-      if (user) {
-        this.isAdmin = user.roles.includes('ADMIN');
-        console.log(this.isAdmin);
-      }
-    });
+    this.isGroupOwnerOrAdmin = (this.authService.user.getValue().roles.includes('GROUPOWNER')
+      || this.authService.user.getValue().roles.includes('GROUPOWNER'));
   }
-
-  ngOnDestroy(): void {
-    this.userSubscription.unsubscribe();
-  }
-
 }

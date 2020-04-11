@@ -24,8 +24,10 @@ export class UserManagementComponent implements OnInit, OnDestroy {
   credentials: Creds;
   selectedUserSubscription: Subscription;
   credentialsSubscription: Subscription;
+  isAdmin = false;
 
   ngOnInit() {
+    this.isAdmin = this.authService.user.getValue().roles.includes('ADMIN');
     this.userService.getUser().subscribe(resData => {
       this.setUI(resData);
     });

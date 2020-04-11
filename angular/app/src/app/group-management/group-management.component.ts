@@ -2,12 +2,9 @@ import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {NgForm} from '@angular/forms';
 import {GroupService} from '../services/group.service';
 import {Group} from '../model/group.model';
-import {stringify} from 'querystring';
 import {GroupManagementService} from '../services/group-management.service';
-import {AuthUser} from '../model/authUser.model';
 import {Subscription} from 'rxjs';
 import {AuthService} from '../services/auth.service';
-import {take, tap} from 'rxjs/operators';
 
 @Component({
   selector: 'app-group-management',
@@ -34,7 +31,10 @@ export class GroupManagementComponent implements OnInit, OnDestroy {
 
   eventSubscription: Subscription;
 
+  isAdmin = false;
+
   ngOnInit() {
+    this.isAdmin = this.authService.user.getValue().roles.includes('ADMIN');
     this.onInit();
     this.eventSubscription = this.groupManagementService.resetEvent.subscribe(change => {
       this.onInit();

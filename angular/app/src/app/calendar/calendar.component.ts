@@ -8,8 +8,6 @@ import {DateSelectionApi} from '@fullcalendar/core/Calendar';
 import {CalendarEvent, CalendarUser} from '../model/event.model';
 import {NgbActiveModal, NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {CalendarService} from '../services/calendar.service';
-import {NgForm} from '@angular/forms';
-import {GroupService} from '../services/group.service';
 import {AuthService} from '../services/auth.service';
 import {CalendarManagementService} from '../services/calendar-management.service';
 import {Subscription} from 'rxjs';
@@ -23,7 +21,8 @@ import {Subscription} from 'rxjs';
 export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(private modalService: NgbModal,
               private calendarService: CalendarService,
-              private calendarManagementService: CalendarManagementService) { }
+              private calendarManagementService: CalendarManagementService,
+              private authService: AuthService) { }
 
   @ViewChild('fullcalendar', { static: false }) fullcalendar: FullCalendarComponent;
   @ViewChild('modalWindow', { static: false }) modalWindow;
@@ -50,12 +49,16 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
   calendarOwnerSubscription: Subscription;
   calendarProps = {holiday: 0, ho: 0};
 
+  isAdmin = false;
+
 
   timeFormat = (date: Date) => {
     return  this.getTime(date);
   }
 
   ngOnInit() {
+    this.isAdmin = (this.authService.user.getValue().roles.includes('ADMIN')
+      || this.authService.user.getValue().roles.includes('GROUPOWNER'));
     this.calendarOwnerSubscription = this.calendarManagementService.calendarOwner.subscribe(calendarOwner => {
       this.calendarOwner = calendarOwner;
       this.setCalendarOwnerProps();

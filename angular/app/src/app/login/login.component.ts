@@ -13,8 +13,7 @@ export class LoginComponent implements OnInit {
   constructor(private authService: AuthService,
               private router: Router) { }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   onSubmit(form: NgForm) {
     console.log('login submit');

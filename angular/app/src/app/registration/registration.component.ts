@@ -3,7 +3,6 @@ import {NgForm} from '@angular/forms';
 import {AuthService} from '../services/auth.service';
 import {User} from '../model/user.model';
 import {Creds} from '../model/creds.model';
-
 @Component({
   selector: 'app-registration',
   templateUrl: './registration.component.html',

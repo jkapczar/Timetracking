@@ -13,7 +13,6 @@ import { RegistrationComponent } from './registration/registration.component';
 import { PasswordResetComponent } from './password-reset/password-reset.component';
 import { UserManagementComponent } from './user-management/user-management.component';
 import {MatchValueDirective} from './shared/must-match.directive';
-import {DropdownDirective} from './shared/dropdown.directive';
 import { MenuComponent } from './menu/menu.component';
 import { GroupManagementComponent } from './group-management/group-management.component';
 import {DropdownModule, MultiSelectModule, PanelModule, PickListModule, SplitButtonModule, TableModule} from 'primeng';
@@ -34,7 +33,6 @@ import { CalendarAdminComponent } from './calendar/calendar-admin/calendar-admin
     PasswordResetComponent,
     UserManagementComponent,
     MatchValueDirective,
-    DropdownDirective,
     MenuComponent,
     GroupManagementComponent,
     UserAdminComponent,

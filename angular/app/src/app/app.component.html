@@ -1,11 +1,11 @@
 <app-header></app-header>
-<div class="row">
-    <div class="col-md-2" style="background-color: darkgray">
-      <app-menu *ngIf="render"></app-menu>
-    </div>
-    <div class="col-md-8">
-      <router-outlet></router-outlet>
-    </div>
+<div class="row" style="height: 100%; width: 100%; overflow: hidden; position: fixed">
+  <div class="col-md-2" *ngIf="render">
+    <app-menu></app-menu>
+  </div>
+  <div class="col">
+    <router-outlet></router-outlet>
+  </div>
 </div>
 
 

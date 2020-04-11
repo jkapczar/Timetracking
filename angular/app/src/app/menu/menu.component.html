@@ -1,8 +1,6 @@
-<nav class="nav flex-column">
-  <a class="nav-link" *ngIf="!isAdmin" [routerLink]="['/usermanagement']">User Details</a>
-  <a class="nav-link" *ngIf="isAdmin" [routerLink]="['/usermanagement/admin']">User Details</a>
-  <a class="nav-link" *ngIf="!isAdmin" [routerLink]="['/groupmanagement']">Group Management</a>
-  <a class="nav-link" *ngIf="isAdmin" [routerLink]="['/groupmanagement/admin']">Group Management</a>
+<nav class="nav flex-column" *ngIf="true" style="background-color: darkgray; height:100%">
+  <a class="nav-link" [routerLink]="['/usermanagement']">User Details</a>
+  <a class="nav-link" *ngIf="isGroupOwnerOrAdmin" [routerLink]="['/groupmanagement']">Group Management</a>
   <a class="nav-link" [routerLink]="['/calendar']">Calendar</a>
 </nav>
 
