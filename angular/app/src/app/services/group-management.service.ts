@@ -1,4 +1,4 @@
-import {EventEmitter, Injectable} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {Subject} from 'rxjs';
 
 @Injectable({
@@ -7,5 +7,5 @@ import {Subject} from 'rxjs';
 export class GroupManagementService {
   groups = new Subject<any[]>();
   teamLeaders = new Subject<any[]>();
-  resetEvent = new EventEmitter<any>();
+  resetEvent = new Subject<any>();
 }

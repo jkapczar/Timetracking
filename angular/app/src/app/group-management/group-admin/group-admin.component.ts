@@ -36,7 +36,7 @@ export class GroupAdminComponent implements OnInit, OnDestroy {
     if (form.valid) {
       this.groupService.createGroup(form.value.groupName, form.value.selectedTeamLeader).subscribe(resData => {
         console.log(resData);
-        this.groupManagementService.resetEvent.emit(true);
+        this.groupManagementService.resetEvent.next(true);
         form.reset();
       });
     } else {
@@ -50,7 +50,7 @@ export class GroupAdminComponent implements OnInit, OnDestroy {
     if (form.valid) {
       this.groupService.deleteGroup(form.value.groupName).subscribe(resData => {
         console.log(resData);
-        this.groupManagementService.resetEvent.emit(true);
+        this.groupManagementService.resetEvent.next(true);
         form.reset();
       });
     } else {

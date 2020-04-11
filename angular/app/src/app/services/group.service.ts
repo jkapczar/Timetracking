@@ -55,6 +55,10 @@ export class GroupService {
     return this.http.get<string[]>('http://localhost:8762/groups/allGroups', {observe: 'response'});
   }
 
+  getGroupsAndUsers() {
+    return this.http.get<{groupName: string, users: string[]}[]>('http://localhost:8762/groups/allGroupsAndUsers', {observe: 'response'});
+  }
+
   getAvailableGroupsForUser(username: string) {
     const url = `http://localhost:8762/groups/availableGroups/${username}`;
     return this.http.get<string[]>(url, {observe: 'response'});

@@ -5,19 +5,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import core.dao.GroupDao;
 import core.dao.UserDao;
 import core.model.Group;
-import java.util.ArrayList;
+
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
+import core.model.GroupAndUser;
 import core.model.User;
-import jdk.nashorn.internal.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -178,6 +175,7 @@ public class RestApiController {
     }
 
     // TODO Incorrect result size: expected at most 1
+    // ez a dao fvnek a userben kéne lennie
     // egy ember lehet 1ben tl masikban deputy ez meg single groupot ad vissza
     @RequestMapping(value = "/members/{username}", method = RequestMethod.GET)
     public ResponseEntity<Set<String>> getTeamMembers(@PathVariable String username) {
@@ -197,6 +195,19 @@ public class RestApiController {
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(users, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping(value = "/allGroupsAndUsers", method = RequestMethod.GET)
+    public ResponseEntity<Set<GroupAndUser>> getAllGroupsAndUsers() {
+        System.out.println("ALL grp");
+        Set<GroupAndUser> result = new HashSet<>();
+        try {
+            result = this.groupDao.findAllGroupsAndUsers();
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(result, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

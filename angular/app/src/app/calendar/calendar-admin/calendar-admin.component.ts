@@ -22,12 +22,11 @@ export class CalendarAdminComponent implements OnInit, OnDestroy {
               private calendarManagementService: CalendarManagementService) { }
 
 
-  users: {label: string, value: string}[] = [];
+  users: any[] = [];
   selectedUser: string;
 
   calendarOwner: CalendarUser;
   calendarOwnerSubscription: Subscription;
-  isGroupOwner = false;
 
 
   ngOnInit(): void {
@@ -37,10 +36,7 @@ export class CalendarAdminComponent implements OnInit, OnDestroy {
     });
 
     // TODO amind mindenkit lát tl csak a saját csopit
-    this.isGroupOwner = this.authService.user.getValue().roles.includes('GROUPOWNER');
-    if (this.isGroupOwner) {
-      this.getCalendarOwner().then(r => (this.setUserData(r.body), this.fetchUsers(r.body.username)));
-    }
+    this.getCalendarOwner().then(r => (this.setUserData(r.body), this.fetchUsers()));
   }
 
   userSelection() {
@@ -71,18 +67,35 @@ export class CalendarAdminComponent implements OnInit, OnDestroy {
     });
   }
 
-  private fetchUsers(username?: string) {
-    this.groupService.getGroupByTeamLeader(username).subscribe(resData => {
-      if (resData.body) {
-        for (const e of resData.body) {
-          this.users.push({label: e, value: e});
+  private fetchUsers() {
+    if (this.authService.user.getValue().roles.includes('ADMIN')) {
+      console.log('FETCHING FOR ADMIN');
+      this.groupService.getGroupsAndUsers().subscribe(resData => {
+        if (resData.body) {
+          console.log(resData);
+          for (const element of resData.body) {
+            const tmp = [];
+            for (const user of element.users) {
+              tmp.push({label: user, value: user});
+            }
+            this.users.push({label: 'Group: ' + element.groupName, items: tmp});
+          }
         }
-        this.userSelectionForm.form.patchValue(
-          {calendarUser: this.users}
-        );
-      }
-      this.selectedUser = this.calendarOwner.username;
-    });
+      });
+    } else if (this.authService.user.getValue().roles.includes('GROUPOWNER')) {
+      console.log('FETCHING FOR GROUPOWNER');
+      this.groupService.getGroupByTeamLeader().subscribe(resData => {
+        if (resData.body) {
+          for (const e of resData.body) {
+            this.users.push({label: e, value: e});
+          }
+          this.userSelectionForm.form.patchValue(
+            {calendarUser: this.users}
+          );
+        }
+        this.selectedUser = this.calendarOwner.username;
+      });
+    }
   }
 
   ngOnDestroy(): void {
