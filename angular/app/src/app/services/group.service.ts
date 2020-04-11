@@ -42,13 +42,12 @@ export class GroupService {
     return this.http.get<string[]>('http://localhost:8762/groups/teamLeaders', {observe: 'response'});
   }
 
-  // TODO check privilege TL or deputy?
-  getGroupByTeamLeader(username?: string) {
+  getGroupMembersByTeamLeader(username?: string) {
     if (!username) {
       username = `${this.authService.user.getValue().username}`;
     }
     const url = `http://localhost:8762/groups/members/${username}`;
-    return this.http.get<string[]>(url, {observe: 'response'});
+    return this.http.get<{groupName: string, users: string[]}[]>(url, {observe: 'response'});
   }
 
   getGroups() {

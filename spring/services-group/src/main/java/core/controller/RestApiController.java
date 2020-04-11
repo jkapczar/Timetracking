@@ -174,33 +174,21 @@ public class RestApiController {
         }
     }
 
-    // TODO Incorrect result size: expected at most 1
-    // ez a dao fvnek a userben kéne lennie
-    // egy ember lehet 1ben tl masikban deputy ez meg single groupot ad vissza
+
     @RequestMapping(value = "/members/{username}", method = RequestMethod.GET)
-    public ResponseEntity<Set<String>> getTeamMembers(@PathVariable String username) {
-        Set<String> users = new HashSet<>();
+    public ResponseEntity<Set<GroupAndUser>> getTeamMembers(@PathVariable String username) {
+        Set<GroupAndUser> result = new HashSet<>();
         try {
-            Group g = this.groupDao.findGroupMembersByTeamLeader(username);
-
-            if (g != null) {
-                users.addAll(g.getDeputies().stream().map(e->e.getUsername())
-                        .collect(Collectors.toList()));
-                users.addAll(g.getMembers().stream().map(e->e.getUsername())
-                        .collect(Collectors.toList()));
-                users.add(g.getTeamLeader().getUsername());
-            }
-
-            return new ResponseEntity<>(users, HttpStatus.OK);
+            result = this.groupDao.findGroupMembersByTeamLeader(username);
+            return new ResponseEntity<>(result, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<>(users, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(result, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @RequestMapping(value = "/allGroupsAndUsers", method = RequestMethod.GET)
     public ResponseEntity<Set<GroupAndUser>> getAllGroupsAndUsers() {
-        System.out.println("ALL grp");
         Set<GroupAndUser> result = new HashSet<>();
         try {
             result = this.groupDao.findAllGroupsAndUsers();

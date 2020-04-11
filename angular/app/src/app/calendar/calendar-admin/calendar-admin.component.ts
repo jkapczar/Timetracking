@@ -30,12 +30,9 @@ export class CalendarAdminComponent implements OnInit, OnDestroy {
 
 
   ngOnInit(): void {
-
     this.calendarOwnerSubscription = this.calendarManagementService.calendarOwner.subscribe(calendarOwner => {
       this.calendarOwner = calendarOwner;
     });
-
-    // TODO amind mindenkit lát tl csak a saját csopit
     this.getCalendarOwner().then(r => (this.setUserData(r.body), this.fetchUsers()));
   }
 
@@ -72,30 +69,31 @@ export class CalendarAdminComponent implements OnInit, OnDestroy {
       console.log('FETCHING FOR ADMIN');
       this.groupService.getGroupsAndUsers().subscribe(resData => {
         if (resData.body) {
-          console.log(resData);
-          for (const element of resData.body) {
-            const tmp = [];
-            for (const user of element.users) {
-              tmp.push({label: user, value: user});
-            }
-            this.users.push({label: 'Group: ' + element.groupName, items: tmp});
-          }
+          this.loadUsers(resData.body);
         }
       });
     } else if (this.authService.user.getValue().roles.includes('GROUPOWNER')) {
       console.log('FETCHING FOR GROUPOWNER');
-      this.groupService.getGroupByTeamLeader().subscribe(resData => {
+      this.groupService.getGroupMembersByTeamLeader().subscribe(resData => {
         if (resData.body) {
-          for (const e of resData.body) {
-            this.users.push({label: e, value: e});
-          }
-          this.userSelectionForm.form.patchValue(
-            {calendarUser: this.users}
-          );
+          this.loadUsers(resData.body);
         }
-        this.selectedUser = this.calendarOwner.username;
       });
     }
+  }
+
+  private loadUsers(resData: {groupName: string, users: string[]}[]) {
+    for (const element of resData) {
+      const tmp = [];
+      for (const user of element.users) {
+        tmp.push({label: user, value: user});
+      }
+      this.users.push({label: 'Group: ' + element.groupName, items: tmp});
+    }
+    this.userSelectionForm.form.patchValue(
+      {calendarUser: this.users}
+    );
+    this.selectedUser = this.calendarOwner.username;
   }
 
   ngOnDestroy(): void {

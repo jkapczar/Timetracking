@@ -18,13 +18,8 @@ public interface GroupDao extends CrudRepository<Group, Long> {
     @Query("MATCH (n:Group)-[]-(u:User) return distinct  n.name as groupName, collect(u.username) as users")
     Set<GroupAndUser> findAllGroupsAndUsers();
 
-    // TODO remove
-    @Query("match(n:User {username: $username})<-[:DEPUTY |:TEAMLEADER]-(g:Group) return (g)-[]->()")
-    Group findGroupMembersByTeamLeader(String username);
-
-    //TODO remove
-    @Query("match(n:User {username: $username}) where (n)<-[:TEAMLEADER|:DEPUTY]-(:Group) return n")
-    Group privilegeCheck(String username);
+    @Query("MATCH (g:Group)-[]-(u:User) where exists((g)-[:TEAMLEADER | :DEPUTY]->(:User {username: $username}))  return distinct  g.name as groupName, collect(u.username) as users")
+    Set<GroupAndUser> findGroupMembersByTeamLeader(String username);
 
     @Query("match(n:User {username: $username})<-[:TEAMLEADER|:DEPUTY]-(g:Group) return g.name")
     Set<String> getAvailableGroupsForUser(String username);
