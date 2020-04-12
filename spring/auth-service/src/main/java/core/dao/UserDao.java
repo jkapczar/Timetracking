@@ -15,18 +15,18 @@ import javax.persistence.PersistenceContext;
 public interface UserDao extends CrudRepository<User, Long> {
 
     @Query("Select u from User u where u.username = :username")
-    public User findByUsername(@Param("username") String username);
+    User findByUsername(@Param("username") String username);
 
     @Modifying
     @Query("Update User u set u.active = CASE u.active WHEN TRUE THEN FALSE ELSE TRUE END where u.username = :username")
-    public void updateStatus(@Param("username") String username);
+    void updateStatus(@Param("username") String username);
 
     @Modifying
     @Query("Update User u set u.admin = CASE u.admin WHEN TRUE THEN FALSE ELSE TRUE END where u.username = :username")
-    public void updateAdmin(@Param("username") String username);
+    void updateAdmin(@Param("username") String username);
 
     @Modifying
     @Query("Delete from User u where u.username = :username")
-    public void deleteUserByUserName(@Param("username") String username);
+    void deleteUserByUserName(@Param("username") String username);
 
 }

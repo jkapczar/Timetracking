@@ -4,6 +4,6 @@ export class Creds {
               public secQuestion: string,
               public secAnswer: string,
               public active: boolean,
-              public admin?: boolean) {
+              public admin: boolean) {
   }
 }

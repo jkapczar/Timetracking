@@ -3,6 +3,7 @@ package core.messaging;
 
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.FanoutExchange;
+import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -22,10 +23,12 @@ public class Sender {
     @Autowired
     private FanoutExchange fanout;
 
+    @Autowired
+    private Queue registration;
+
     public Boolean sendCreate(String username) {
-        Boolean s = (Boolean) template
+        return (Boolean) template
                 .convertSendAndReceive(userExchange.getName(), "createAuth", username);
-        return s;
     }
 
     public void sendDelete(String username) {
@@ -38,5 +41,7 @@ public class Sender {
         return roles;
     }
 
-
+    public void sendRegistration(String token) {
+        this.template.convertAndSend(registration.getName(), token);
+    }
 }

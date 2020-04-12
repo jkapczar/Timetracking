@@ -20,12 +20,13 @@ export class LoginComponent implements OnInit {
     console.log(form.value);
     this.authService.login(form.value.username, form.value.password).subscribe(resData => {
       console.log((resData.headers.get('Authorization')));
+      this.router.navigate(['calendar']);
     });
   }
 
   navToRegistration() {
     console.log('nav to registration');
-    this.router.navigate(['/registration']);
+    this.router.navigate(['registration']);
   }
 
 }

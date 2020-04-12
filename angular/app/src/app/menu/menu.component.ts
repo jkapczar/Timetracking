@@ -1,5 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {AuthService} from '../services/auth.service';
+import {Router} from '@angular/router';
 
 
 @Component({
@@ -15,6 +16,10 @@ export class MenuComponent implements OnInit {
 
   ngOnInit() {
     this.isGroupOwnerOrAdmin = (this.authService.user.getValue().roles.includes('GROUPOWNER')
-      || this.authService.user.getValue().roles.includes('GROUPOWNER'));
+      || this.authService.user.getValue().roles.includes('ADMIN'));
+  }
+
+  onLogout() {
+    this.authService.logout();
   }
 }

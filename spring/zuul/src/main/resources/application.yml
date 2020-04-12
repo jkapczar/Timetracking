@@ -29,6 +29,10 @@ zuul:
       path: /calendar/**
       serviceId: calendar-service
       stripPrefix: false
+    notificationService:
+      path: /notification/**
+      serviceId: calendar-service
+      stripPrefix: false
     #ui:
     #  path: /**
     #  url: http://localhost:4200

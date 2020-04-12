@@ -22,7 +22,7 @@ export class RegistrationComponent implements OnInit {
       form.value.lastName,
       form.value.email,
       form.value.phone,
-      new Creds(null, form.value.password, form.value.secQuestion, form.value.secAnswer, false));
+      new Creds(null, form.value.password, form.value.secQuestion, form.value.secAnswer, false, false));
     this.authService.registration(user);
   }
 }

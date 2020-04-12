@@ -47,6 +47,4 @@ public class User {
     @Column(nullable = false)
     private LocalDateTime updatedOn;
 
-    public User() {}
-
 }

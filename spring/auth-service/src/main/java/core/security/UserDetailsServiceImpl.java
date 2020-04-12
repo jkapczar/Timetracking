@@ -35,7 +35,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         Set<String> tmp = new HashSet<>();
         try {
             tmp = this.sender.sendUserPrivilegeRequest(username);
-            if (tmp != null) {
+            if (tmp != null && !tmp.isEmpty()) {
                 tmp = tmp.stream().map(e -> "Group_".concat(e)).collect(Collectors.toSet());
                 tmp.add("GROUPOWNER");
             } else {

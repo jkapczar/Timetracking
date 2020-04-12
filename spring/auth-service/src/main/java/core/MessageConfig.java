@@ -10,6 +10,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MessageConfig {
     @Bean
+    public Queue registration() {
+        return new Queue("registration");
+    }
+
+    @Bean
     public FanoutExchange fanout() {
         return new FanoutExchange("user.delete");
     }

@@ -2,5 +2,6 @@
   <a class="nav-link" [routerLink]="['/usermanagement']">User Details</a>
   <a class="nav-link" *ngIf="isGroupOwnerOrAdmin" [routerLink]="['/groupmanagement']">Group Management</a>
   <a class="nav-link" [routerLink]="['/calendar']">Calendar</a>
+  <a class="nav-link" [routerLink]="['/login']" (click)="onLogout()">Logout</a>
 </nav>
 

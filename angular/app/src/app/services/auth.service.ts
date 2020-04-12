@@ -87,6 +87,7 @@ export class AuthService {
       this.userTemplate.iat,
       this.userTemplate.exp,
       token);
+    console.log(authUser);
     this.user.next(authUser);
   }
 
