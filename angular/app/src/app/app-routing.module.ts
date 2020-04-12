@@ -7,12 +7,14 @@ import {UserManagementComponent} from './user-management/user-management.compone
 import {GroupManagementComponent} from './group-management/group-management.component';
 import {AuthGuard} from './security/authGuard.guard';
 import {GroupGuard} from './security/groupGuard.guard';
+import {PasswordResetComponent} from './password-reset/password-reset.component';
 
 
 const routes: Routes = [
   {path: '', redirectTo: '/calendar', pathMatch: 'full'},
   {path: 'login', component: LoginComponent},
   {path: 'registration', component: RegistrationComponent},
+  {path: 'resetpassword', component: PasswordResetComponent},
   {path: 'usermanagement', component: UserManagementComponent, canActivate: [AuthGuard]},
   {path: 'groupmanagement', component: GroupManagementComponent, canActivate: [GroupGuard]},
   {path: 'calendar', component: CalendarComponent, canActivate: [AuthGuard]}

@@ -23,7 +23,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.authService.autoLogin();
     this.routerSubscription = this.router.events.pipe(filter(e => e instanceof NavigationStart))
       .subscribe((event: NavigationStart) => {
-        this.render = !(event.url.includes('login') || event.url.includes('registration'));
+        this.render = !(event.url.includes('login') || event.url.includes('registration') || event.url.includes('password'));
       });
   }
 

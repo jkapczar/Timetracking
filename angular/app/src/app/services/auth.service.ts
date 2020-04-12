@@ -69,6 +69,19 @@ export class AuthService {
     return this.http.post<Creds>(url, '', {observe: 'response'});
   }
 
+  resetPasswordRequest(pwreset: {username: string, email: string}) {
+    this.http.post('http://localhost:8762/auth/resetpasswordrequest', JSON.stringify(pwreset)).subscribe(resData => {
+      console.log(resData);
+    });
+  }
+
+  resetPassword(password: string, token: string) {
+    const url = `http://localhost:8762/auth/resetpassword?token=${token}`;
+    this.http.post(url, JSON.stringify(password)).subscribe(resData => {
+      console.log(resData);
+    });
+  }
+
   getCredentials(username?: string) {
     if (!username) {
       username = `${this.user.getValue().username}`;

@@ -26,6 +26,9 @@ public class Sender {
     @Autowired
     private Queue registration;
 
+    @Autowired
+    private Queue passwordReset;
+
     public Boolean sendCreate(String username) {
         return (Boolean) template
                 .convertSendAndReceive(userExchange.getName(), "createAuth", username);
@@ -43,5 +46,9 @@ public class Sender {
 
     public void sendRegistration(String token) {
         this.template.convertAndSend(registration.getName(), token);
+    }
+
+    public void sendPasswordReset(String token) {
+        this.template.convertAndSend(passwordReset.getName(), token);
     }
 }

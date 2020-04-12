@@ -15,6 +15,11 @@ public class MessageConfig {
     }
 
     @Bean
+    public Queue passwordReset() {
+        return new Queue("passwordReset");
+    }
+
+    @Bean
     public FanoutExchange fanout() {
         return new FanoutExchange("user.delete");
     }

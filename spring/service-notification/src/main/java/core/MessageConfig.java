@@ -13,6 +13,11 @@ public class MessageConfig {
     }
 
     @Bean
+    public Queue passwordReset() {
+        return new Queue("passwordReset");
+    }
+
+    @Bean
     public Receiver receiver() {
         return new Receiver();
     }

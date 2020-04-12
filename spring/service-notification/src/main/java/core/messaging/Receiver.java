@@ -28,13 +28,29 @@ public class Receiver {
             System.out.println(username + " " + token);
 
             String content = "Welcome <b> " + username + "</b>!<br><br>"
-                    + "Please activate your account by clicking on the link below! "
+                    + "Please activate your account by clicking on the link below! <br><br>"
                     + "<a href=\"http://localhost:8762/auth/confirm?token=" + token + "\"" + ">Link</a>";
             this.mailSending.SendMail(mailTo, content);
-
-
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    @RabbitListener(queues = "passwordReset")
+    public void passwordReset(String input) {
+        System.out.println(input);
+        try {
+            JsonNode jsonNodeRoot = mapper.readTree(input);
+            String username = jsonNodeRoot.get("username").asText();
+            String token = jsonNodeRoot.get("token").asText();
+            String mailTo = jsonNodeRoot.get("userDetails").asText();
+
+            String content = "Dear <b> " + username + "</b>!<br><br>"
+                    + "You can reset your password by clicking the link below! <br><br>"
+                    + "<a href=\"http://localhost:4200/resetpassword?token=" + token + "\"" + ">Link</a>";
+
+            this.mailSending.SendMail(mailTo, content);
         } catch (Exception e) {
             e.printStackTrace();
         }

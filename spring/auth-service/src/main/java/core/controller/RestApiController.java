@@ -188,6 +188,53 @@ public class RestApiController {
        return true;
     }
 
-    // TODO pw reset function
+    @RequestMapping(value="/auth/resetpasswordrequest" ,method= RequestMethod.POST)
+    public ResponseEntity<String> passwordResetRequest(@RequestBody String data) {
+        User u = null;
+        try {
+            JsonNode node = mapper.readTree(data);
+            String username = node.get("username").asText();
+            String email = node.get("email").asText();
+            u = this.userDao.findByUsername(username);
+
+            if (u != null) {
+                Token token = new Token();
+                token.setToken(UUID.randomUUID().toString());
+                token.setUsername(u.getUsername());
+                token.setUserDetails(email);
+                token = this.tokenDao.save(token);
+
+                this.sender.sendPasswordReset(mapper.writeValueAsString(token));
+
+                return new ResponseEntity<>("", HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("", HttpStatus.CONFLICT);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>("", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @RequestMapping(value="/auth/resetpassword" ,method= RequestMethod.POST)
+    public ResponseEntity<String> passwordReset(@RequestParam(value = "token", required = true) String tokenParam, @RequestBody String data) {
+        Boolean result = null;
+        try {
+            System.out.println(tokenParam);
+            Token token = this.tokenDao.findToken(tokenParam);
+            System.out.println(token);
+            User u = this.userDao.findByUsername(token.getUsername());
+
+            JsonNode node = mapper.readTree(data);
+            String password = node.get("password").asText();
+            u.setPassword(encoder.encode(password));
+            this.userDao.save(u);
+
+            return new ResponseEntity<>("", HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>("", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
 }
