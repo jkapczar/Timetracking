@@ -19,7 +19,7 @@ public class MailSending {
         Mail mail = new Mail(from, subject, mailTo, mailContent);
 
         // TODO systemenv with docker?
-        SendGrid sg = new SendGrid("");
+        SendGrid sg = new SendGrid(System.getenv("SENDGRID_API_KEY"));
         Request request = new Request();
         try {
             request.setMethod(Method.POST);
