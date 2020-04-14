@@ -31,7 +31,7 @@ zuul:
       stripPrefix: false
     notificationService:
       path: /notification/**
-      serviceId: calendar-service
+      serviceId: notification-service
       stripPrefix: false
     #ui:
     #  path: /**

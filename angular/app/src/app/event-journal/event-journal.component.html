@@ -1,0 +1,39 @@
+<form #selectForm="ngForm" (ngSubmit)="onSelect(selectForm)">
+  <label for="selectGroup">Group:</label><br>
+  <p-dropdown  id="selectGroup" name="selectGroup" [options]="groups"
+               placeholder="Choose" ngModel required filter="true">
+  </p-dropdown><br>
+  <label for="selectGroup">Status:</label><br>
+  <p-dropdown  id="selectStatus" name="selectStatus" [options]="statusOptions"
+               placeholder="Choose" ngModel required filter="true">
+  </p-dropdown><br>
+  <button type="submit" class="btn btn-danger" style="margin-top: 5%;">Select</button>
+</form>
+<p-table [value]="events" *ngIf="events.length>0">
+  <ng-template pTemplate="header">
+    <tr>
+      <th>Owner</th>
+      <th>type</th>
+      <th>dates</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-item>
+    <tr>
+      <td>{{item.eventOwner}}</td>
+      <td>{{item.type}}</td>
+      <td>
+        <div *ngFor="let d of item.dates">
+          {{d}}
+        </div>
+      </td>
+      <td>{{item.status}}</td>
+      <td>
+        <button type="button" (click)="onAccept(item)">Accept</button>
+        <button type="button" (click)="onAccept(item)">Decline</button>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+

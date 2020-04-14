@@ -1,18 +1,15 @@
 package core.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.Data;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 @Data
@@ -22,7 +19,7 @@ public class Event {
     @Id
     @Column(name = "ID")
     @SequenceGenerator(name="event_sequence",sequenceName = "event_sequence",allocationSize = 1,initialValue=1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="event_sequence"  )
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="event_sequence")
     private Long id;
     @Column(name = "title")
     private String title;
@@ -46,7 +43,14 @@ public class Event {
     private Boolean allDay;
     @ManyToOne
     @JoinColumn(name = "USER_ID", foreignKey = @ForeignKey(name = "ID"))
+    @JsonIgnore
     private User user;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private Status status;
+    @ManyToOne
+    @JsonIgnore
+    private EventHistory history;
 
 
     @Override

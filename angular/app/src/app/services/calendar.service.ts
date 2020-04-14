@@ -58,7 +58,7 @@ export class CalendarService {
     const tmp: CalendarEvent[] = [];
     for (const e of data) {
       tmp.push(new CalendarEvent(e.id, e.title, e.groupId , new Date(e.start), (e.end ? new Date(e.end) : null),
-        e.backgroundColor, e.textColor, e.allDay, e.user));
+        e.backgroundColor, e.textColor, e.allDay, e.status, e.user));
     }
     return tmp;
   }

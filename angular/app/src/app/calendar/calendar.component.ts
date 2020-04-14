@@ -116,7 +116,8 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
         null,
         'yellow',
         'black',
-        false);
+        false,
+        'ACCEPTED');
       if (this.checkEventTimeValidity(newEvent)) {
         tmp.push(newEvent);
         this.calendarService.saveEvents(tmp, this.selectedUser).subscribe(resData => {
@@ -125,10 +126,9 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
       } else {
       }
     } else {
-      const today = new Date();
       const calendarEvent = this.getLastUnFinishedEvent();
       console.log('getLastUnFinishedEvent', calendarEvent);
-      calendarEvent.end = today;
+      calendarEvent.end = new Date();
       this.eventsModel = this.eventsModel.filter(element => element.id !== calendarEvent.id);
       console.log(this.eventsModel);
       tmp.push(calendarEvent);
@@ -180,7 +180,8 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
         new Date(this.activeSelection.end.getTime()),
         'yellow',
         'black',
-        false);
+        false,
+        'PENDING');
       this.selectedDayEvents.push(newEvent);
       this.validEventTime = this.checkEventTimeValidity(newEvent);
     } else if (type === 'holiday') {
@@ -196,7 +197,8 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
           new Date(this.activeSelection.start.getTime()),
           'purple',
           'black',
-          true));
+          true,
+          'PENDING'));
       }
     } else {
       this.manageHOAndHolidayRequests('homeOffice');
@@ -211,7 +213,8 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
           new Date(this.activeSelection.start.getTime()),
           'blue',
           'black',
-          true));
+          true,
+          'PENDING'));
       }
     }
   }
@@ -297,7 +300,8 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
         new Date(date.getTime()),
         color,
         'black',
-        true));
+        true,
+        'PENDING'));
       date.setDate(date.getDate() + 1);
     }
   }

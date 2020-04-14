@@ -27,6 +27,7 @@ export class PasswordResetComponent implements OnInit {
       console.log('t');
       this.authService.resetPasswordRequest({username: form.value.username, email: form.value.email});
     } else {
+      console.log('resetpass');
       this.authService.resetPassword(form.value.password, this.token);
     }
   }

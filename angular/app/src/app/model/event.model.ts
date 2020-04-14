@@ -20,6 +20,7 @@ export class CalendarEvent {
               public backgroundColor: string,
               public textColor: string,
               public allDay: boolean,
+              public status: string,
               public user?: CalendarUser) {
     this.startHour = this.start.getHours();
     this.startMinute = this.start.getMinutes();

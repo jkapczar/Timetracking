@@ -21,6 +21,7 @@ import { FullCalendarModule } from '@fullcalendar/angular';
 import { UserAdminComponent } from './user-management/user-admin/user-admin.component';
 import { GroupAdminComponent } from './group-management/group-admin/group-admin.component';
 import { CalendarAdminComponent } from './calendar/calendar-admin/calendar-admin.component';
+import { EventJournalComponent } from './event-journal/event-journal.component';
 
 
 @NgModule({
@@ -37,7 +38,8 @@ import { CalendarAdminComponent } from './calendar/calendar-admin/calendar-admin
     GroupManagementComponent,
     UserAdminComponent,
     GroupAdminComponent,
-    CalendarAdminComponent
+    CalendarAdminComponent,
+    EventJournalComponent
   ],
   imports: [
     BrowserModule,

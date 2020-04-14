@@ -25,7 +25,7 @@ public class TokenConfig extends WebSecurityConfigurerAdapter {
 
         System.out.println(jwtConfig.getUri());
 
-        http
+        http    .headers().frameOptions().disable().and()
                 .cors().and()
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -51,6 +51,8 @@ public class TokenConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/calendar/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/calendar/**").permitAll()
                 .antMatchers(HttpMethod.DELETE, "/calendar/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/notification/**").permitAll()
+                .antMatchers(HttpMethod.POST, "/notification/**").permitAll()
                 .anyRequest().authenticated();
     }
 }

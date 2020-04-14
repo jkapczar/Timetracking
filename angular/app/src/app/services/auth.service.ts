@@ -77,7 +77,7 @@ export class AuthService {
 
   resetPassword(password: string, token: string) {
     const url = `http://localhost:8762/auth/resetpassword?token=${token}`;
-    this.http.post(url, JSON.stringify(password)).subscribe(resData => {
+    this.http.post(url, JSON.stringify({password})).subscribe(resData => {
       console.log(resData);
     });
   }

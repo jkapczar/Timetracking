@@ -18,6 +18,7 @@ export class InterceptorService implements HttpInterceptor {
       exhaustMap(user => {
         // no token available
         if (!user) {
+          console.log(req);
           return next.handle(req);
         }
         const modifiedRequest = req.clone({headers: new HttpHeaders().set('Authorization', user.token)});

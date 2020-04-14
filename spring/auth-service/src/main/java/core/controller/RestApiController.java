@@ -229,7 +229,7 @@ public class RestApiController {
             String password = node.get("password").asText();
             u.setPassword(encoder.encode(password));
             this.userDao.save(u);
-
+            this.tokenDao.delete(token);
             return new ResponseEntity<>("", HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
