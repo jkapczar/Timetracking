@@ -6,7 +6,10 @@ export class Journal {
               public groupName: string,
               public eventOwner: string,
               public events: CalendarEvent[],
-              public status: string) {
+              public status: string,
+              public updatedBy: string,
+              public createdOn: Date,
+              public updatedOn: Date) {
     if (events.length > 0) {
       this.type = events[0].groupId;
       for (const e of events) {
@@ -14,10 +17,13 @@ export class Journal {
         this.dates.push((e.start.getFullYear() + '.' + (e.start.getMonth() + 1) + '.' + e.start.getDate() + '.'));
       }
     }
+
   }
 
   type: string;
   dates: string[] = [];
+  created: string;
+  updated: string;
 
 
 }

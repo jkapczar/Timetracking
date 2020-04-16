@@ -36,6 +36,7 @@ export class CalendarEvent {
     if (!this.endHour && !this.endMinute) {
       this.end = null;
     } else {
+      this.end = new Date(this.start);
       this.end.setHours(this.endHour);
       this.end.setMinutes(this.endMinute);
     }

@@ -13,3 +13,7 @@ input{
 body .ui-table .ui-table-thead > tr > th, td {
   text-align: center;
 }
+
+full-calendar {
+  margin: 50px;
+}

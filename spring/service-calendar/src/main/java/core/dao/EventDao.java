@@ -1,6 +1,7 @@
 package core.dao;
 
 import core.model.Event;
+import core.model.Status;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -17,7 +18,7 @@ public interface EventDao extends CrudRepository<Event, Long> {
     @Query("select e from Event e where e.user.username = :username")
     public Set<Event> findEventByUsername(@Param("username") String username);
 
-    @Query("select e from Event e where e.user.id = :id and (e.start >= :start and e.start <= :end) ")
+    @Query("select e from Event e where e.user.id = :id and (e.start >= :start and e.start <= :end)")
     public Set<Event> findEvents(@Param("id") Long id,
                                  @Param("start") LocalDateTime start,
                                  @Param("end") LocalDateTime end);

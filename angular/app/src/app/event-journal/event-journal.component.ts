@@ -23,6 +23,8 @@ export class EventJournalComponent implements OnInit {
     {label: 'DECLINED', value: 'DECLINED'}
     ];
 
+  activeSelection: string;
+
   events: Journal[] = [];
   groupsAndUsers: {groupName: string, users: string[]}[] = [];
   selectedGroupAndUsers: {groupName: string, users: string[]};
@@ -40,27 +42,27 @@ export class EventJournalComponent implements OnInit {
         console.log(resData);
         this.events = [];
         for (const e  of resData.body) {
-          this.events.push(new Journal(e.id, e.groupName, e.eventOwner, e.events, e.status));
+          this.events.push(new Journal(e.id, e.groupName, e.eventOwner, e.events, e.status, e.updatedBy, e.createdOn, e.updatedOn));
         }
       });
+      this.activeSelection = form.value.selectStatus;
     }
   }
 
-
   onAccept(item: Journal) {
     console.log('accept');
-    console.log(item);
-    this.journalService.updateEvent({status: 'ACCEPTED', id: item.id}).subscribe(resData => {
-      this.events = this.events.filter(element => element.id !== item.id);
-      this.events.push(new Journal(resData.body.id, resData.body.groupName, resData.body.eventOwner, resData.body.events, resData.body.status));
-    });
+    this.updateEvent('ACCEPTED', item);
   }
 
   onDeclined(item: Journal) {
     console.log('declined');
-    console.log(item);
+    this.updateEvent('DECLINED', item);
   }
 
+  private updateEvent(status: string, item: Journal) {
+    this.journalService.updateEvent({status, id: item.id, updatedBy: this.authService.user.getValue().username})
+      .subscribe(resData => { this.events = this.events.filter(element => element.id !== item.id); });
+  }
 
   private fetchUsers() {
     if (this.authService.user.getValue().roles.includes('ADMIN')) {

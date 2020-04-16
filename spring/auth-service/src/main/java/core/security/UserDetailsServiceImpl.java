@@ -1,5 +1,6 @@
 package core.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import core.dao.UserDao;
 import core.messaging.Sender;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     private UserDao userDao;
     private Sender sender;
+    private ObjectMapper mapper = new ObjectMapper();
 
     @Autowired
     public UserDetailsServiceImpl(UserDao userDao, Sender sender) {
@@ -34,12 +36,33 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Set<String> tmp = new HashSet<>();
         try {
-            tmp = this.sender.sendUserPrivilegeRequest(username);
-            if (tmp != null && !tmp.isEmpty()) {
-                tmp = tmp.stream().map(e -> "Group_".concat(e)).collect(Collectors.toSet());
+            String input = this.sender.sendUserPrivilegeRequest(username);
+            System.out.println(input);
+
+            String teamLeader = mapper.readTree(input).get("teamLeader").asText();
+            String member = mapper.readTree(input).get("member").asText();
+            Set<String> deputy = mapper.convertValue(mapper.readTree(input).get("deputy"), HashSet.class);
+
+            System.out.println(teamLeader);
+            System.out.println(member);
+            System.out.println(deputy.size());
+
+
+            if (!teamLeader.equals("")) {
                 tmp.add("GROUPOWNER");
-            } else {
-                tmp = new HashSet<>();
+                tmp.add("TL_" + teamLeader);
+            }
+
+            if (!member.equals("")) {
+                tmp.add("MEMBER");
+                tmp.add("MEMBER_" + member);
+            }
+
+            if (!deputy.isEmpty()) {
+                tmp.add("GROUPOWNER");
+                for (String e: deputy) {
+                    tmp.add("DEPUTY_" + e);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

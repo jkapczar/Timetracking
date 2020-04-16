@@ -38,8 +38,8 @@ public class Sender {
         template.convertAndSend(fanout.getName(),"user.delete", username);
     }
 
-    public Set<String> sendUserPrivilegeRequest(String username) {
-        Set<String> roles = (Set<String>) template
+    public String sendUserPrivilegeRequest(String username) {
+        String roles = (String) template
                 .convertSendAndReceive(groupExchange.getName(), "privilege", username);
         return roles;
     }

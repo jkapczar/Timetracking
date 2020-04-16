@@ -31,14 +31,16 @@ export class CalendarAdminComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.calendarOwnerSubscription = this.calendarManagementService.calendarOwner.subscribe(calendarOwner => {
+      console.log('itt');
       this.calendarOwner = calendarOwner;
+      this.setUserData();
     });
-    this.getCalendarOwner().then(r => (this.setUserData(r.body), this.fetchUsers()));
+    this.fetchUsers();
   }
 
   userSelection() {
     if (this.selectedUser) {
-      this.getCalendarOwner(this.selectedUser).then(r => this.setUserData(r.body));
+      this.getCalendarOwner(this.selectedUser).then(r => this.calendarManagementService.calendarOwner.next(r.body));
       this.calendarManagementService.selectedUser.next(this.selectedUser);
     }
   }
@@ -48,7 +50,8 @@ export class CalendarAdminComponent implements OnInit, OnDestroy {
     this.calendarOwner.defaultNumOfHolidays = form.form.value.defNumOfHolidays;
     this.calendarOwner.defaultNumOfHOs = form.form.value.defNumOfHomeOffice;
     this.calendarService.updateCalendarOwner(this.calendarOwner).subscribe(resData => {
-      this.setUserData(this.calendarOwner);
+      this.setUserData();
+      this.calendarManagementService.calendarOwner.next(this.calendarOwner);
     });
   }
 
@@ -56,8 +59,7 @@ export class CalendarAdminComponent implements OnInit, OnDestroy {
     return await this.calendarService.getCalendarOwner(username).toPromise();
   }
 
-  private setUserData(user: CalendarUser) {
-    this.calendarManagementService.calendarOwner.next(user);
+  private setUserData() {
     this.userDetailsForm.form.setValue({
       defNumOfHolidays: this.calendarOwner.defaultNumOfHolidays,
       defNumOfHomeOffice: this.calendarOwner.defaultNumOfHOs
@@ -93,7 +95,7 @@ export class CalendarAdminComponent implements OnInit, OnDestroy {
     this.userSelectionForm.form.patchValue(
       {calendarUser: this.users}
     );
-    this.selectedUser = this.calendarOwner.username;
+    this.selectedUser = this.authService.user.getValue().username;
   }
 
   ngOnDestroy(): void {

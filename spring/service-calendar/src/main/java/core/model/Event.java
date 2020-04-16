@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.Data;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -15,6 +16,7 @@ import java.util.Objects;
 @Data
 @Entity(name = "Event")
 @Table(name = "EVENTS")
+@Where(clause = "status <> 'DECLINED' or status is null")
 public class Event {
     @Id
     @Column(name = "ID")
@@ -35,8 +37,10 @@ public class Event {
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime end;
+    @Transient
     @Column(name = "bgcolor")
     private String backgroundColor;
+    @Transient
     @Column(name = "textcolor")
     private String textColor;
     @Column(name = "allday")

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import core.dao.EventDao;
 import core.dao.EventHistoryDao;
 import core.dao.UserDao;
+import core.messaging.Sender;
 import core.model.Event;
 import core.model.EventHistory;
 import core.model.Status;
@@ -31,6 +32,7 @@ public class RestApiController {
     private UserDao userDao;
     private EventDao eventDao;
     private EventHistoryDao eventHistoryDao;
+    private Sender sender;
     private ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     private DateTimeFormatter formatter = new DateTimeFormatterBuilder()
             .appendPattern("yyyy-MM-dd[ HH:mm:ss]")
@@ -40,10 +42,11 @@ public class RestApiController {
             .toFormatter();
 
     @Autowired
-    public RestApiController(UserDao userDao, EventDao eventDao, EventHistoryDao eventHistoryDao) {
+    public RestApiController(UserDao userDao, EventDao eventDao, EventHistoryDao eventHistoryDao, Sender sender) {
         this.userDao = userDao;
         this.eventDao = eventDao;
         this.eventHistoryDao = eventHistoryDao;
+        this.sender = sender;
     }
 
     @RequestMapping(value="/{username}/{start}/{end}" ,method= RequestMethod.GET)
@@ -63,6 +66,46 @@ public class RestApiController {
             System.out.println(user);
 
             events = this.eventDao.findEvents(user.getId(), startTime, endTime);
+
+            for (Event e: events) {
+                if (e.getStatus() == null) {
+                    if (e.getGroupId().equals("workTime")) {
+                        if (e.getEnd() == null) {
+                            e.setBackgroundColor("darkred");
+                        } else {
+                            e.setBackgroundColor("cornflowerblue");
+                        }
+                    } else if (e.getGroupId().equals("holiday")) {
+                        e.setBackgroundColor("darkblue");
+                    } else {
+                        e.setBackgroundColor("stateblue");
+                    }
+                } else {
+                    if (e.getGroupId().equals("workTime")) {
+                        if (e.getEnd() == null) {
+                            e.setBackgroundColor("darkred");
+                        } else {
+                            if (e.getStatus().equals(Status.PENDING)) {
+                                e.setBackgroundColor("darkred");
+                            } else if (e.getStatus().equals(Status.ACCEPTED)) {
+                                e.setBackgroundColor("cornflowerblue");
+                            }
+                        }
+                    } else if (e.getGroupId().equals("holiday")) {
+                        if (e.getStatus().equals(Status.PENDING)) {
+                            e.setBackgroundColor("darkred");
+                        } else if (e.getStatus().equals(Status.ACCEPTED)) {
+                            e.setBackgroundColor("darkblue");
+                        }
+                    } else {
+                        if (e.getStatus().equals(Status.PENDING)) {
+                            e.setBackgroundColor("darkred");
+                        } else if (e.getStatus().equals(Status.ACCEPTED)) {
+                            e.setBackgroundColor("stateblue");
+                        }
+                    }
+                }
+            }
 
             return new ResponseEntity<>(events, HttpStatus.OK);
         } catch (Exception e) {
@@ -87,13 +130,16 @@ public class RestApiController {
             result = new HashSet<Event>((Collection) this.eventDao.saveAll(events));
 
 
-            if (result != null && !result.isEmpty() && result.stream().anyMatch(e->e.getStatus().equals(Status.PENDING))) {
+            if (result != null && !result.isEmpty() && result.stream().anyMatch(e->(e.getStatus() != null && e.getStatus().equals(Status.PENDING)))) {
                 System.out.println("history");
+                Set<Event> tmp = result.stream().filter(e->e.getHistory() == null && e.getStatus() != null && e.getStatus().equals(Status.PENDING)).collect(Collectors.toSet());
+                String member = this.sender.getMemberStatus(username);
+                System.out.println(member);
                 EventHistory h = new EventHistory();
                 h.setEventOwner(username);
-                h.setGroupName("test");
+                h.setGroupName(member);
                 h.setStatus(Status.PENDING);
-                h.addEvents(result);
+                h.addEvents(tmp);
                 this.eventHistoryDao.save(h);
             }
 
@@ -181,9 +227,12 @@ public class RestApiController {
 
             String status  = mapper.readTree(input).get("status").asText();
             String id  = mapper.readTree(input).get("id").asText();
+            String updatedBy  = mapper.readTree(input).get("updatedBy").asText();
 
             h = this.eventHistoryDao.findById(Long.valueOf(id)).get();
             h.setStatus(Status.valueOf(status));
+            h.setUpdatedBy(updatedBy);
+
             for (Event e: h.getEvents()) {
                 e.setStatus(Status.valueOf(status));
             }

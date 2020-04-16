@@ -9,6 +9,24 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MessageConfig {
     // group
+    @Bean(name = "memberExchange")
+    public DirectExchange memberExchange() {
+        return new DirectExchange("group.member");
+    }
+
+    @Bean
+    public Queue memberQueue() {
+        return new Queue("group.member.requests");
+    }
+
+    @Bean
+    public Binding memberBinding(DirectExchange memberExchange,
+                                Queue memberQueue) {
+        return BindingBuilder.bind(memberQueue)
+                .to(memberExchange)
+                .with("member");
+    }
+
     @Bean(name = "groupExchange")
     public DirectExchange groupExchange() {
         return new DirectExchange("group.privilege");

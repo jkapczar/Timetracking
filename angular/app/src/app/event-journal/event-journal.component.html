@@ -3,20 +3,23 @@
   <p-dropdown  id="selectGroup" name="selectGroup" [options]="groups"
                placeholder="Choose" ngModel required filter="true">
   </p-dropdown><br>
-  <label for="selectGroup">Status:</label><br>
+  <label for="selectStatus">Status:</label><br>
   <p-dropdown  id="selectStatus" name="selectStatus" [options]="statusOptions"
                placeholder="Choose" ngModel required filter="true">
   </p-dropdown><br>
-  <button type="submit" class="btn btn-danger" style="margin-top: 5%;">Select</button>
+  <button type="submit" class="btn btn-primary" style="margin-top: 2%; margin-bottom: 2%">Select</button>
 </form>
 <p-table [value]="events" *ngIf="events.length>0">
   <ng-template pTemplate="header">
     <tr>
       <th>Owner</th>
-      <th>type</th>
-      <th>dates</th>
+      <th>Type</th>
+      <th>Dates</th>
       <th>Status</th>
-      <th>Actions</th>
+      <th>Updated By</th>
+      <th>Created On</th>
+      <th>Updated On</th>
+      <th *ngIf="this.activeSelection === 'PENDING'">Actions</th>
     </tr>
   </ng-template>
   <ng-template pTemplate="body" let-item>
@@ -29,9 +32,16 @@
         </div>
       </td>
       <td>{{item.status}}</td>
-      <td>
-        <button type="button" (click)="onAccept(item)">Accept</button>
-        <button type="button" (click)="onAccept(item)">Decline</button>
+      <td>{{item.updatedBy}}</td>
+      <td>{{item.createdOn | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+      <td>{{item.updatedOn | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+      <td style="text-align: center" *ngIf="this.activeSelection === 'PENDING'">
+        <button type="button" (click)="onAccept(item)" style="background: green; margin: 2px;">
+          <i style="color: white;" class="fas fa-check-square"></i>
+        </button>
+        <button type="button" (click)="onDeclined(item)" style="background: red; margin: 2px;">
+          <i style="color: white;" class="fas fa-times"></i>
+        </button>
       </td>
     </tr>
   </ng-template>

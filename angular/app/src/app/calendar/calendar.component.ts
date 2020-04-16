@@ -50,6 +50,7 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
   calendarProps = {holiday: 0, ho: 0};
 
   isAdmin = false;
+  isEditDays = false;
 
 
   timeFormat = (date: Date) => {
@@ -59,13 +60,20 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit() {
     this.isAdmin = (this.authService.user.getValue().roles.includes('ADMIN')
       || this.authService.user.getValue().roles.includes('GROUPOWNER'));
+    this.isEditDays = (this.authService.user.getValue().roles.includes('GROUPOWNER')
+      || this.authService.user.getValue().roles.includes('MEMBER'));
+    console.log(this.isAdmin);
     this.calendarOwnerSubscription = this.calendarManagementService.calendarOwner.subscribe(calendarOwner => {
+      console.log('new');
       this.calendarOwner = calendarOwner;
       this.setCalendarOwnerProps();
     });
     this.selectedUserSubscription = this.calendarManagementService.selectedUser.subscribe(selectedUser => {
       this.selectedUser = selectedUser;
       this.fetchEvents(this.selectedUser);
+    });
+    this.calendarService.getCalendarOwner().subscribe(resData => {
+      this.calendarManagementService.calendarOwner.next(resData.body);
     });
     this.eventsModel = [];
     this.setHeaderDate();
@@ -85,23 +93,25 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onDateSelect(event: DateSelectionApi) {
-    this.activeSelection = event;
-    this.setDayOffset();
-    this.setCalendarOwnerProps();
-    this.selectedDayEvents = [];
-    this.selectedDayEvents = this.getEventsOnDate(this.activeSelection.start, this.activeSelection.end);
-    console.log(this.selectedDayEvents);
-    const days = this.getDayDifference(this.activeSelection.start, this.activeSelection.end);
-    if (days === 1) {
-      this.setModalHeader(this.activeSelection.start);
-      this.multipleDaySelection = false;
-      this.manageHOAndHolidayRequests();
-    } else {
-      this.setModalHeader(this.activeSelection.start, this.activeSelection.end);
-      this.multipleDaySelection = true;
-      this.manageHOAndHolidayRequests();
+    if (this.isEditDays) {
+      this.activeSelection = event;
+      this.setDayOffset();
+      this.setCalendarOwnerProps();
+      this.selectedDayEvents = [];
+      this.selectedDayEvents = this.getEventsOnDate(this.activeSelection.start, this.activeSelection.end);
+      console.log(this.selectedDayEvents);
+      const days = this.getDayDifference(this.activeSelection.start, this.activeSelection.end);
+      if (days === 1) {
+        this.setModalHeader(this.activeSelection.start);
+        this.multipleDaySelection = false;
+        this.manageHOAndHolidayRequests();
+      } else {
+        this.setModalHeader(this.activeSelection.start, this.activeSelection.end);
+        this.multipleDaySelection = true;
+        this.manageHOAndHolidayRequests();
+      }
+      this.activeModal = this.modalService.open(this.modalWindow);
     }
-    this.activeModal = this.modalService.open(this.modalWindow);
   }
 
 
@@ -109,26 +119,24 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     const tmp: CalendarEvent[] = [];
     if (!this.checkedIn) {
       // TODO Check time ranges hova menthetek
-      const newEvent = new CalendarEvent(null,
-        '',
+      const newEvent = this.generateEvent('checkIn',
         'workTime',
+        '',
         new Date(),
-        null,
-        'yellow',
-        'black',
-        false,
-        'ACCEPTED');
+        null);
       if (this.checkEventTimeValidity(newEvent)) {
         tmp.push(newEvent);
         this.calendarService.saveEvents(tmp, this.selectedUser).subscribe(resData => {
           this.eventsModel = this.eventsModel.concat(resData);
         });
       } else {
+        console.log('invalid time');
       }
     } else {
       const calendarEvent = this.getLastUnFinishedEvent();
       console.log('getLastUnFinishedEvent', calendarEvent);
       calendarEvent.end = new Date();
+      calendarEvent.backgroundColor = 'cornflowerblue';
       this.eventsModel = this.eventsModel.filter(element => element.id !== calendarEvent.id);
       console.log(this.eventsModel);
       tmp.push(calendarEvent);
@@ -171,52 +179,41 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
   addNewCalendarEvent(type: string) {
     if (type === 'workTime') {
       this.selectedDayEvents = this.selectedDayEvents.filter(element => element.groupId === 'workTime');
-      console.log(new Date(this.activeSelection.start.getTime()));
-      console.log(new Date(this.activeSelection.end.getTime()));
-      const newEvent = new CalendarEvent(null,
-        '',
+      const newEvent = this.generateEvent('newEvent',
         'workTime',
+        '',
         new Date(this.activeSelection.start.getTime()),
-        new Date(this.activeSelection.end.getTime()),
-        'yellow',
-        'black',
-        false,
-        'PENDING');
+        new Date(this.activeSelection.end.getTime()));
       this.selectedDayEvents.push(newEvent);
       this.validEventTime = this.checkEventTimeValidity(newEvent);
     } else if (type === 'holiday') {
       this.manageHOAndHolidayRequests('holiday');
       if (this.multipleDaySelection) {
-        this.setEvents('Holiday', 'holiday', 'purple');
+        this.setEvents('Holiday', 'holiday');
       } else {
         this.selectedDayEvents = [];
-        this.selectedDayEvents.push(new CalendarEvent(null,
-          'Holiday',
+        this.selectedDayEvents.push(this.generateEvent(
+          'newEvent',
           'holiday',
+          'Holiday',
           new Date(this.activeSelection.start.getTime()),
-          new Date(this.activeSelection.start.getTime()),
-          'purple',
-          'black',
-          true,
-          'PENDING'));
+          new Date(this.activeSelection.start.getTime())));
       }
     } else {
       this.manageHOAndHolidayRequests('homeOffice');
       if (this.multipleDaySelection) {
-        this.setEvents('HomeOffice', 'homeOffice', 'blue');
+        this.setEvents('HomeOffice', 'homeOffice');
       } else {
         this.selectedDayEvents = [];
-        this.selectedDayEvents.push(new CalendarEvent(null,
-          'HomeOffice',
+        this.selectedDayEvents.push(this.generateEvent(
+          'newEvent',
           'homeOffice',
+          'HomeOffice',
           new Date(this.activeSelection.start.getTime()),
-          new Date(this.activeSelection.start.getTime()),
-          'blue',
-          'black',
-          true,
-          'PENDING'));
+          new Date(this.activeSelection.start.getTime())));
       }
     }
+    console.log(this.selectedDayEvents);
   }
 
   deleteCalendarEvent(index: number) {
@@ -249,6 +246,7 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
       console.log(resData);
       this.eventsModel = this.eventsModel.concat(resData);
     });
+    this.setCheckInStatus();
     this.activeModal.close();
   }
 
@@ -287,21 +285,18 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     this.calendarOwner.numOfHOs = this.calendarProps.ho;
   }
 
-  private setEvents(title: string, groupId: string, color: string) {
+  private setEvents(title: string, groupId: string) {
     this.clearEvents();
     const date = new Date(this.activeSelection.start);
     const endDate = this.activeSelection.end;
 
     while (date.getTime() <= endDate.getTime()) {
-      this.selectedDayEvents.push(new CalendarEvent(null,
-        title,
+      this.selectedDayEvents.push(this.generateEvent(
+        'newEvent',
         groupId,
+        title,
         new Date(date.getTime()),
-        new Date(date.getTime()),
-        color,
-        'black',
-        true,
-        'PENDING'));
+        new Date(date.getTime())));
       date.setDate(date.getDate() + 1);
     }
   }
@@ -357,6 +352,7 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private setCheckInStatus() {
+    console.log(this.getLastUnFinishedEvent());
     this.checkedIn = (this.getLastUnFinishedEvent() != null);
   }
 
@@ -403,9 +399,56 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     return Math.ceil((Math.abs(start.getTime() - end.getTime())) / (1000 * 3600 * 24));
   }
 
+  // TODO set status by user
+  private generateEvent(type: string, groupId: string, title: string, startDate: Date, endDate: Date) {
+    if (type === 'checkIn') {
+      return new CalendarEvent(null,
+        title,
+        groupId,
+        startDate,
+        endDate,
+        'darkred',
+        'white',
+        false,
+        null);
+    } else {
+      if (groupId === 'workTime') {
+        return new CalendarEvent(null,
+          title,
+          groupId,
+          startDate,
+          endDate,
+          this.isAdmin ? (endDate ? 'cornflowerblue' : 'darkred') : 'darkred',
+          'white',
+          false,
+          this.isAdmin ? null : 'PENDING');
+      } else if (groupId === 'holiday') {
+        return new CalendarEvent(null,
+          title,
+          groupId,
+          startDate,
+          endDate,
+          this.isAdmin ? 'darkblue' : 'darkred',
+          'white',
+          true,
+          this.isAdmin ? null : 'PENDING');
+      } else if (groupId === 'homeOffice') {
+        return new CalendarEvent(null,
+          title,
+          groupId,
+          startDate,
+          endDate,
+          this.isAdmin ? 'stateblue' : 'darkred',
+          'white',
+          true,
+          this.isAdmin ? null : 'PENDING');
+      }
+    }
+  }
+
   // TODO ora perc range
   // TODO full time jon be de eggyik event endje nullos
-  checkEventTimeValidity(event: CalendarEvent) {
+  private checkEventTimeValidity(event: CalendarEvent) {
     // TODO
     // HA csak az ora vagy csak a perc van kitoltve
 

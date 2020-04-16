@@ -1,8 +1,11 @@
 package core.model;
 
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,6 +27,15 @@ public class EventHistory {
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private Status status;
+    @Column(name = "updatedby")
+    private String updatedBy;
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdOn;
+    @UpdateTimestamp
+    @Column(nullable = false)
+    private LocalDateTime updatedOn;
+
 
     public void addEvents(Set<Event> e){
         for (Event event: e) {
@@ -47,6 +59,11 @@ public class EventHistory {
     public void removeEvent(Event e){
         this.getEvents().remove(e);
         e.setHistory(null);
+    }
+
+    public void clearEvents() {
+        Set<Event> tmp = new HashSet<>(this.getEvents());
+        this.removeEvents(tmp);
     }
 
 }

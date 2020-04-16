@@ -1,8 +1,10 @@
 package core.messaging;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import core.dao.GroupDao;
 import core.dao.UserDao;
 import core.model.User;
+import core.model.UserRole;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -53,11 +55,27 @@ public class Receiver {
     }
 
     @RabbitListener(queues = "group.privilege.requests")
-    public Set<String> getUserPrivilege(String username) {
+    public String getUserPrivilege(String username) {
         System.out.println(username);
-        Set<String> roles = new HashSet<>();
-        roles.addAll(this.groupDao.getAvailableGroupsForUser(username));
-        return roles;
+        User u = this.userDao.findUserByUserName(username);
+        UserRole ur = new UserRole(u);
+        ObjectMapper mapper = new ObjectMapper();
+        String result = null;
+        try {
+            result = mapper.writeValueAsString(ur);
+            System.out.println(result);
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @RabbitListener(queues = "group.member.requests")
+    public String getUserMemberStatus(String username) {
+        System.out.println(username);
+        String member = this.groupDao.getMemberStatusOfUser(username);
+        return member;
     }
 
 }
