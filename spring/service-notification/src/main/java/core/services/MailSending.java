@@ -13,7 +13,7 @@ import java.io.IOException;
 public class MailSending {
     public void SendMail(String to, String content) {
         Email from = new Email("mycalendarapp2020@gmail.com");
-        String subject = "Sending with SendGrid is Fun";
+        String subject = "application notification";
         Email mailTo = new Email(to);
         Content mailContent = new Content("text/html charset=UTF-8", content);
         Mail mail = new Mail(from, subject, mailTo, mailContent);

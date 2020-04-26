@@ -33,7 +33,7 @@ export class AuthService {
         localStorage.setItem('userToken', token);
       }));
   }
-  // TODO create a button for logout
+
   logout() {
     this.user.next(null);
     this.router.navigate(['/login']);

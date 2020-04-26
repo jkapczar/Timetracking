@@ -56,19 +56,19 @@ public class Receiver {
 
     @RabbitListener(queues = "group.privilege.requests")
     public String getUserPrivilege(String username) {
-        System.out.println(username);
-        User u = this.userDao.findUserByUserName(username);
-        UserRole ur = new UserRole(u);
-        ObjectMapper mapper = new ObjectMapper();
-        String result = null;
         try {
+            System.out.println(username);
+            User u = this.userDao.findUserByUserName(username);
+            UserRole ur = new UserRole(u);
+            ObjectMapper mapper = new ObjectMapper();
+            String result = null;
             result = mapper.writeValueAsString(ur);
             System.out.println(result);
             return result;
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     @RabbitListener(queues = "group.member.requests")

@@ -30,23 +30,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         this.userDao = userDao;
     }
 
-
-    //TODO users role
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    private Set<String> getRoles(String username) {
         Set<String> tmp = new HashSet<>();
         try {
             String input = this.sender.sendUserPrivilegeRequest(username);
-            System.out.println(input);
-
             String teamLeader = mapper.readTree(input).get("teamLeader").asText();
             String member = mapper.readTree(input).get("member").asText();
             Set<String> deputy = mapper.convertValue(mapper.readTree(input).get("deputy"), HashSet.class);
-
-            System.out.println(teamLeader);
-            System.out.println(member);
-            System.out.println(deputy.size());
-
 
             if (!teamLeader.equals("")) {
                 tmp.add("GROUPOWNER");
@@ -67,20 +57,28 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return tmp;
+    }
 
+    //TODO users role
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Set<String> tmp = new HashSet<>();
         try {
             core.model.User u = userDao.findByUsername(username);
-            tmp.add("USER");
-            if (u.isAdmin()) {
-                tmp.add("ADMIN");
+            if (u != null && u.isActive()) {
+                tmp.add("USER");
+                if (u.isAdmin()) {
+                    tmp.add("ADMIN");
+                }
+                tmp.addAll(getRoles(u.getUsername()));
+                List<GrantedAuthority> grantedAuthorities = AuthorityUtils
+                        .commaSeparatedStringToAuthorityList(String.join(", ", tmp));
+                return new User(u.getUsername(),u.getPassword(),grantedAuthorities);
             }
-            List<GrantedAuthority> grantedAuthorities = AuthorityUtils
-                    .commaSeparatedStringToAuthorityList(String.join(", ", tmp));
-
-            return new User(u.getUsername(),u.getPassword(),grantedAuthorities);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new UsernameNotFoundException("Username: " + username + " not found");
         }
+        throw new UsernameNotFoundException("Username: " + username + " not found");
     }
 }
