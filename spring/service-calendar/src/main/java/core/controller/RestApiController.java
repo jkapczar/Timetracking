@@ -230,13 +230,27 @@ public class RestApiController {
             String updatedBy  = mapper.readTree(input).get("updatedBy").asText();
 
             h = this.eventHistoryDao.findById(Long.valueOf(id)).get();
+            User u = this.userDao.findUserByUsername(h.getEventOwner());
+
+            if (status.equals("DECLINED")) {
+                System.out.println("DECLINED");
+                if (h.getEvents().stream().anyMatch(e->e.getGroupId().equals("holiday"))) {
+                    System.out.println("holiday");
+                    u.setNumOfHolidays(u.getNumOfHolidays() - h.getEvents().size());
+                }
+                if (h.getEvents().stream().anyMatch(e->e.getGroupId().equals("homeOffice"))) {
+                    System.out.println("HO");
+                    u.setNumOfHOs(u.getNumOfHOs() - h.getEvents().size());
+                }
+            }
+
             h.setStatus(Status.valueOf(status));
             h.setUpdatedBy(updatedBy);
 
             for (Event e: h.getEvents()) {
                 e.setStatus(Status.valueOf(status));
             }
-
+            this.userDao.save(u);
             h = this.eventHistoryDao.save(h);
 
             return new ResponseEntity<>(h, HttpStatus.OK);

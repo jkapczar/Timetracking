@@ -7,6 +7,9 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 
 public class Receiver {
@@ -44,11 +47,15 @@ public class Receiver {
             JsonNode jsonNodeRoot = mapper.readTree(input);
             String username = jsonNodeRoot.get("username").asText();
             String token = jsonNodeRoot.get("token").asText();
-            String mailTo = jsonNodeRoot.get("userDetails").asText();
+            JsonNode user = jsonNodeRoot.get("userDetails");
+            String mailTo = user.get("email").asText();
+            String secQuestion = user.get("secQuestion").asText();
+            String encodedQuestion = URLEncoder.encode(secQuestion, StandardCharsets.UTF_8.toString());
 
             String content = "Dear <b> " + username + "</b>!<br><br>"
                     + "You can reset your password by clicking the link below! <br><br>"
-                    + "<a href=\"http://localhost:4200/resetpassword?token=" + token + "\"" + ">Link</a>";
+                    + "<a href=\"http://localhost:4200/resetpassword?token=" + token + "seqQuestion="
+                    + encodedQuestion + "\"" + ">Link</a>";
 
             this.mailSending.SendMail(mailTo, content);
         } catch (Exception e) {

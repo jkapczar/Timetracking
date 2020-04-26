@@ -29,6 +29,7 @@ export class EventJournalComponent implements OnInit {
   groupsAndUsers: {groupName: string, users: string[]}[] = [];
   selectedGroupAndUsers: {groupName: string, users: string[]};
   groups: {label: string, value: string}[] = [];
+  selected = false;
 
 
   ngOnInit(): void {
@@ -46,6 +47,7 @@ export class EventJournalComponent implements OnInit {
         }
       });
       this.activeSelection = form.value.selectStatus;
+      this.selected = true;
     }
   }
 

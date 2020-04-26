@@ -9,6 +9,7 @@
   </p-dropdown><br>
   <button type="submit" class="btn btn-primary" style="margin-top: 2%; margin-bottom: 2%">Select</button>
 </form>
+<p *ngIf="events.length === 0 && selected">No records found!</p>
 <p-table [value]="events" *ngIf="events.length>0">
   <ng-template pTemplate="header">
     <tr>

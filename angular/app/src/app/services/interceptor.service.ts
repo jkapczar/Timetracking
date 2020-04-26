@@ -16,21 +16,18 @@ export class InterceptorService implements HttpInterceptor {
     return this.authService.user.pipe(
       take(1),
       exhaustMap(user => {
-        // no token available
         if (!user) {
-          console.log(req);
           return next.handle(req);
         }
-        const modifiedRequest = req.clone({headers: new HttpHeaders().set('Authorization', user.token)});
-        console.log(modifiedRequest);
-        return next.handle(modifiedRequest).pipe(catchError(error => {
-          // our token expired
-          if (error.status === 401) {
-            console.log('token expired logout');
-            this.authService.logout();
-          }
-          return throwError(error);
-        }));
+        if ((new Date()).getTime() > (new Date(user.exp * 1000)).getTime()) {
+          console.log('token expired logout');
+          this.authService.logout();
+        } else {
+          const modifiedRequest = req.clone({headers: new HttpHeaders().set('Authorization', user.token)});
+          return next.handle(modifiedRequest).pipe(catchError(error => {
+            return throwError(error);
+          }));
+        }
       })
     );
   }

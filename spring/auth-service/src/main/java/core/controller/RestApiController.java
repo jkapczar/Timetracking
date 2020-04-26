@@ -201,7 +201,7 @@ public class RestApiController {
                 Token token = new Token();
                 token.setToken(UUID.randomUUID().toString());
                 token.setUsername(u.getUsername());
-                token.setUserDetails(email);
+                token.setUserDetails(mapper.writeValueAsString(u));
                 token = this.tokenDao.save(token);
 
                 this.sender.sendPasswordReset(mapper.writeValueAsString(token));
