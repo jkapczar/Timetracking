@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders, HttpResponse} from '@angular/common/http';
+import {HttpClient, HttpErrorResponse, HttpHeaders, HttpResponse} from '@angular/common/http';
 import {BehaviorSubject} from 'rxjs';
 import {tap} from 'rxjs/operators';
 import {Router} from '@angular/router';
@@ -7,14 +7,16 @@ import {User} from '../model/user.model';
 import base64url from 'base64url';
 import {Creds} from '../model/creds.model';
 import {AuthUser} from '../model/authUser.model';
-
+import {MessageService} from 'primeng';
+import {Message} from '../model/message.model';
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
   constructor(private http: HttpClient,
-              private router: Router) {}
+              private router: Router,
+              private messagingService: MessageService) {}
 
   user = new BehaviorSubject<AuthUser>(null);
   userTemplate: {sub: string, authorities: string[], iat: number, exp: number} = null;
@@ -27,7 +29,6 @@ export class AuthService {
         password
       }, {observe: 'response'})
       .pipe(tap(resData => {
-        console.log(resData);
         const token = resData.headers.get('Authorization');
         this.getAuthUser(token);
         localStorage.setItem('userToken', token);
@@ -49,13 +50,29 @@ export class AuthService {
 
   registration(user: User) {
     this.http.post('http://localhost:8762/auth/registration', JSON.stringify(user), {observe: 'response'}).subscribe(resData => {
-      console.log(resData);
+      this.messagingService.add(new Message(
+        'success',
+        'Registration was successful!',
+        ''));
+    }, (error: HttpErrorResponse) => {
+      this.messagingService.add(new Message(
+        'error',
+        'Registration failed!',
+        error.message));
     });
   }
 
   updateCredentials(creds: Creds) {
     this.http.post('http://localhost:8762/auth/update', JSON.stringify(creds)).subscribe(resData => {
-      console.log(resData);
+      this.messagingService.add(new Message(
+        'success',
+        'Update was successful!',
+        ''));
+    }, (error: HttpErrorResponse) => {
+      this.messagingService.add(new Message(
+        'error',
+        'Update failed!',
+        error.message));
     });
   }
 
@@ -71,14 +88,30 @@ export class AuthService {
 
   resetPasswordRequest(pwreset: {username: string, email: string}) {
     this.http.post('http://localhost:8762/auth/resetpasswordrequest', JSON.stringify(pwreset)).subscribe(resData => {
-      console.log(resData);
+      this.messagingService.add(new Message(
+        'success',
+        'Email has been sent!',
+        ''));
+    }, error => {
+      this.messagingService.add(new Message(
+        'error',
+        'Unknown error happened!',
+        ''));
     });
   }
 
   resetPassword(password: string, token: string) {
     const url = `http://localhost:8762/auth/resetpassword?token=${token}`;
     this.http.post(url, JSON.stringify({password})).subscribe(resData => {
-      console.log(resData);
+      this.messagingService.add(new Message(
+        'success',
+        'Password reset was successful!',
+        ''));
+    }, error => {
+      this.messagingService.add(new Message(
+        'error',
+        'Unknown error happened!',
+        ''));
     });
   }
 
@@ -86,9 +119,7 @@ export class AuthService {
     if (!username) {
       username = `${this.user.getValue().username}`;
     }
-    console.log(username);
     const url = `http://localhost:8762/auth/${username}`;
-    console.log(url);
     return this.http.get<Creds>(url, {observe: 'response'});
   }
 
@@ -100,7 +131,6 @@ export class AuthService {
       this.userTemplate.iat,
       this.userTemplate.exp,
       token);
-    console.log(authUser);
     this.user.next(authUser);
   }
 

@@ -9,7 +9,7 @@ import {Journal} from '../model/journal.model';
 export class JournalService {
   constructor(private http: HttpClient) {}
 
-  getTest(data: {status: string, users: string[]}) {
+  getEvents(data: {status: string, users: string[]}) {
     return this.http.post<Journal[]>('http://localhost:8762/calendar/getEventByStatus', data, {observe: 'response'});
   }
 

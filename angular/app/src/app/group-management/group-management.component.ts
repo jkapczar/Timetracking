@@ -5,6 +5,8 @@ import {Group} from '../model/group.model';
 import {GroupManagementService} from '../services/group-management.service';
 import {Subscription} from 'rxjs';
 import {AuthService} from '../services/auth.service';
+import {Message} from '../model/message.model';
+import {MessageService} from 'primeng';
 
 @Component({
   selector: 'app-group-management',
@@ -15,7 +17,8 @@ export class GroupManagementComponent implements OnInit, OnDestroy {
   @ViewChild('updateGroupForm') updateForm: NgForm;
   constructor(private groupService: GroupService,
               private groupManagementService: GroupManagementService,
-              private authService: AuthService) { }
+              private authService: AuthService,
+              private messagingService: MessageService) { }
 
   groups = [];
   teamLeaders = [];
@@ -27,7 +30,6 @@ export class GroupManagementComponent implements OnInit, OnDestroy {
 
   sourceUsers = [''];
   targetUsers = [''];
-  //////////////////////////////////////
 
   eventSubscription: Subscription;
 
@@ -41,19 +43,23 @@ export class GroupManagementComponent implements OnInit, OnDestroy {
     });
   }
 
-  // TODO handle when an error happens
   onUpdate(form: NgForm) {
-    console.log(form.value);
     if (this.selectedGroup) {
       this.selectedGroup.members = this.targetUsers.map(e => ({username: e}));
       this.selectedGroup.deputies = form.value.selectedDeputies.map(e => ({username: e}));
-      console.log(form.value.selectedTeamLeader);
       this.selectedGroup.teamLeader = form.value.selectedTeamLeader == null ? null : {username: form.value.selectedTeamLeader};
-      console.log(this.selectedGroup);
       this.groupService.updateGroup(this.selectedGroup).subscribe(resData => {
-        console.log(resData);
         form.form.reset();
         this.onInit();
+        this.messagingService.add(new Message(
+          'success',
+          'Update was successful!',
+          ''));
+      }, error => {
+        this.messagingService.add(new Message(
+          'error',
+          'Update failed!',
+          ''));
       });
     }
   }
@@ -94,20 +100,22 @@ export class GroupManagementComponent implements OnInit, OnDestroy {
     this.teamLeadersUpdate = [];
     this.groups = [];
     if (this.authService.user.getValue().roles.includes('ADMIN')) {
-        console.log('admin');
         this.groupService.getGroups().subscribe(resData => {
           for (const item of resData.body) {
             this.groups.push({label: item, value: item});
           }
           this.groupManagementService.groups.next(this.groups);
+        }, error => {
+          this.onError();
         });
       } else {
-        console.log('nem ADMIN');
         this.groupService.getAvailableGroupsForUser(this.authService.user.getValue().username).subscribe(resData => {
           for (const item of resData.body) {
             this.groups.push({label: item, value: item});
           }
           this.groupManagementService.groups.next(this.groups);
+        }, error => {
+          this.onError();
         });
       }
 
@@ -116,6 +124,8 @@ export class GroupManagementComponent implements OnInit, OnDestroy {
       for (const item of resData.body) {
         this.unAssignedUsers.push(item);
       }
+    }, error => {
+      this.onError();
     });
     this.groupService.getAvailableTeamLeaders().subscribe(resData => {
       this.teamLeaders = [];
@@ -123,17 +133,28 @@ export class GroupManagementComponent implements OnInit, OnDestroy {
         this.teamLeaders.push({label: item, value: item});
       }
       this.groupManagementService.teamLeaders.next(this.teamLeaders);
+    }, error => {
+      this.onError();
     });
     this.groupService.getTeamLeaders().subscribe(resData => {
       this.deputies = [];
       for (const item of resData.body) {
         this.deputies.push({label: item, value: item});
       }
+    }, error => {
+      this.onError();
     });
   }
 
   ngOnDestroy(): void {
     this.eventSubscription.unsubscribe();
+  }
+
+  private onError() {
+    this.messagingService.add(new Message(
+      'error',
+      'Service is down!',
+      ''));
   }
 
 }

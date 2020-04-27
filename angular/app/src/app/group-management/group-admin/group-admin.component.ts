@@ -3,6 +3,8 @@ import {NgForm} from '@angular/forms';
 import {GroupService} from '../../services/group.service';
 import {GroupManagementService} from '../../services/group-management.service';
 import {Subscription} from 'rxjs';
+import {MessageService} from 'primeng';
+import {Message} from '../../model/message.model';
 
 @Component({
   selector: 'app-group-admin',
@@ -12,7 +14,8 @@ import {Subscription} from 'rxjs';
 export class GroupAdminComponent implements OnInit, OnDestroy {
 
   constructor(private groupService: GroupService,
-              private groupManagementService: GroupManagementService) { }
+              private groupManagementService: GroupManagementService,
+              private messagingService: MessageService) { }
 
   groups;
   teamLeaders;
@@ -30,31 +33,38 @@ export class GroupAdminComponent implements OnInit, OnDestroy {
   }
 
   onCreate(form: NgForm) {
-    console.log('create group');
-    console.log(form.value);
-    console.log(form.valid);
     if (form.valid) {
       this.groupService.createGroup(form.value.groupName, form.value.selectedTeamLeader).subscribe(resData => {
-        console.log(resData);
         this.groupManagementService.resetEvent.next(true);
         form.reset();
+        this.messagingService.add(new Message(
+          'success',
+          'New group successfully created!',
+          ''));
       });
     } else {
-      console.log('invalid form');
+      this.messagingService.add(new Message(
+        'error',
+        'Form is not valid!',
+        ''));
     }
   }
 
   onDelete(form: NgForm) {
-    console.log('delete');
-    console.log(form.value);
     if (form.valid) {
       this.groupService.deleteGroup(form.value.groupName).subscribe(resData => {
-        console.log(resData);
         this.groupManagementService.resetEvent.next(true);
         form.reset();
+        this.messagingService.add(new Message(
+          'success',
+          'Group is deleted!',
+          ''));
       });
     } else {
-      console.log('invalid form');
+      this.messagingService.add(new Message(
+        'error',
+        'Form is not valid!',
+        ''));
     }
   }
 

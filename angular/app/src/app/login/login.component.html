@@ -9,19 +9,22 @@
         <label for="password">Password</label>
         <input type="password" class="form-control" id="password" name="password" ngModel minlength="6" required>
       </div>
-      <div>
+      <div style="text-align: center">
         <button
+          style="margin-right: 2px"
           class="btn btn-primary"
           type="submit"
           [disabled]="!loginForm.valid">
           Login
         </button>
         <button
+          style="margin-left: 2px"
           class="btn btn-primary"
           type="button"
           (click)="navToRegistration()">
           Registration
         </button>
+        <a class="nav-link" (click)="navToPasswordreset()">Reset password</a>
       </div>
     </form>
   </div>

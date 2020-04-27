@@ -11,6 +11,8 @@ import {CalendarService} from '../services/calendar.service';
 import {AuthService} from '../services/auth.service';
 import {CalendarManagementService} from '../services/calendar-management.service';
 import {Subscription} from 'rxjs';
+import {Message} from '../model/message.model';
+import {MessageService} from 'primeng';
 
 @Component({
   selector: 'app-calendar',
@@ -22,7 +24,8 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(private modalService: NgbModal,
               private calendarService: CalendarService,
               private calendarManagementService: CalendarManagementService,
-              private authService: AuthService) { }
+              private authService: AuthService,
+              private messagingService: MessageService) { }
 
   @ViewChild('fullcalendar', { static: false }) fullcalendar: FullCalendarComponent;
   @ViewChild('modalWindow', { static: false }) modalWindow;
@@ -62,9 +65,7 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
       || this.authService.user.getValue().roles.includes('GROUPOWNER'));
     this.isEditDays = (this.authService.user.getValue().roles.includes('GROUPOWNER')
       || this.authService.user.getValue().roles.includes('MEMBER'));
-    console.log(this.isAdmin);
     this.calendarOwnerSubscription = this.calendarManagementService.calendarOwner.subscribe(calendarOwner => {
-      console.log('new');
       this.calendarOwner = calendarOwner;
       this.setCalendarOwnerProps();
     });
@@ -99,7 +100,6 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
       this.setCalendarOwnerProps();
       this.selectedDayEvents = [];
       this.selectedDayEvents = this.getEventsOnDate(this.activeSelection.start, this.activeSelection.end);
-      console.log(this.selectedDayEvents);
       const days = this.getDayDifference(this.activeSelection.start, this.activeSelection.end);
       if (days === 1) {
         this.setModalHeader(this.activeSelection.start);
@@ -130,51 +130,43 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
           this.eventsModel = this.eventsModel.concat(resData);
         });
       } else {
-        console.log('invalid time');
+        this.messagingService.add(new Message(
+          'error',
+          'Invalid time!',
+          ''));
       }
     } else {
       const calendarEvent = this.getLastUnFinishedEvent();
-      console.log('getLastUnFinishedEvent', calendarEvent);
       calendarEvent.end = new Date();
       calendarEvent.backgroundColor = 'cornflowerblue';
       this.eventsModel = this.eventsModel.filter(element => element.id !== calendarEvent.id);
-      console.log(this.eventsModel);
       tmp.push(calendarEvent);
       this.calendarService.saveEvents(tmp, this.selectedUser).subscribe(resData => {
         this.eventsModel = this.eventsModel.concat(resData);
       });
     }
-    console.log('Checkout', this.eventsModel);
     this.checkedIn = !this.checkedIn;
   }
 
   getNextMonth() {
-    console.log('next');
     this.fullcalendar.getApi().next();
     this.fetchEvents(this.selectedUser);
     this.setHeaderDate(this.fullcalendar.getApi().view.currentStart);
   }
 
   getPreviousMonth() {
-    console.log('prev');
     this.fullcalendar.getApi().prev();
     this.fetchEvents(this.selectedUser);
     this.setHeaderDate(this.fullcalendar.getApi().view.currentStart);
   }
 
-  onRowEditInit(data: any) {
-    console.log(data);
-  }
+  onRowEditInit(data: any) {}
 
   onRowEditSave(data: CalendarEvent) {
     this.validEventTime = this.checkEventTimeValidity(data);
-    console.log(data);
   }
 
-  // TODO load original
-  onRowEditCancel(data: any, index: number) {
-    console.log(data, index);
-  }
+  onRowEditCancel(data: any, index: number) {}
 
   addNewCalendarEvent(type: string) {
     if (type === 'workTime') {
@@ -213,7 +205,6 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
           new Date(this.activeSelection.start.getTime())));
       }
     }
-    console.log(this.selectedDayEvents);
   }
 
   deleteCalendarEvent(index: number) {
@@ -221,12 +212,10 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async save() {
-
     this.reSetCalendarOwnerProps();
     await this.calendarService.updateCalendarOwner(this.calendarOwner).subscribe(resData => {
       this.calendarManagementService.calendarOwner.next(resData.body);
     });
-
 
     let tmp = this.getEventsOnDate(this.activeSelection.start, this.activeSelection.end);
 
@@ -237,14 +226,18 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
 
     tmp = tmp.filter(element => (element.id != null && this.selectedDayEvents.indexOf(element) === -1));
 
-    console.log('delete', tmp);
-
-    await this.calendarService.deleteEvents(tmp).subscribe(resData => {
-      console.log(resData);
-    });
+    await this.calendarService.deleteEvents(tmp).subscribe();
     await this.calendarService.saveEvents(this.selectedDayEvents, this.selectedUser).subscribe(resData => {
-      console.log(resData);
       this.eventsModel = this.eventsModel.concat(resData);
+      this.messagingService.add(new Message(
+        'success',
+        'Save was successful!!',
+        ''));
+    }, error => {
+      this.messagingService.add(new Message(
+          'error',
+          'Save failed!',
+          ''));
     });
     this.setCheckInStatus();
     this.activeModal.close();
@@ -261,11 +254,8 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
         this.calendarProps.ho -= 1;
       }
     }
-
-    console.log(this.selectedDayEvents);
     this.selectedDayEvents = this.selectedDayEvents.filter(element =>
       !((element.start.getTime() >= startDate.getTime()) && (element.start.getTime() <= endDate.getTime())));
-    console.log(this.selectedDayEvents);
   }
 
   pad(num: number) {
@@ -318,8 +308,6 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private getEventsOnDate(startDate: Date, endDate?: Date) {
-    console.log(startDate, endDate);
-    console.log(this.eventsModel);
     return this.eventsModel.filter(
       element => (element.start.getTime() >= startDate.getTime() && element.start.getTime() <= endDate.getTime()));
   }
@@ -339,8 +327,12 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
       this.getDate(this.fullcalendar.getApi().view.activeEnd),
       username).subscribe(resData => {
         this.eventsModel = resData;
-        console.log(this.eventsModel);
         this.setCheckInStatus();
+    }, error => {
+      this.messagingService.add(new Message(
+        'error',
+        'Unknown error happened!',
+        'Service is probably down'));
     });
   }
 
@@ -352,7 +344,6 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private setCheckInStatus() {
-    console.log(this.getLastUnFinishedEvent());
     this.checkedIn = (this.getLastUnFinishedEvent() != null);
   }
 
@@ -372,9 +363,7 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private manageHOAndHolidayRequests(type?: string) {
-    console.log(this.calendarOwner);
     const days = this.getDayDifference(this.activeSelection.start, this.activeSelection.end);
-    console.log(days);
     if (type) {
       if (type === 'holiday') {
         this.calendarProps.holiday = this.calendarProps.holiday + days;
@@ -392,7 +381,6 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     } else {
       this.isHOAllowed = false;
     }
-    console.log(this.isHOAllowed, this.isHolidayAllowed);
   }
 
   private getDayDifference(start: Date, end: Date) {
@@ -446,28 +434,20 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  // TODO ora perc range
-  // TODO full time jon be de eggyik event endje nullos
   private checkEventTimeValidity(event: CalendarEvent) {
-    // TODO
-    // HA csak az ora vagy csak a perc van kitoltve
 
     if ((event.startHour != null && event.startMinute == null) ||
       (event.startHour == null && event.startMinute != null)) {
-      console.log('1');
       return false;
     }
 
     if ((event.endHour != null && event.endMinute == null) ||
       (event.endHour == null && event.endMinute != null)) {
-      console.log('2');
       return false;
     }
-
     event.setDates();
 
     if (!event.start) {
-      console.log('3');
       return false;
     }
 
@@ -478,7 +458,6 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
 
       if (((event.start < e.start || event.start < e.end) && event.end == null)
         || (event.end == null && e.end == null)) {
-        console.log('4');
         return false;
       }
 
@@ -487,7 +466,6 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
       }
 
       if (event.start > event.end) {
-        console.log('5');
         return false;
       }
 
@@ -502,7 +480,6 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
           || (e.start.getTime() < event.start.getTime() && e.end.getTime() > event.end.getTime())
         )
       ) {
-        console.log('6');
         return false;
       }
     }

@@ -1,11 +1,12 @@
-import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
-import {User} from '../../model/user.model';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {UserService} from '../../services/user.service';
 import {NgForm} from '@angular/forms';
 import {AuthService} from '../../services/auth.service';
 import {Creds} from '../../model/creds.model';
 import {UserManagementService} from '../../services/user-management.service';
 import {Subscription} from 'rxjs';
+import {Message} from '../../model/message.model';
+import {MessageService} from 'primeng';
 
 
 @Component({
@@ -17,7 +18,8 @@ export class UserAdminComponent implements OnInit, OnDestroy {
   @ViewChild('selectionForm') selectionForm: NgForm;
   constructor(private userService: UserService,
               private authService: AuthService,
-              private userManagementService: UserManagementService) { }
+              private userManagementService: UserManagementService,
+              private messagingService: MessageService) { }
 
   users = [];
   selectedUser: string;
@@ -44,36 +46,57 @@ export class UserAdminComponent implements OnInit, OnDestroy {
       this.selectionForm.form.patchValue({
         userSelection: this.authService.user.value.username
       });
+    }, error => {
+      this.messagingService.add(new Message(
+        'error',
+        'Service is down!',
+        ''));
     });
   }
 
   onActivate() {
     this.authService.updateStatus(this.selectedUser).subscribe(resData => {
-      console.log(resData);
-      this.active = !this.active;
-      this.credentials.admin = this.admin;
-      this.credentials.active = this.active;
+      this.setValues();
       this.userManagementService.credentials.next(this.credentials);
+      this.messagingService.add(new Message(
+        'success',
+        'Update was successful!',
+        ''));
+    }, error => {
+      this.messagingService.add(new Message(
+        'error',
+        'Activation failed!',
+        ''));
     });
   }
 
   onEnableAdmin() {
     this.authService.updateAdmin(this.selectedUser).subscribe(resData => {
-      console.log(resData);
-      this.admin = !this.admin;
-      this.credentials.admin = this.admin;
-      this.credentials.active = this.active;
+      this.setValues();
       this.userManagementService.credentials.next(this.credentials);
+      this.messagingService.add(new Message(
+        'success',
+        'Update was successful!',
+        ''));
+    }, error => {
+      this.messagingService.add(new Message(
+        'error',
+        'Update failed!',
+        ''));
     });
   }
 
   onDelete() {
-    console.log('deleting ' + this.selectedUser);
     this.userService.deleteUser(this.selectedUser).subscribe(resData => {
-      console.log(resData.status);
       this.users.splice(this.users.indexOf(this.selectedUser), 1);
       this.selectionForm.onReset();
     });
+  }
+
+  setValues() {
+    this.admin = !this.admin;
+    this.credentials.admin = this.admin;
+    this.credentials.active = this.active;
   }
 
   onSelect() {

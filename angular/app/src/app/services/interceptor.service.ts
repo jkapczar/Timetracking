@@ -20,7 +20,6 @@ export class InterceptorService implements HttpInterceptor {
           return next.handle(req);
         }
         if ((new Date()).getTime() > (new Date(user.exp * 1000)).getTime()) {
-          console.log('token expired logout');
           this.authService.logout();
         } else {
           const modifiedRequest = req.clone({headers: new HttpHeaders().set('Authorization', user.token)});

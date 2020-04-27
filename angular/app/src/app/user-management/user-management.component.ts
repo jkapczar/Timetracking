@@ -6,6 +6,8 @@ import {User} from '../model/user.model';
 import {Creds} from '../model/creds.model';
 import {UserManagementService} from '../services/user-management.service';
 import {Subscription} from 'rxjs';
+import {Message} from '../model/message.model';
+import {MessageService} from 'primeng';
 
 @Component({
   selector: 'app-user-management',
@@ -17,7 +19,8 @@ export class UserManagementComponent implements OnInit, OnDestroy {
   @ViewChild('userCredentials') userCredentialsForm: NgForm;
   constructor(private userService: UserService,
               private authService: AuthService,
-              private userManagementService: UserManagementService) { }
+              private userManagementService: UserManagementService,
+              private messagingService: MessageService) { }
 
 
   user: User;
@@ -28,12 +31,7 @@ export class UserManagementComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.isAdmin = this.authService.user.getValue().roles.includes('ADMIN');
-    this.userService.getUser().subscribe(resData => {
-      this.setUI(resData);
-    });
-    this.authService.getCredentials().subscribe(resData => {
-      this.setCredentialsUI(resData);
-    });
+    this.setUser();
     this.selectedUserSubscription = this.userManagementService.selectedUser.subscribe(username => {
       this.setUser(username);
     });
@@ -66,7 +64,6 @@ export class UserManagementComponent implements OnInit, OnDestroy {
   }
 
   private setCredentialsUI(resData) {
-    console.log(resData);
     this.credentials = new Creds(resData.body.id, resData.body.password, resData.body.secQuestion,
       resData.body.secAnswer, resData.body.active, resData.body.admin);
     this.userManagementService.credentials.next(this.credentials);
@@ -78,13 +75,22 @@ export class UserManagementComponent implements OnInit, OnDestroy {
     });
   }
 
-  private setUser(username: string) {
-    console.log('username: ' + username);
+  private setUser(username?: string) {
     this.userService.getUser(username).subscribe(resData => {
       this.setUI(resData);
+    }, error => {
+      this.messagingService.add(new Message(
+        'error',
+        'Service is down!',
+        ''));
     });
     this.authService.getCredentials(username).subscribe(resData => {
       this.setCredentialsUI(resData);
+    }, error => {
+      this.messagingService.add(new Message(
+        'error',
+        'Service is down!',
+        ''));
     });
   }
 

@@ -3,8 +3,8 @@
     <h3>Create new group</h3>
     <form #groupCreateForm="ngForm" (ngSubmit)="onCreate(groupCreateForm)">
       <label for="name">Group name:</label>
-      <input id="name" type="text" name="groupName" class="form-control" ngModel required>
-      <label for="teamLeader">Team Leader:</label>
+      <input id="name" type="text" name="groupName" class="form-control" ngModel required style="margin-bottom: 5%;">
+      <label for="teamLeader">Team Leader:</label><br>
       <p-dropdown id="teamLeader" name="selectedTeamLeader" [options]="teamLeaders"
                   ngModel required placeholder="Choose" filter="true">
       </p-dropdown>

@@ -15,7 +15,16 @@ import { UserManagementComponent } from './user-management/user-management.compo
 import {MatchValueDirective} from './shared/must-match.directive';
 import { MenuComponent } from './menu/menu.component';
 import { GroupManagementComponent } from './group-management/group-management.component';
-import {DropdownModule, MultiSelectModule, PanelModule, PickListModule, SplitButtonModule, TableModule} from 'primeng';
+import {
+  DropdownModule,
+  MessageService,
+  MultiSelectModule,
+  PanelModule,
+  PickListModule,
+  SplitButtonModule,
+  TableModule,
+  ToastModule
+} from 'primeng';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { UserAdminComponent } from './user-management/user-admin/user-admin.component';
@@ -53,14 +62,16 @@ import { EventJournalComponent } from './event-journal/event-journal.component';
     FullCalendarModule,
     PanelModule,
     SplitButtonModule,
-    TableModule
+    TableModule,
+    ToastModule
   ],
   providers: [
     {
       provide: HTTP_INTERCEPTORS,
       useClass: InterceptorService,
       multi: true
-    }
+    },
+    MessageService
   ],
   bootstrap: [AppComponent]
 })

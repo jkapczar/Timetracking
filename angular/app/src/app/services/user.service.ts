@@ -3,6 +3,8 @@ import {HttpClient, HttpResponse} from '@angular/common/http';
 import {tap} from 'rxjs/operators';
 import {AuthService} from './auth.service';
 import {User} from '../model/user.model';
+import {MessageService} from 'primeng';
+import {Message} from '../model/message.model';
 
 
 @Injectable({
@@ -11,14 +13,11 @@ import {User} from '../model/user.model';
 export class UserService {
 
   constructor(private http: HttpClient,
-              private authService: AuthService) {}
+              private authService: AuthService,
+              private messagingService: MessageService) {}
 
   getAllUsers() {
-    return this.http.get<string[]>('http://localhost:8762/users/all', {observe: 'response'})
-      .pipe(tap(resData => {
-        console.log(resData);
-        }
-      ));
+    return this.http.get<string[]>('http://localhost:8762/users/all', {observe: 'response'});
   }
 
   getUser(username?: string) {
@@ -30,10 +29,16 @@ export class UserService {
   }
 
   updateUser(user: User) {
-    console.log(user);
-    this.http.post('http://localhost:8762/users/update', user, {observe: 'response'})
-      .subscribe((resData: HttpResponse<any>) => {
-        console.log(resData.status);
+    this.http.post('http://localhost:8762/users/update', user, {observe: 'response'}).subscribe(resData => {
+      this.messagingService.add(new Message(
+        'success',
+        'Update was successful!',
+        ''));
+      }, error => {
+      this.messagingService.add(new Message(
+        'error',
+        'Update failed!',
+        error.message));
     });
   }
 

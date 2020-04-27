@@ -6,6 +6,8 @@ import {GroupService} from '../../services/group.service';
 import {AuthService} from '../../services/auth.service';
 import {CalendarManagementService} from '../../services/calendar-management.service';
 import {Subscription} from 'rxjs';
+import {Message} from '../../model/message.model';
+import {MessageService} from 'primeng';
 
 @Component({
   selector: 'app-calendar-admin',
@@ -19,7 +21,8 @@ export class CalendarAdminComponent implements OnInit, OnDestroy {
   constructor(private calendarService: CalendarService,
               private groupService: GroupService,
               private authService: AuthService,
-              private calendarManagementService: CalendarManagementService) { }
+              private calendarManagementService: CalendarManagementService,
+              private messagingService: MessageService) { }
 
 
   users: any[] = [];
@@ -31,7 +34,6 @@ export class CalendarAdminComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.calendarOwnerSubscription = this.calendarManagementService.calendarOwner.subscribe(calendarOwner => {
-      console.log('itt');
       this.calendarOwner = calendarOwner;
       this.setUserData();
     });
@@ -40,7 +42,13 @@ export class CalendarAdminComponent implements OnInit, OnDestroy {
 
   userSelection() {
     if (this.selectedUser) {
-      this.getCalendarOwner(this.selectedUser).then(r => this.calendarManagementService.calendarOwner.next(r.body));
+      this.getCalendarOwner(this.selectedUser).then(r => this.calendarManagementService.calendarOwner.next(r.body))
+        .catch( error => {
+          this.messagingService.add(new Message(
+            'error',
+            'Unknown error happened!',
+            ''));
+        });
       this.calendarManagementService.selectedUser.next(this.selectedUser);
     }
   }
@@ -52,6 +60,15 @@ export class CalendarAdminComponent implements OnInit, OnDestroy {
     this.calendarService.updateCalendarOwner(this.calendarOwner).subscribe(resData => {
       this.setUserData();
       this.calendarManagementService.calendarOwner.next(this.calendarOwner);
+      this.messagingService.add(new Message(
+        'success',
+        'Update failed!',
+        ''));
+    }, error => {
+      this.messagingService.add(new Message(
+        'error',
+        'Update failed!',
+        ''));
     });
   }
 
@@ -68,18 +85,26 @@ export class CalendarAdminComponent implements OnInit, OnDestroy {
 
   private fetchUsers() {
     if (this.authService.user.getValue().roles.includes('ADMIN')) {
-      console.log('FETCHING FOR ADMIN');
       this.groupService.getGroupsAndUsers().subscribe(resData => {
         if (resData.body) {
           this.loadUsers(resData.body);
         }
+      }, error => {
+        this.messagingService.add(new Message(
+          'error',
+          'Service is down!',
+          ''));
       });
     } else if (this.authService.user.getValue().roles.includes('GROUPOWNER')) {
-      console.log('FETCHING FOR GROUPOWNER');
       this.groupService.getGroupMembersByTeamLeader().subscribe(resData => {
         if (resData.body) {
           this.loadUsers(resData.body);
         }
+      }, error => {
+        this.messagingService.add(new Message(
+          'error',
+          'Service is down!',
+          ''));
       });
     }
   }
