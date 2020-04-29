@@ -33,15 +33,16 @@ zuul:
       path: /notification/**
       serviceId: notification-service
       stripPrefix: false
-    #ui:
-    #  path: /**
-    #  url: http://localhost:4200
 
+eureka:
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://eureka:8761/eureka/
+  instance:
+    hostname: zuul
 
-
-ribbon:
-  ConnectTimeout: 10000
-  ReadTimeout: 10000
 
 
 logging:

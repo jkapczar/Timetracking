@@ -24,7 +24,7 @@ public interface GroupDao extends CrudRepository<Group, Long> {
     @Query("match(n:User {username: $username})<-[:TEAMLEADER|:DEPUTY]-(g:Group) return g.name")
     Set<String> getAvailableGroupsForUser(String username);
 
-    @Query("match(n:User {username: $username})<-[:MEMBER]-(g:Group) return g.name")
-    String getMemberStatusOfUser(String username);
+    @Query("MATCH (g:Group)-[:TEAMLEADER |:DEPUTY]-(u:User) where exists((g)-[]->(:User {username: $username}))  return distinct  g.name as groupName, collect(u.username) as users")
+    Set<GroupAndUser> getMemberStatusOfUser(String username);
 
 }

@@ -3,13 +3,12 @@ package core.messaging;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import core.dao.GroupDao;
 import core.dao.UserDao;
+import core.model.GroupAndUser;
 import core.model.User;
 import core.model.UserRole;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.Set;
 
 
@@ -22,6 +21,8 @@ public class Receiver {
 
     @Autowired
     private GroupDao groupDao;
+
+    private ObjectMapper mapper = new ObjectMapper();
 
     @RabbitListener(queues = "user.createUser.requests")
     public Boolean createUser(String username) {
@@ -73,9 +74,15 @@ public class Receiver {
 
     @RabbitListener(queues = "group.member.requests")
     public String getUserMemberStatus(String username) {
-        System.out.println(username);
-        String member = this.groupDao.getMemberStatusOfUser(username);
-        return member;
+        String result;
+        try {
+            Set<GroupAndUser> obj = this.groupDao.getMemberStatusOfUser(username);
+            result = mapper.writeValueAsString(obj);
+            System.out.println(result);
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
-
 }

@@ -10,10 +10,10 @@ export class JournalService {
   constructor(private http: HttpClient) {}
 
   getEvents(data: {status: string, users: string[]}) {
-    return this.http.post<Journal[]>('http://localhost:8762/calendar/getEventByStatus', data, {observe: 'response'});
+    return this.http.post<Journal[]>('http://zuul:8762/calendar/getEventByStatus', data, {observe: 'response'});
   }
 
   updateEvent(data: {status: string, id: number, updatedBy: string}) {
-    return this.http.post<Journal>('http://localhost:8762/calendar/updateEventStatus', data, {observe: 'response'});
+    return this.http.post<Journal>('http://zuul:8762/calendar/updateEventStatus', data, {observe: 'response'});
   }
 }

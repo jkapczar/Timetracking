@@ -18,7 +18,6 @@ public class Receiver {
 
     private ObjectMapper mapper = new ObjectMapper();
 
-
     @RabbitListener(queues = "registration")
     public void registration(String input) {
         try{

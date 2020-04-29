@@ -51,4 +51,5 @@ public class Sender {
     public void sendPasswordReset(String token) {
         this.template.convertAndSend(passwordReset.getName(), token);
     }
+
 }

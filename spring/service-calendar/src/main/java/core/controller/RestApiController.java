@@ -133,11 +133,16 @@ public class RestApiController {
             if (result != null && !result.isEmpty() && result.stream().anyMatch(e->(e.getStatus() != null && e.getStatus().equals(Status.PENDING)))) {
                 System.out.println("history");
                 Set<Event> tmp = result.stream().filter(e->e.getHistory() == null && e.getStatus() != null && e.getStatus().equals(Status.PENDING)).collect(Collectors.toSet());
-                String member = this.sender.getMemberStatus(username);
-                System.out.println(member);
+
+                String json = this.sender.getMemberStatus(username);
+                System.out.println(json);
+                JsonNode root = mapper.readTree(json);
+
+                String groupName = root.findValue("groupName").asText();
+
                 EventHistory h = new EventHistory();
                 h.setEventOwner(username);
-                h.setGroupName(member);
+                h.setGroupName(groupName);
                 h.setStatus(Status.PENDING);
                 h.addEvents(tmp);
                 this.eventHistoryDao.save(h);
@@ -259,7 +264,5 @@ public class RestApiController {
             return new ResponseEntity<>(h, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-
 
 }

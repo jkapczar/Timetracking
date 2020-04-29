@@ -24,12 +24,12 @@ export class UserService {
     if (!username) {
       username = `${this.authService.user.getValue().username}`;
     }
-    const url = `http://localhost:8762/users/${username}`;
+    const url = `http://zuul:8762/users/${username}`;
     return this.http.get<User>(url, {observe: 'response'});
   }
 
   updateUser(user: User) {
-    this.http.post('http://localhost:8762/users/update', user, {observe: 'response'}).subscribe(resData => {
+    this.http.post('http://zuul:8762/users/update', user, {observe: 'response'}).subscribe(resData => {
       this.messagingService.add(new Message(
         'success',
         'Update was successful!',

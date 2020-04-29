@@ -23,7 +23,7 @@ export class AuthService {
 
   // TODO replace user with user Object
   login(username: string, password: string) {
-    return this.http.post('http://localhost:8762/auth/login',
+    return this.http.post('http://zuul:8762/auth/login',
       {
         username,
         password
@@ -49,11 +49,12 @@ export class AuthService {
   }
 
   registration(user: User) {
-    this.http.post('http://localhost:8762/auth/registration', JSON.stringify(user), {observe: 'response'}).subscribe(resData => {
+    this.http.post('http://zuul:8762/auth/registration', JSON.stringify(user), {observe: 'response'}).subscribe(resData => {
       this.messagingService.add(new Message(
         'success',
         'Registration was successful!',
         ''));
+      this.router.navigate(['/login']);
     }, (error: HttpErrorResponse) => {
       this.messagingService.add(new Message(
         'error',
@@ -63,7 +64,7 @@ export class AuthService {
   }
 
   updateCredentials(creds: Creds) {
-    this.http.post('http://localhost:8762/auth/update', JSON.stringify(creds)).subscribe(resData => {
+    this.http.post('http://zuul:8762/auth/update', JSON.stringify(creds)).subscribe(resData => {
       this.messagingService.add(new Message(
         'success',
         'Update was successful!',
@@ -77,17 +78,17 @@ export class AuthService {
   }
 
   updateStatus(username: string) {
-    const url = `http://localhost:8762/auth/status/${username}`;
+    const url = `http://zuul:8762/auth/status/${username}`;
     return this.http.post<Creds>(url, '', {observe: 'response'});
   }
 
   updateAdmin(username: string) {
-    const url = `http://localhost:8762/auth/admin/${username}`;
+    const url = `http://zuul:8762/auth/admin/${username}`;
     return this.http.post<Creds>(url, '', {observe: 'response'});
   }
 
   resetPasswordRequest(pwreset: {username: string, email: string}) {
-    this.http.post('http://localhost:8762/auth/resetpasswordrequest', JSON.stringify(pwreset)).subscribe(resData => {
+    this.http.post('http://zuul:8762/auth/resetpasswordrequest', JSON.stringify(pwreset)).subscribe(resData => {
       this.messagingService.add(new Message(
         'success',
         'Email has been sent!',
@@ -101,7 +102,7 @@ export class AuthService {
   }
 
   resetPassword(password: string, token: string) {
-    const url = `http://localhost:8762/auth/resetpassword?token=${token}`;
+    const url = `http://zuul:8762/auth/resetpassword?token=${token}`;
     this.http.post(url, JSON.stringify({password})).subscribe(resData => {
       this.messagingService.add(new Message(
         'success',
@@ -119,7 +120,7 @@ export class AuthService {
     if (!username) {
       username = `${this.user.getValue().username}`;
     }
-    const url = `http://localhost:8762/auth/${username}`;
+    const url = `http://zuul:8762/auth/${username}`;
     return this.http.get<Creds>(url, {observe: 'response'});
   }
 

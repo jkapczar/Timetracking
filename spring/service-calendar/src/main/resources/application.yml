@@ -1,6 +1,5 @@
 spring:
   rabbitmq:
-    host: 192.168.99.100
     listener:
       simple:
         retry:
@@ -28,9 +27,9 @@ eureka:
     registerWithEureka: true
     fetchRegistry: true
     serviceUrl:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://eureka:8761/eureka/
   instance:
-    hostname: localhost
+    hostname: calendar-service
 
 logging:
   level:

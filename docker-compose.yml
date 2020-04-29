@@ -1,0 +1,185 @@
+version: '3.3'
+services:
+  eureka:
+    build: spring/server/
+    ports:
+      - '8761:8761'
+    networks:
+      - app
+
+  zuul:
+    build: spring/zuul/
+    ports:
+      - '8762:8762'
+    expose:
+      - '8762'
+    networks:
+      - app
+
+  auth-service:
+    build: spring/auth-service/
+    ports:
+      - '9100:9100'
+    depends_on:
+      - usercredsdb
+      - eureka
+      - rabbitmq
+    environment:
+      - "SPRING.RABBITMQ.HOST=rabbitmq"
+    networks:
+      - app
+
+  user-service:
+    build: spring/service-user/
+    ports:
+      - '9101:9101'
+    depends_on:
+      - userinformationdb
+      - eureka
+      - rabbitmq
+    environment:
+      - "SPRING.RABBITMQ.HOST=rabbitmq"
+    networks:
+      - app
+
+  group-service:
+    build: spring/services-group/
+    ports:
+      - '9102:9102'
+    depends_on:
+      - groupdb
+      - eureka
+      - rabbitmq
+    environment:
+      - "SPRING.RABBITMQ.HOST=rabbitmq"
+    networks:
+      - app
+
+  calendar-service:
+    build: spring/service-calendar/
+    ports:
+      - '9103:9103'
+    depends_on:
+      - calendardb
+      - eureka
+      - rabbitmq
+    environment:
+      - "SPRING.RABBITMQ.HOST=rabbitmq"
+    networks:
+      - app
+
+  notification-service:
+    build: spring/service-notification/
+    ports:
+      - '9104:9104'
+    depends_on:
+      - eureka
+      - rabbitmq
+    environment:
+      - "SPRING.RABBITMQ.HOST=rabbitmq"
+    networks:
+      - app
+
+  angularapp:
+    restart: always
+    build: angular/app/
+    ports: 
+      - '8080:80'
+    networks:
+      - app
+
+  usercredsdb:
+    image: mysql:latest
+    environment:
+      MYSQL_DATABASE: 'test'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'root'
+    ports:
+      - '3307:3306'
+    volumes:
+      - usercreds-db:/var/lib/mysql
+    networks:
+      - app
+
+  userinformationdb:
+    image: mysql:latest
+    environment:
+      MYSQL_DATABASE: 'test'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'root'
+    ports:
+      - '3308:3306'
+    expose:
+      - '3308'
+    volumes:
+      - userinformation-db:/var/lib/mysql
+    networks:
+      - app
+
+  groupdb:
+    image: neo4j:latest
+    ports:
+      - '7474:7474'
+      - '7687:7687'
+    expose:
+      - '7474'
+      - '7687'
+    volumes:
+      - group-db:/var/lib/neo4j/data
+    networks:
+      - app
+
+  calendardb:
+    image: mysql:latest
+    environment:
+      MYSQL_DATABASE: 'test'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'root'
+    ports:
+      - '3309:3306'
+    expose:
+      - '3309'
+    volumes:
+      - calendar-db:/var/lib/mysql
+    networks:
+      - app
+
+  rabbitmq:
+    hostname: rabbitmq
+    image: rabbitmq:3.8.3-management
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    expose:
+      - '15672'
+    volumes:
+      - rabbitmq:/var/lib/rabbitmq3345
+    networks:
+      - app
+
+
+
+
+    
+
+networks:
+  app:
+
+
+volumes:
+  usercreds-db:
+  userinformation-db:
+  group-db:
+  calendar-db:
+  rabbitmq:
+
+
+
+
+
+
+
+
