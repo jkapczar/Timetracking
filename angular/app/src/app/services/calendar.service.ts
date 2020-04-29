@@ -19,7 +19,7 @@ export class CalendarService {
     if (!username) {
       username = `${this.authService.user.getValue().username}`;
     }
-    const url = `http://zuul:8762/calendar/${username}/save`;
+    const url = `http://localhost:8762/calendar/${username}/save`;
     return this.http.post<CalendarEvent[]>(url,
       events, {observe: 'response'}).pipe(map(res => {
         return this.createResponseObjects(res.body);
@@ -30,7 +30,7 @@ export class CalendarService {
     if (!username) {
       username = `${this.authService.user.getValue().username}`;
     }
-    const url = `http://zuul:8762/calendar/${username}/${start}/${end}`;
+    const url = `http://localhost:8762/calendar/${username}/${start}/${end}`;
     return this.http.get<CalendarEvent[]>(url, {observe: 'response'})
       .pipe(map(res => {
         return this.createResponseObjects(res.body);
@@ -38,7 +38,7 @@ export class CalendarService {
   }
 
   deleteEvents(events: CalendarEvent[]) {
-    return this.http.post('http://zuul:8762/calendar/delete', events, {observe: 'response'});
+    return this.http.post('http://localhost:8762/calendar/delete', events, {observe: 'response'});
   }
 
 
@@ -46,12 +46,12 @@ export class CalendarService {
     if (!username) {
       username = `${this.authService.user.getValue().username}`;
     }
-    const url = `http://zuul:8762/calendar/${username}`;
+    const url = `http://localhost:8762/calendar/${username}`;
     return this.http.get<CalendarUser>(url, {observe: 'response'});
   }
 
   updateCalendarOwner(owner: CalendarUser) {
-    return this.http.post<CalendarUser>('http://zuul:8762/calendar/updateOwner', owner, {observe: 'response'});
+    return this.http.post<CalendarUser>('http://localhost:8762/calendar/updateOwner', owner, {observe: 'response'});
   }
 
   private createResponseObjects(data: CalendarEvent[]) {

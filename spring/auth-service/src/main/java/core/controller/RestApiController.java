@@ -100,15 +100,15 @@ public class RestApiController {
 
             if (result) {
                 this.tokenDao.delete(token);
-                headers.add("Location", "http://localhost:4200/login");
+                headers.add("Location", "http://localhost:8080");
             } else {
-                headers.add("Location", "http://localhost:4200/error");
+                headers.add("Location", "http://localhost:8080");
             }
             return new ResponseEntity<>(headers, HttpStatus.FOUND);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        headers.add("Location", "http://localhost:4200/error");
+        headers.add("Location", "http://localhost:8080");
         return new ResponseEntity<>(headers, HttpStatus.FOUND);
     }
 

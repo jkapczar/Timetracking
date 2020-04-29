@@ -8,8 +8,8 @@ spring:
 
 zuul:
   host:
-    socket-timeout-millis: 20000
-    connect-timeout-millis: 20000
+    socket-timeout-millis: 120000
+    connect-timeout-millis: 120000
   ignoredServices: '*'
   routes:
     authService:
@@ -17,9 +17,9 @@ zuul:
       serviceId: auth-service
       stripPrefix: false
       sensitiveHeaders: Cookie,Set-Cookie
-    loginService:
+    userService:
       path: /users/**
-      serviceId: login-service
+      serviceId: user-service
       stripPrefix: false
     groupService:
       path: /groups/**
@@ -43,6 +43,9 @@ eureka:
   instance:
     hostname: zuul
 
+
+ribbon:
+  ReadTimeout: 120000
 
 
 logging:

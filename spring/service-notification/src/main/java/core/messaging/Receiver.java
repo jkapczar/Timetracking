@@ -53,7 +53,7 @@ public class Receiver {
 
             String content = "Dear <b> " + username + "</b>!<br><br>"
                     + "You can reset your password by clicking the link below! <br><br>"
-                    + "<a href=\"http://localhost:4200/resetpassword?token=" + token + "seqQuestion="
+                    + "<a href=\"http://localhost:8080/resetpassword?token=" + token + "seqQuestion="
                     + encodedQuestion + "\"" + ">Link</a>";
 
             this.mailSending.SendMail(mailTo, content);
