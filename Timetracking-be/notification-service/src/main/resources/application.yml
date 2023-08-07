@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: notification-service
+  rabbitmq:
+    template:
+      reply-timeout: 15000
+      retry:
+        enabled: false
+
+server:
+  port: 9104
+
+eureka:
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://eureka:8761/eureka/
+  instance:
+    hostname: notification-service
+
+logging:
+  level:
+    com:
+      netflix:
+        eureka: INFO
+        discovery: INFO
